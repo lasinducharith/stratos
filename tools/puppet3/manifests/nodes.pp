@@ -89,8 +89,6 @@ node /mysql/ inherits base {
 # nodejs cartridge node
 node /nodejs/ inherits base {
   require java
-  class {'stdlib':}
-  class {'apt':}
   class {'agent':
     type => 'nodejs',
   }
