@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # ----------------------------------------------------------------------------
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,18 +17,15 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+#
 # ----------------------------------------------------------------------------
-#  Main Script for the Apache Stratos CLI Tool
-#
-#  Environment Variable Prerequisites
-#
-#   STRATOS_CLI_HOME   Home of Stratos CLI Tool
-#
-#   STRATOS_URL        The URL of the Stratos Controller
 
-if [ -z $STRATOS_CLI_HOME ] ; then
-STRATOS_CLI_HOME="$PWD"
+set -e
+set -u
+
+stratos_container_ids=$(sudo docker ps -a | awk '{print $2, $1}' | grep '^apachestratos' | awk '{print $2}')
+
+if [[ -n $stratos_container_ids ]]; then
+  sudo docker stop $stratos_container_ids
+  sudo docker rm $stratos_container_ids
 fi
-
-java -jar $STRATOS_CLI_HOME/org.apache.stratos.cli-4.0.0-SNAPSHOT.jar $*
-

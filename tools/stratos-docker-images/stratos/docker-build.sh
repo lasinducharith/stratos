@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # ----------------------------------------------------------------------------
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,18 +17,19 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+#
 # ----------------------------------------------------------------------------
-#  Main Script for the Apache Stratos CLI Tool
-#
-#  Environment Variable Prerequisites
-#
-#   STRATOS_CLI_HOME   Home of Stratos CLI Tool
-#
-#   STRATOS_URL        The URL of the Stratos Controller
 
-if [ -z $STRATOS_CLI_HOME ] ; then
-STRATOS_CLI_HOME="$PWD"
-fi
+set -e
 
-java -jar $STRATOS_CLI_HOME/org.apache.stratos.cli-4.0.0-SNAPSHOT.jar $*
+cp -f $STRATOS_SOURCE/products/stratos/modules/distribution/target/apache-stratos-*.zip files/apache-stratos.zip
 
+wget -N -q -P files/ http://archive.apache.org/dist/activemq/5.9.1/apache-activemq-5.9.1-bin.tar.gz
+
+wget -N -q -P files/ http://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.29/mysql-connector-java-5.1.29.jar
+
+cp -rf $STRATOS_SOURCE/tools/stratos-installer/ files/
+
+cp -rf $STRATOS_SOURCE/extensions/ files/
+
+sudo docker build -t=apachestratos/stratos .

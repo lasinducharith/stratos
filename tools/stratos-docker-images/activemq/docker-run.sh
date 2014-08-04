@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # ----------------------------------------------------------------------------
+#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -16,18 +17,10 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+#
 # ----------------------------------------------------------------------------
-#  Main Script for the Apache Stratos CLI Tool
 #
-#  Environment Variable Prerequisites
-#
-#   STRATOS_CLI_HOME   Home of Stratos CLI Tool
-#
-#   STRATOS_URL        The URL of the Stratos Controller
+#  Server configuration script for Apache Stratos
+# ----------------------------------------------------------------------------
 
-if [ -z $STRATOS_CLI_HOME ] ; then
-STRATOS_CLI_HOME="$PWD"
-fi
-
-java -jar $STRATOS_CLI_HOME/org.apache.stratos.cli-4.0.0-SNAPSHOT.jar $*
-
+sudo docker run -p=61616:61616 -p=8161:8161 -d apache-stratos/activemq
