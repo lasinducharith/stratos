@@ -16,6 +16,15 @@
 # under the License.
 
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
-NODEJS_HOME=<%= @stratos_app_path %>
-npm install express
-node web.js > /dev/null 2&1 &
+cd <%=@docroot%>
+SERVICE='nodejs'
+
+if ps ax | grep -v grep | grep $SERVICE > /dev/null
+then
+    echo "$SERVICE service running" | tee -a /var/log/apache-stratos/service_running.log
+else
+        npm install | tee -a /var/log/apache-stratos/npm_install.log
+        npm install forever -g | tee -a /var/log/apache-stratos/forever_install.log
+        forever start $(cat package.json | grep -Po '(?<="main": ")[^"]*') | tee -a /var/log/apache-stratos/forever_start.log
+fi
+
