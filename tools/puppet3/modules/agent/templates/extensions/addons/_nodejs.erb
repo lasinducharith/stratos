@@ -17,14 +17,11 @@
 
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
 cd <%=@docroot%>
-SERVICE='nodejs'
-
+SERVICE='node'
 if ps ax | grep -v grep | grep $SERVICE > /dev/null
 then
-    echo "$SERVICE service running" | tee -a /var/log/apache-stratos/service_running.log
+ echo "$SERVICE service already running."
 else
-        npm install | tee -a /var/log/apache-stratos/npm_install.log
-        npm install forever -g | tee -a /var/log/apache-stratos/forever_install.log
-        forever start $(cat package.json | grep -Po '(?<="main": ")[^"]*') | tee -a /var/log/apache-stratos/forever_start.log
+ npm install | tee -a npm_install.log
+ nohup npm start > npm_start.log 2>&1 &
 fi
-
