@@ -75,16 +75,13 @@ public class LoadBalancerConfigurationTest {
             Assert.assertEquals(String.format("%s, topology service filter is not valid", validationError), "service-name=service-name1,service-name2", configuration.getTopologyServiceFilter());
             Assert.assertEquals(String.format("%s, topology cluster filter is not valid", validationError), "cluster-id=cluster-id1,cluster-id2", configuration.getTopologyClusterFilter());
             Assert.assertEquals(String.format("%s, topology member filter is not valid", validationError), "lb-cluster-id=lb-cluster-id1", configuration.getTopologyMemberFilter());
-            Assert.assertEquals(String.format("%s, mb ip is not valid", validationError), "localhost", configuration.getMbIp());
-            Assert.assertEquals(String.format("%s, mb port is not valid", validationError), 5677, configuration.getMbPort());
             Assert.assertTrue(String.format("%s, cep stats publisher is not true", validationError), configuration.isCepStatsPublisherEnabled());
             Assert.assertEquals(String.format("%s, cep ip is not valid", validationError), "localhost", configuration.getCepIp());
             Assert.assertEquals(String.format("%s, cep port is not valid", validationError), 7615, configuration.getCepPort());
             Assert.assertEquals(String.format("%s, network partition id is not valid", validationError), "network-partition-1", configuration.getNetworkPartitionId());
             Assert.assertTrue(String.format("%s, multi-tenancy is not true", validationError), configuration.isMultiTenancyEnabled());
             Assert.assertEquals(String.format("%s, tenant-identifier is not valid", validationError), TenantIdentifier.TenantDomain, configuration.getTenantIdentifier());
-            Assert.assertEquals(String.format("%s, tenant-identifier-regex is not valid", validationError), "t/([^/]*)/", configuration.getTenantIdentifierRegex());
-            Assert.assertTrue(String.format("%s, rewrite-location-header is not true", validationError), configuration.isReWriteLocationHeader());
+            Assert.assertEquals(String.format("%s, tenant-identifier-regex is not valid", validationError), "t/([^/]*)/", configuration.getTenantIdentifierRegexList().get(0));
         } finally {
             LoadBalancerConfiguration.clear();
         }
