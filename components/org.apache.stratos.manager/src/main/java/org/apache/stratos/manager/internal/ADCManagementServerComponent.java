@@ -26,6 +26,7 @@ import org.apache.stratos.manager.publisher.TenantSynchronizerTaskScheduler;
 import org.apache.stratos.manager.retriever.DataInsertionAndRetrievalManager;
 import org.apache.stratos.manager.topology.receiver.StratosManagerTopologyEventReceiver;
 import org.apache.stratos.manager.utils.CartridgeConfigFileReader;
+import org.apache.stratos.manager.utils.UserRoleCreator;
 import org.apache.stratos.messaging.broker.publish.EventPublisherPool;
 import org.apache.stratos.messaging.broker.subscribe.TopicSubscriber;
 import org.apache.stratos.messaging.util.Constants;
@@ -108,7 +109,7 @@ public class ADCManagementServerComponent {
 
             // retrieve persisted CartridgeSubscriptions
             new DataInsertionAndRetrievalManager().cachePersistedSubscriptions();
-
+            UserRoleCreator.CreateTenantUserRole();
             //Component activated successfully
             log.info("ADC management server component is activated");
 			

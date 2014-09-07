@@ -102,4 +102,9 @@ public class CartridgeConstants {
 		public static final String ACTUAL_HOST = "actual.host";
 		public static final String HOSTINFO = "hostinfo/";
 	}
+
+    public static final class Permissions {
+        public static final String VIEW = "/permission/admin/manage/view";
+        public static final String ADD_SUBSCRIPTION = "/permission/admin/manage/add/subscription";
+    }
 }
