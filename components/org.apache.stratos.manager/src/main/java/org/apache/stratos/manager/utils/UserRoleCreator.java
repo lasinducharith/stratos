@@ -33,7 +33,7 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 public class UserRoleCreator {
 
     private transient static final Log log = LogFactory.getLog(UserRoleCreator.class);
-    private static String role = "Tenant-User";
+    private static String role = "Internal/user";
 
     /**
      * Creating a Tenant User Carbon Role at Server Start-up
@@ -48,14 +48,13 @@ public class UserRoleCreator {
 
             if (!manager.isExistingRole(role)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Creating subscriber role: " + role);
+                    log.debug("Creating new role: " + role);
                 }
                 Permission[] TenantUserPermissions = new Permission[]{new Permission(CartridgeConstants.Permissions.VIEW, UserMgtConstants.EXECUTE_ACTION),
                                                                       new Permission(CartridgeConstants.Permissions.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION)
                 };
 
-                String superTenantName = DataHolder.getRealmService().getBootstrapRealmConfiguration().getAdminUserName();
-                String[] userList = new String[]{superTenantName};
+                String[] userList = new String[]{};
                 manager.addRole(role, userList, TenantUserPermissions);
             }
 

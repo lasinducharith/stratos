@@ -31,6 +31,8 @@ import org.apache.stratos.manager.exception.DomainMappingExistsException;
 import org.apache.stratos.manager.exception.ServiceDoesNotExistException;
 import org.apache.stratos.manager.subscription.CartridgeSubscription;
 import org.apache.stratos.manager.subscription.SubscriptionDomain;
+import org.apache.stratos.manager.user.mgt.StratosUserManager;
+import org.apache.stratos.manager.user.mgt.beans.UserInfoBean;
 import org.apache.stratos.rest.endpoint.ServiceHolder;
 import org.apache.stratos.rest.endpoint.Utils;
 import org.apache.stratos.rest.endpoint.annotation.AuthorizationAction;
@@ -57,7 +59,8 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -482,6 +485,38 @@ public class StratosAdmin extends AbstractAdmin {
     }
 
     @POST
+    @Path("/user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @AuthorizationAction("/permission/admin/manage/add/users")
+    public Response addUser(UserInfoBean userInfoBean) throws RestAPIException {
+        ServiceUtils.addUser(userInfoBean);
+        URI url =  uriInfo.getAbsolutePathBuilder().path(userInfoBean.getUserName()).build();
+        return Response.created(url).build();
+    }
+
+    @DELETE
+    @Path("/user/{userName}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @AuthorizationAction("/permission/admin/manage/add/users")
+    public Response deleteUser(@PathParam("userName") String userName) throws RestAPIException {
+        ServiceUtils.deleteUser(userName);
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @AuthorizationAction("/permission/admin/manage/add/users")
+    public Response updateUser(UserInfoBean userInfoBean) throws RestAPIException {
+        ServiceUtils.updateUser(userInfoBean);
+        URI url =  uriInfo.getAbsolutePathBuilder().path(userInfoBean.getUserName()).build();
+        return Response.created(url).build();
+    }
+
+    @POST
     @Path("/tenant")
     @Consumes("application/json")
     @Produces("application/json")
@@ -853,11 +888,7 @@ public class StratosAdmin extends AbstractAdmin {
                     + ".";
             log.error(msg, e);
             throw new RestAPIException(msg, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-
-            throw new RestAPIException( e);
         }
-
         try {
             TenantMgtUtil.activateTenant(tenantDomain, tenantManager, tenantId);
 
@@ -913,10 +944,7 @@ public class StratosAdmin extends AbstractAdmin {
             log.error(msg, e);
             throw new RestAPIException(msg, e);
 
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new RestAPIException( e);
         }
-
         try {
             TenantMgtUtil.deactivateTenant(tenantDomain, tenantManager, tenantId);
         } catch (Exception e) {

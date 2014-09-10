@@ -30,5 +30,9 @@
             <DisplayName>Subscription</DisplayName>
             <ResourceId>/permission/admin/manage/view/subscription</ResourceId>
         </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Users</DisplayName>
+            <ResourceId>/permission/admin/manage/add/users</ResourceId>
+        </ManagementPermission>
     </ManagementPermissions>
 </component>

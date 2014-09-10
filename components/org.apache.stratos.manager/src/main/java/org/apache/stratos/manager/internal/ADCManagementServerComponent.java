@@ -21,6 +21,7 @@ package org.apache.stratos.manager.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.manager.listener.InstanceStatusListener;
+import org.apache.stratos.manager.listener.TenantUserRoleCreator;
 import org.apache.stratos.manager.publisher.TenantEventPublisher;
 import org.apache.stratos.manager.publisher.TenantSynchronizerTaskScheduler;
 import org.apache.stratos.manager.retriever.DataInsertionAndRetrievalManager;
@@ -91,6 +92,14 @@ public class ADCManagementServerComponent {
             Thread tsubscriber = new Thread(subscriber);
 			tsubscriber.start();
 
+            //Create a Tenant-User Role at server start-up
+            UserRoleCreator.CreateTenantUserRole();
+
+            TenantUserRoleCreator tenantUserRoleCreator = new TenantUserRoleCreator();
+            componentContext.getBundleContext().registerService(
+                    org.apache.stratos.common.listeners.TenantMgtListener.class.getName(),
+                    tenantUserRoleCreator, null);
+
             //initializing the topology event subscriber
             /*TopicSubscriber topologyTopicSubscriber = new TopicSubscriber(Constants.TOPOLOGY_TOPIC);
             topologyTopicSubscriber.setMessageListener(new TopologyEventListner());
@@ -109,7 +118,7 @@ public class ADCManagementServerComponent {
 
             // retrieve persisted CartridgeSubscriptions
             new DataInsertionAndRetrievalManager().cachePersistedSubscriptions();
-            UserRoleCreator.CreateTenantUserRole();
+
             //Component activated successfully
             log.info("ADC management server component is activated");
 			
