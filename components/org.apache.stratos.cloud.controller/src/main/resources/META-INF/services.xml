@@ -34,10 +34,10 @@
             <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/cartridgeDefinition</parameter>
         </operation>
         <operation name="getRegisteredCartridges">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/view/cartridges</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/view/cartridge</parameter>
         </operation>
         <operation name="getCartridgeInfo">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/view/cartridges</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/view/cartridge</parameter>
         </operation>
         <operation name="registerService">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/service</parameter>

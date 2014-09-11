@@ -34,5 +34,13 @@
             <DisplayName>Users</DisplayName>
             <ResourceId>/permission/admin/manage/add/users</ResourceId>
         </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Git Sync</DisplayName>
+            <ResourceId>/permission/admin/manage/add/sync</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>REST Login</DisplayName>
+            <ResourceId>/permission/admin/restlogin</ResourceId>
+        </ManagementPermission>
     </ManagementPermissions>
 </component>
