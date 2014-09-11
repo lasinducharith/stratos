@@ -46,8 +46,6 @@ import org.apache.stratos.manager.subscription.DataCartridgeSubscription;
 import org.apache.stratos.manager.subscription.SubscriptionData;
 import org.apache.stratos.manager.subscription.SubscriptionDomain;
 import org.apache.stratos.manager.topology.model.TopologyClusterInformationModel;
-import org.apache.stratos.manager.user.mgt.beans.UserInfoBean;
-import org.apache.stratos.manager.user.mgt.exception.UserManagementException;
 import org.apache.stratos.manager.utils.ApplicationManagementUtil;
 import org.apache.stratos.manager.utils.CartridgeConstants;
 import org.apache.stratos.messaging.domain.topology.Cluster;
@@ -55,7 +53,6 @@ import org.apache.stratos.messaging.domain.topology.Member;
 import org.apache.stratos.messaging.domain.topology.MemberStatus;
 import org.apache.stratos.messaging.message.receiver.topology.TopologyManager;
 import org.apache.stratos.messaging.util.Constants;
-import org.apache.stratos.rest.endpoint.ServiceHolder;
 import org.apache.stratos.rest.endpoint.bean.CartridgeInfoBean;
 import org.apache.stratos.rest.endpoint.bean.StratosAdminResponse;
 import org.apache.stratos.rest.endpoint.bean.SubscriptionDomainRequest;
@@ -70,12 +67,6 @@ import org.apache.stratos.rest.endpoint.bean.subscription.domain.SubscriptionDom
 import org.apache.stratos.rest.endpoint.bean.util.converter.PojoConverter;
 import org.apache.stratos.rest.endpoint.exception.RestAPIException;
 import org.apache.stratos.cloud.controller.stub.pojo.*;
-import org.apache.stratos.manager.user.mgt.*;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.user.api.UserRealm;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -95,9 +86,8 @@ public class ServiceUtils {
     private static CartridgeSubscriptionManager cartridgeSubsciptionManager = new CartridgeSubscriptionManager();
     private static ServiceDeploymentManager serviceDeploymentManager = new ServiceDeploymentManager();
 
-    static void deployCartridge(CartridgeDefinitionBean cartridgeDefinitionBean,
-                                ConfigurationContext ctxt,
-                                String userName, String tenantDomain) throws RestAPIException {
+    static void deployCartridge(CartridgeDefinitionBean cartridgeDefinitionBean, ConfigurationContext ctxt,
+                                                String userName, String tenantDomain) throws RestAPIException {
 
         log.info("Starting to deploy a Cartridge [type] " + cartridgeDefinitionBean.type);
 
@@ -197,8 +187,7 @@ public class ServiceUtils {
         }
     }
 
-    public static void deployAutoscalingPolicy(AutoscalePolicy autoscalePolicyBean)
-            throws RestAPIException {
+    public static void deployAutoscalingPolicy(AutoscalePolicy autoscalePolicyBean) throws RestAPIException {
 
         //log.info("***** " + cartridgeDefinitionBean.toString() + " *****");
 
@@ -251,15 +240,14 @@ public class ServiceUtils {
         }
     }
 
-    private static CloudControllerServiceClient getCloudControllerServiceClient()
-            throws RestAPIException {
+    private static CloudControllerServiceClient getCloudControllerServiceClient() throws RestAPIException {
 
         try {
             return CloudControllerServiceClient.getServiceClient();
 
         } catch (AxisFault axisFault) {
             String errorMsg = "Error while getting CloudControllerServiceClient instance to connect to the "
-                              + "Cloud Controller. Cause: " + axisFault.getMessage();
+                    + "Cloud Controller. Cause: " + axisFault.getMessage();
             log.error(errorMsg, axisFault);
             throw new RestAPIException(errorMsg, axisFault);
         }
@@ -295,7 +283,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available partitions for deployment policy id " +
-                                  deploymentPolicyId + ". Cause: " + e.getMessage();
+                        deploymentPolicyId + ". Cause: " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
             }
@@ -316,7 +304,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available partitions for deployment policy id " + deploymentPolicyId +
-                                  ", group id " + groupId + ". Cause: " + e.getMessage();
+                        ", group id " + groupId + ". Cause: " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
             }
@@ -350,7 +338,7 @@ public class ServiceUtils {
 
         } catch (AxisFault axisFault) {
             String errorMsg = "Error while getting AutoscalerServiceClient instance to connect to the "
-                              + "Autoscaler. Cause: " + axisFault.getMessage();
+                    + "Autoscaler. Cause: " + axisFault.getMessage();
             log.error(errorMsg, axisFault);
             throw new RestAPIException(errorMsg, axisFault);
         }
@@ -373,8 +361,7 @@ public class ServiceUtils {
         return PojoConverter.populateAutoscalePojos(autoscalePolicies);
     }
 
-    public static AutoscalePolicy getAutoScalePolicy(String autoscalePolicyId)
-            throws RestAPIException {
+    public static AutoscalePolicy getAutoScalePolicy(String autoscalePolicyId) throws RestAPIException {
 
         org.apache.stratos.autoscaler.policy.model.AutoscalePolicy autoscalePolicy = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
@@ -384,7 +371,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting information for autoscaling policy with id " +
-                                  autoscalePolicyId + ".  Cause: " + e.getMessage();
+                        autoscalePolicyId + ".  Cause: " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
             }
@@ -423,7 +410,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available deployment policies for cartridge type " +
-                                  cartridgeType + ". Cause: " + e.getMessage();
+                        cartridgeType + ". Cause: " + e.getMessage();
                 ;
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
@@ -450,7 +437,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting deployment policy with id " +
-                                  deploymentPolicyId + ". Cause: " + e.getMessage();
+                        deploymentPolicyId + ". Cause: " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
             }
@@ -476,7 +463,7 @@ public class ServiceUtils {
 
             } catch (RemoteException e) {
                 String errorMsg = "Error getting available partition groups for deployment policy id "
-                                  + deploymentPolicyId + ". Cause: " + e.getMessage();
+                        + deploymentPolicyId + ". Cause: " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new RestAPIException(errorMsg, e);
             }
@@ -485,9 +472,7 @@ public class ServiceUtils {
         return PojoConverter.populatePartitionGroupPojos(partitionGroups);
     }
 
-    static Cartridge getAvailableCartridgeInfo(String cartridgeType, Boolean multiTenant,
-                                               ConfigurationContext configurationContext)
-            throws RestAPIException {
+    static Cartridge getAvailableCartridgeInfo(String cartridgeType, Boolean multiTenant, ConfigurationContext configurationContext) throws RestAPIException {
         List<Cartridge> cartridges = getAvailableCartridges(null, multiTenant, configurationContext);
         for (Cartridge cartridge : cartridges) {
             if (cartridge.getCartridgeType().equals(cartridgeType)) {
@@ -500,10 +485,9 @@ public class ServiceUtils {
     }
 
     static List<Cartridge> getAvailableLbCartridges(Boolean multiTenant,
-                                                    ConfigurationContext configurationContext)
-            throws RestAPIException {
+                                                    ConfigurationContext configurationContext) throws RestAPIException {
         List<Cartridge> cartridges = getAvailableCartridges(null, multiTenant,
-                                                            configurationContext);
+                configurationContext);
         List<Cartridge> lbCartridges = new ArrayList<Cartridge>();
         for (Cartridge cartridge : cartridges) {
             if (cartridge.isLoadBalancer()) {
@@ -512,16 +496,14 @@ public class ServiceUtils {
         }
 
 		/*if(lbCartridges == null || lbCartridges.isEmpty()) {
-            String msg = "Load balancer Cartridges are not available.";
+			String msg = "Load balancer Cartridges are not available.";
 	        log.error(msg);
 	        throw new RestAPIException(msg) ;
 		}*/
         return lbCartridges;
     }
 
-    static List<Cartridge> getAvailableCartridges(String cartridgeSearchString, Boolean multiTenant,
-                                                  ConfigurationContext configurationContext)
-            throws RestAPIException {
+    static List<Cartridge> getAvailableCartridges(String cartridgeSearchString, Boolean multiTenant, ConfigurationContext configurationContext) throws RestAPIException {
         List<Cartridge> cartridges = new ArrayList<Cartridge>();
 
         if (log.isDebugEnabled()) {
@@ -544,7 +526,7 @@ public class ServiceUtils {
                     } catch (Exception e) {
                         if (log.isWarnEnabled()) {
                             log.warn("Error when calling getCartridgeInfo for " + cartridgeType + ", Error: "
-                                     + e.getMessage());
+                                    + e.getMessage());
                         }
                     }
                     if (cartridgeInfo == null) {
@@ -597,10 +579,10 @@ public class ServiceUtils {
                         // If the cartridge is multi-tenant. We should not let users
                         // createSubscription twice.
                         if (isAlreadySubscribed(cartridgeType,
-                                                ApplicationManagementUtil.getTenantId(configurationContext))) {
+                                ApplicationManagementUtil.getTenantId(configurationContext))) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Already subscribed to " + cartridgeType
-                                          + ". This multi-tenant cartridge will not be available to createSubscription");
+                                        + ". This multi-tenant cartridge will not be available to createSubscription");
                             }
                             //cartridge.setStatus(CartridgeConstants.SUBSCRIBED);
                         }
@@ -637,8 +619,7 @@ public class ServiceUtils {
         }
     }
 
-    public static List<ServiceDefinitionBean> getdeployedServiceInformation()
-            throws RestAPIException {
+    public static List<ServiceDefinitionBean> getdeployedServiceInformation() throws RestAPIException {
 
         Collection<Service> services = null;
 
@@ -658,8 +639,7 @@ public class ServiceUtils {
         return null;
     }
 
-    public static ServiceDefinitionBean getDeployedServiceInformation(String type)
-            throws RestAPIException {
+    public static ServiceDefinitionBean getDeployedServiceInformation(String type) throws RestAPIException {
 
         Service service = null;
 
@@ -674,13 +654,12 @@ public class ServiceUtils {
 
         if (service == null) {
             return null;
-        } else {
+        }else{
             return PojoConverter.convertToServiceDefinitionBean(service);
         }
     }
 
-    public static List<Cartridge> getActiveDeployedServiceInformation(
-            ConfigurationContext configurationContext) throws RestAPIException {
+    public static List<Cartridge> getActiveDeployedServiceInformation(ConfigurationContext configurationContext) throws RestAPIException {
 
         Collection<Service> services = null;
 
@@ -719,7 +698,7 @@ public class ServiceUtils {
         }
         
 		/*if (availableMultitenantCartridges.isEmpty()) {
-            String msg = "Cannot find any active deployed service for tenant [id] "+tenantId;
+			String msg = "Cannot find any active deployed service for tenant [id] "+tenantId;
 			log.error(msg);
 			throw new RestAPIException(msg);
 		}*/
@@ -728,9 +707,7 @@ public class ServiceUtils {
     }
 
 
-    static List<Cartridge> getSubscriptions(String cartridgeSearchString, String serviceGroup,
-                                            ConfigurationContext configurationContext)
-            throws RestAPIException {
+	static List<Cartridge> getSubscriptions (String cartridgeSearchString, String serviceGroup, ConfigurationContext configurationContext) throws RestAPIException {
         List<Cartridge> cartridges = new ArrayList<Cartridge>();
 
         if (log.isDebugEnabled()) {
@@ -771,9 +748,8 @@ public class ServiceUtils {
                     cartridge.setStatus(cartridgeStatus);
 
                     // Ignoring the LB cartridges since they are not shown to the user.
-                    if (cartridge.isLoadBalancer()) {
+                    if (cartridge.isLoadBalancer())
                         continue;
-                    }
                     if (StringUtils.isNotEmpty(serviceGroup)) {
                         if (cartridge.getServiceGroup() != null && serviceGroup.equals(cartridge.getServiceGroup())) {
                             cartridges.add(cartridge);
@@ -800,7 +776,7 @@ public class ServiceUtils {
         }
         
         /*if(cartridges.isEmpty()) {
-            String msg = "Cannot find any subscribed Cartridge, matching the given string: "+cartridgeSearchString;
+        	String msg = "Cannot find any subscribed Cartridge, matching the given string: "+cartridgeSearchString;
             log.error(msg);
             throw new RestAPIException(msg);
         }*/
@@ -809,9 +785,7 @@ public class ServiceUtils {
     }
 
 
-    static Cartridge getSubscription(String cartridgeAlias,
-                                     ConfigurationContext configurationContext)
-            throws RestAPIException {
+    static Cartridge getSubscription(String cartridgeAlias, ConfigurationContext configurationContext) throws RestAPIException {
 
         Cartridge cartridge = getCartridgeFromSubscription(cartridgeSubsciptionManager.getCartridgeSubscription(ApplicationManagementUtil.
                 getTenantId(configurationContext), cartridgeAlias));
@@ -845,9 +819,7 @@ public class ServiceUtils {
 
     }
 
-    static int getActiveInstances(String cartridgeType, String cartridgeAlias,
-                                  ConfigurationContext configurationContext)
-            throws RestAPIException {
+    static int getActiveInstances(String cartridgeType, String cartridgeAlias, ConfigurationContext configurationContext) throws RestAPIException {
         int noOfActiveInstances = 0;
         Cluster cluster = TopologyClusterInformationModel.getInstance().getCluster(ApplicationManagementUtil.getTenantId(configurationContext)
                 , cartridgeType, cartridgeAlias);
@@ -866,8 +838,7 @@ public class ServiceUtils {
         return noOfActiveInstances;
     }
 
-    private static Cartridge getCartridgeFromSubscription(CartridgeSubscription subscription)
-            throws RestAPIException {
+    private static Cartridge getCartridgeFromSubscription(CartridgeSubscription subscription) throws RestAPIException {
 
         if (subscription == null) {
             return null;
@@ -875,16 +846,16 @@ public class ServiceUtils {
         try {
             Cartridge cartridge = new Cartridge();
             cartridge.setCartridgeType(subscription.getCartridgeInfo()
-                                               .getType());
+                    .getType());
             cartridge.setMultiTenant(subscription.getCartridgeInfo()
-                                             .getMultiTenant());
+                    .getMultiTenant());
             cartridge
                     .setProvider(subscription.getCartridgeInfo().getProvider());
             cartridge.setVersion(subscription.getCartridgeInfo().getVersion());
             cartridge.setDescription(subscription.getCartridgeInfo()
-                                             .getDescription());
+                    .getDescription());
             cartridge.setDisplayName(subscription.getCartridgeInfo()
-                                             .getDisplayName());
+                    .getDisplayName());
             cartridge.setCartridgeAlias(subscription.getAlias());
             cartridge.setHostName(subscription.getHostName());
             cartridge.setMappedDomain(subscription.getMappedDomain());
@@ -896,19 +867,19 @@ public class ServiceUtils {
                 DataCartridgeSubscription dataCartridgeSubscription = (DataCartridgeSubscription) subscription;
                 cartridge.setDbHost(dataCartridgeSubscription.getDBHost());
                 cartridge.setDbUserName(dataCartridgeSubscription
-                                                .getDBUsername());
+                        .getDBUsername());
                 cartridge
                         .setPassword(dataCartridgeSubscription.getDBPassword());
             }
 
             if (subscription.getLbClusterId() != null
-                && !subscription.getLbClusterId().isEmpty()) {
+                    && !subscription.getLbClusterId().isEmpty()) {
                 cartridge.setLbClusterId(subscription.getLbClusterId());
             }
 
             cartridge.setStatus(subscription.getSubscriptionStatus());
             cartridge.setPortMappings(subscription.getCartridgeInfo()
-                                              .getPortMappings());
+                    .getPortMappings());
 
             if (subscription.getCartridgeInfo().getProperties() != null) {
                 for (Property property : subscription.getCartridgeInfo().getProperties()) {
@@ -917,19 +888,18 @@ public class ServiceUtils {
                     }
                 }
             }
-            if (subscription.getCartridgeInfo().getServiceGroup() != null) {
-                cartridge.setServiceGroup(subscription.getCartridgeInfo().getServiceGroup());
+            if(subscription.getCartridgeInfo().getServiceGroup() != null) {
+            	cartridge.setServiceGroup(subscription.getCartridgeInfo().getServiceGroup());
             }
-            return cartridge;
-
-        } catch (Exception e) {
-            String msg = "Unable to extract the Cartridge from subscription. Cause: " + e.getMessage();
-            log.error(msg);
-            throw new RestAPIException(msg);
-        }
-
-    }
-
+			return cartridge;
+			
+		} catch (Exception e) {
+			String msg = "Unable to extract the Cartridge from subscription. Cause: "+e.getMessage();
+			log.error(msg);
+			throw new RestAPIException(msg);
+		}
+		
+	}
     static Pattern getSearchStringPattern(String searchString) {
         if (log.isDebugEnabled()) {
             log.debug("Creating search pattern for " + searchString);
@@ -962,8 +932,7 @@ public class ServiceUtils {
         return true;
     }
 
-    static boolean cartridgeMatches(CartridgeInfo cartridgeInfo,
-                                    CartridgeSubscription cartridgeSubscription, Pattern pattern) {
+    static boolean cartridgeMatches(CartridgeInfo cartridgeInfo, CartridgeSubscription cartridgeSubscription, Pattern pattern) {
         if (pattern != null) {
             boolean matches = false;
             if (cartridgeInfo.getDisplayName() != null) {
@@ -983,15 +952,12 @@ public class ServiceUtils {
         return true;
     }
 
-    public static CartridgeSubscription getCartridgeSubscription(String alias,
-                                                                 ConfigurationContext configurationContext) {
+    public static CartridgeSubscription getCartridgeSubscription(String alias, ConfigurationContext configurationContext) {
         return cartridgeSubsciptionManager.getCartridgeSubscription(ApplicationManagementUtil.getTenantId(configurationContext), alias);
     }
-
-    static SubscriptionInfo subscribe(CartridgeInfoBean cartridgeInfoBean,
-                                      ConfigurationContext configurationContext,
-                                      String tenantUsername, String tenantDomain)
-            throws RestAPIException {
+  
+    static SubscriptionInfo subscribe(CartridgeInfoBean cartridgeInfoBean, ConfigurationContext configurationContext, String tenantUsername, String tenantDomain) 
+    		throws RestAPIException{
 
         SubscriptionData subscriptionData = new SubscriptionData();
         subscriptionData.setCartridgeType(cartridgeInfoBean.getCartridgeType());
@@ -1009,10 +975,10 @@ public class ServiceUtils {
         subscriptionData.setServiceGroup(cartridgeInfoBean.getServiceGroup());
 
         PersistenceBean persistenceBean = cartridgeInfoBean.getPersistence();
-        if (persistenceBean != null) {
+        if(persistenceBean != null) {
             subscriptionData.setPersistence(PojoConverter.getPersistence(persistenceBean));
         }
-        if (cartridgeInfoBean.getProperty() != null) {
+        if(cartridgeInfoBean.getProperty() != null){
             subscriptionData.setProperties(PojoConverter.getProperties(cartridgeInfoBean.getProperty()));
         }
 
@@ -1032,18 +998,16 @@ public class ServiceUtils {
         */
         //subscribe
         SubscriptionInfo subscriptionInfo = null;
-        try {
-            subscriptionInfo = cartridgeSubsciptionManager.subscribeToCartridgeWithProperties(subscriptionData);
-        } catch (Exception e) {
-            throw new RestAPIException(e.getMessage(), e);
+        try{
+        	subscriptionInfo = cartridgeSubsciptionManager.subscribeToCartridgeWithProperties(subscriptionData);
+        }catch(Exception e){
+        	throw new RestAPIException(e.getMessage(), e);
         }
-
+        
         return subscriptionInfo;
     }
 
-    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster getCluster(
-            String cartridgeType, String subscriptionAlias,
-            ConfigurationContext configurationContext) throws RestAPIException {
+    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster getCluster(String cartridgeType, String subscriptionAlias, ConfigurationContext configurationContext) throws RestAPIException {
 
         Cluster cluster = TopologyClusterInformationModel.getInstance().getCluster(ApplicationManagementUtil.getTenantId(configurationContext)
                 , cartridgeType, subscriptionAlias);
@@ -1054,8 +1018,7 @@ public class ServiceUtils {
         }
     }
 
-    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForTenant(
-            ConfigurationContext configurationContext) {
+    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForTenant(ConfigurationContext configurationContext) {
 
         Set<Cluster> clusterSet = TopologyClusterInformationModel.getInstance().getClusters(ApplicationManagementUtil.
                 getTenantId(configurationContext), null);
@@ -1071,9 +1034,8 @@ public class ServiceUtils {
 
     }
 
-    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForTenantAndCartridgeType(
-            ConfigurationContext configurationContext,
-            String cartridgeType) {
+    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForTenantAndCartridgeType(ConfigurationContext configurationContext,
+                                                                                                                String cartridgeType) {
 
         Set<Cluster> clusterSet = TopologyClusterInformationModel.getInstance().getClusters(ApplicationManagementUtil.
                 getTenantId(configurationContext), cartridgeType);
@@ -1088,23 +1050,22 @@ public class ServiceUtils {
         return arrCluster;
 
     }
+    
+	public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForCartridgeType(String cartridgeType) {
 
-    public static org.apache.stratos.rest.endpoint.bean.topology.Cluster[] getClustersForCartridgeType(
-            String cartridgeType) {
+		Set<Cluster> clusterSet = TopologyClusterInformationModel
+				.getInstance()
+				.getClusters(cartridgeType);
+		List<org.apache.stratos.rest.endpoint.bean.topology.Cluster> clusters = new ArrayList<org.apache.stratos.rest.endpoint.bean.topology.Cluster>();
+		for (Cluster cluster : clusterSet) {
+			clusters.add(PojoConverter.populateClusterPojos(cluster));
+		}
+		org.apache.stratos.rest.endpoint.bean.topology.Cluster[] arrCluster = new org.apache.stratos.rest.endpoint.bean.topology.Cluster[clusters
+				.size()];
+		arrCluster = clusters.toArray(arrCluster);
+		return arrCluster;
 
-        Set<Cluster> clusterSet = TopologyClusterInformationModel
-                .getInstance()
-                .getClusters(cartridgeType);
-        List<org.apache.stratos.rest.endpoint.bean.topology.Cluster> clusters = new ArrayList<org.apache.stratos.rest.endpoint.bean.topology.Cluster>();
-        for (Cluster cluster : clusterSet) {
-            clusters.add(PojoConverter.populateClusterPojos(cluster));
-        }
-        org.apache.stratos.rest.endpoint.bean.topology.Cluster[] arrCluster = new org.apache.stratos.rest.endpoint.bean.topology.Cluster[clusters
-                .size()];
-        arrCluster = clusters.toArray(arrCluster);
-        return arrCluster;
-
-    }
+	}
 
     // return the cluster id for the lb. This is a temp fix.
     /*private static String subscribeToLb(String cartridgeType, String loadBalancedCartridgeType, String lbAlias,
@@ -1176,11 +1137,8 @@ public class ServiceUtils {
      * @param clusterDomain
      * @param clusterSubdomain
      */
-    static void deployService(String cartridgeType, String alias, String autoscalingPolicy,
-                              String deploymentPolicy,
-                              String tenantDomain, String tenantUsername, int tenantId,
-                              String clusterDomain, String clusterSubdomain, String tenantRange)
-            throws RestAPIException {
+    static void deployService(String cartridgeType, String alias, String autoscalingPolicy, String deploymentPolicy,
+                                              String tenantDomain, String tenantUsername, int tenantId, String clusterDomain, String clusterSubdomain, String tenantRange) throws RestAPIException {
         log.info("Deploying service..");
         try {
             serviceDeploymentManager.deployService(cartridgeType, autoscalingPolicy, deploymentPolicy, tenantId, tenantRange, tenantDomain, tenantUsername);
@@ -1192,14 +1150,13 @@ public class ServiceUtils {
         }
     }
 
-    static void undeployService(String serviceType)
-            throws RestAPIException, ServiceDoesNotExistException {
+    static void undeployService(String serviceType) throws RestAPIException, ServiceDoesNotExistException {
 
         try {
             serviceDeploymentManager.undeployService(serviceType);
-        } catch (ServiceDoesNotExistException ex) {
+        }catch(ServiceDoesNotExistException ex){
             throw ex;
-        } catch (Exception e) {
+        }catch (Exception e) {
             String msg = "Failed to undeploy service cluster definition of type " + serviceType + " Cause: " + e.getMessage();
             log.error(msg, e);
             throw new RestAPIException(msg, e);
@@ -1219,8 +1176,7 @@ public class ServiceUtils {
         }
     }
 
-    static void synchronizeRepository(CartridgeSubscription cartridgeSubscription)
-            throws RestAPIException {
+    static void synchronizeRepository(CartridgeSubscription cartridgeSubscription) throws RestAPIException {
         try {
             RepositoryNotification repoNotification = new RepositoryNotification();
             repoNotification.updateRepository(cartridgeSubscription);
@@ -1231,11 +1187,10 @@ public class ServiceUtils {
         }
     }
 
-    public static void addSubscriptionDomains(ConfigurationContext configurationContext,
-                                              String cartridgeType,
-                                              String subscriptionAlias,
-                                              SubscriptionDomainRequest request)
-            throws RestAPIException {
+    public static void addSubscriptionDomains(ConfigurationContext configurationContext, String cartridgeType,
+                                                             String subscriptionAlias, 
+                                                             SubscriptionDomainRequest request) 
+                                                            		 throws RestAPIException {
         try {
             int tenantId = ApplicationManagementUtil.getTenantId(configurationContext);
 
@@ -1248,24 +1203,22 @@ public class ServiceUtils {
             }
 
             for (org.apache.stratos.rest.endpoint.bean.subscription.domain.SubscriptionDomainBean subscriptionDomain : request.domains) {
-
-                cartridgeSubsciptionManager.addSubscriptionDomain(tenantId, subscriptionAlias,
-                                                                  subscriptionDomain.domainName, subscriptionDomain.applicationContext);
-            }
+				
+            	cartridgeSubsciptionManager.addSubscriptionDomain(tenantId, subscriptionAlias, 
+            			subscriptionDomain.domainName, subscriptionDomain.applicationContext);
+			}
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RestAPIException(e.getMessage(), e);
         }
     }
 
-    public static boolean isSubscriptionDomainExists(ConfigurationContext configurationContext,
-                                                     String cartridgeType,
-                                                     String subscriptionAlias, String domain)
-            throws RestAPIException {
+    public static boolean isSubscriptionDomainExists(ConfigurationContext configurationContext, String cartridgeType,
+                                                     String subscriptionAlias, String domain) throws RestAPIException {
         try {
             int tenantId = ApplicationManagementUtil.getTenantId(configurationContext);
             SubscriptionDomainBean subscriptionDomain = PojoConverter.populateSubscriptionDomainPojo(cartridgeSubsciptionManager.getSubscriptionDomain(tenantId,
-                                                                                                                                                       subscriptionAlias, domain));
+                    subscriptionAlias, domain));
 
             if (subscriptionDomain.domainName != null) {
                 return true;
@@ -1279,9 +1232,8 @@ public class ServiceUtils {
 
     }
 
-    public static List<SubscriptionDomainBean> getSubscriptionDomains(
-            ConfigurationContext configurationContext, String cartridgeType,
-            String subscriptionAlias) throws RestAPIException {
+    public static List<SubscriptionDomainBean> getSubscriptionDomains(ConfigurationContext configurationContext, String cartridgeType,
+                                                      String subscriptionAlias) throws RestAPIException {
         try {
             int tenantId = ApplicationManagementUtil.getTenantId(configurationContext);
             return PojoConverter.populateSubscriptionDomainPojos(cartridgeSubsciptionManager.getSubscriptionDomains(tenantId, subscriptionAlias));
@@ -1290,35 +1242,32 @@ public class ServiceUtils {
             throw new RestAPIException(e.getMessage(), e);
         }
     }
+    
+	public static SubscriptionDomainBean getSubscriptionDomain(ConfigurationContext configurationContext, String cartridgeType,
+			String subscriptionAlias, String domain) throws RestAPIException {
+		try {
+			int tenantId = ApplicationManagementUtil
+					.getTenantId(configurationContext);
+			SubscriptionDomainBean subscriptionDomain = PojoConverter.populateSubscriptionDomainPojo(cartridgeSubsciptionManager.getSubscriptionDomain(tenantId,
+					subscriptionAlias, domain));
+			
+			if (subscriptionDomain == null) {
+				String message = "Could not find a subscription [domain] "+domain+ " for Cartridge [type] "
+							+cartridgeType+ " and [alias] "+subscriptionAlias;
+				log.error(message);
+				throw new RestAPIException(Status.NOT_FOUND, message);
+			}
+			
+			return subscriptionDomain;
+			
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new RestAPIException(e.getMessage(), e);
+		}
+	}
 
-    public static SubscriptionDomainBean getSubscriptionDomain(
-            ConfigurationContext configurationContext, String cartridgeType,
-            String subscriptionAlias, String domain) throws RestAPIException {
-        try {
-            int tenantId = ApplicationManagementUtil
-                    .getTenantId(configurationContext);
-            SubscriptionDomainBean subscriptionDomain = PojoConverter.populateSubscriptionDomainPojo(cartridgeSubsciptionManager.getSubscriptionDomain(tenantId,
-                                                                                                                                                       subscriptionAlias, domain));
-
-            if (subscriptionDomain == null) {
-                String message = "Could not find a subscription [domain] " + domain + " for Cartridge [type] "
-                                 + cartridgeType + " and [alias] " + subscriptionAlias;
-                log.error(message);
-                throw new RestAPIException(Status.NOT_FOUND, message);
-            }
-
-            return subscriptionDomain;
-
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
-        }
-    }
-
-    public static void removeSubscriptionDomain(ConfigurationContext configurationContext,
-                                                String cartridgeType,
-                                                String subscriptionAlias, String domain)
-            throws RestAPIException, DomainMappingExistsException {
+    public static void removeSubscriptionDomain(ConfigurationContext configurationContext, String cartridgeType,
+                                                                String subscriptionAlias, String domain) throws RestAPIException, DomainMappingExistsException {
         try {
             int tenantId = ApplicationManagementUtil.getTenantId(configurationContext);
             cartridgeSubsciptionManager.removeSubscriptionDomain(tenantId, subscriptionAlias, domain);
@@ -1329,61 +1278,4 @@ public class ServiceUtils {
 
     }
 
-    public static void addUser(UserInfoBean userInfoBean) throws RestAPIException {
-
-        try {
-            getStratosUserManager().addUser(userInfoBean);
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
-        }
-
-        log.info("Successfully added an user with UserName " + userInfoBean.getUserName());
-    }
-
-    public static void updateUser(UserInfoBean userInfoBean) throws RestAPIException {
-
-        try {
-            getStratosUserManager().updateUser(userInfoBean);
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
-        }
-        log.info("Successfully updated an user with UserName " + userInfoBean.getUserName());
-    }
-
-    public static void deleteUser(String userName) throws RestAPIException {
-
-        try {
-            getStratosUserManager().deleteUser(userName);
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
-        }
-        log.info("Successfully deleted an user with UserName " + userName);
-    }
-
-    /**
-     * Get Tenant aware UserStore
-     * @return
-     * @throws RestAPIException
-     */
-    private static StratosUserManager getStratosUserManager() throws RestAPIException {
-
-        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
-        UserRealm userRealm = null;
-        StratosUserManager stratosUserManager = null;
-
-        try {
-            userRealm = carbonContext.getUserRealm();
-            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
-            stratosUserManager = new StratosUserManager(userStoreManager);
-
-        } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
-        }
-
-        return stratosUserManager;
-    }
 }
