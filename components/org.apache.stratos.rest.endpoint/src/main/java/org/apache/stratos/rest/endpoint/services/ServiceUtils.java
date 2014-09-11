@@ -1363,7 +1363,11 @@ public class ServiceUtils {
         log.info("Successfully deleted an user with UserName " + userName);
     }
 
-
+    /**
+     * Get Tenant aware UserStore
+     * @return
+     * @throws RestAPIException
+     */
     private static StratosUserManager getStratosUserManager() throws RestAPIException {
 
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();

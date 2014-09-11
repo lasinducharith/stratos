@@ -441,6 +441,11 @@
                                     <id>org.wso2.carbon.identity.application.authentication.framework.server.feature.group</id>
                                     <version>4.2.1</version>
                                 </feature>
+				<!-- User Management features -->
+				<feature>
+                                     <id>org.wso2.carbon.user.mgt.feature.group</id>
+				     <version>${carbon.platform.patch.version.4.2.1}</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
