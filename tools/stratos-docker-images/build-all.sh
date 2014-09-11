@@ -20,9 +20,25 @@
 #
 # ----------------------------------------------------------------------------
 
+# This script is executed by mvn - see the README for more information
+
 set -e
 
 export STRATOS_SOURCE="$(cd ../../; pwd)"
+
+export VERSION=$VERSION
+
+cd bind
+./docker-build.sh
+cd ..
+
+cd puppetmaster
+./docker-build.sh
+cd ..
+
+cd puppettestnode
+./docker-build.sh
+cd ..
 
 cd mysql
 ./docker-build.sh

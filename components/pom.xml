@@ -23,7 +23,7 @@
 	<parent>
             <groupId>org.apache.stratos</groupId>
             <artifactId>stratos-parent</artifactId>
-            <version>4.0.0</version>
+            <version>4.1.0-SNAPSHOT</version>
             <relativePath>../pom.xml</relativePath>
         </parent>
 
@@ -43,6 +43,7 @@
         <module>org.apache.stratos.autoscaler</module>
         <!-- CC -->
         <module>org.apache.stratos.cloud.controller</module>
+        <module>org.apache.stratos.kubernetes.client</module>
         <!-- SM -->
         <module>org.apache.stratos.manager</module>
         <module>org.apache.stratos.deployment</module>

@@ -18,6 +18,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="id" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
+                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true"/>
                 <xs:element name="provider" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
                 <xs:element name="property" minOccurs="1" maxOccurs="unbounded">
                     <xs:complexType>
@@ -35,6 +36,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="id" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
+                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true"/>
                 <xs:element name="loadThresholds" minOccurs="1" maxOccurs="1" nillable="false">
                     <xs:complexType>
                         <xs:all>
@@ -52,6 +54,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="id" type="xs:string" maxOccurs="1" minOccurs="1" nillable="false"/>
+                <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true"/>
                 <xs:element name="partitionGroup">
                     <xs:complexType>
                         <xs:sequence>
@@ -68,6 +71,7 @@
                                 <xs:complexType>
                                     <xs:all>
                                         <xs:element name="id" type="xs:string" maxOccurs="1" minOccurs="1" nillable="false"/>
+                                        <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true"/>
                                         <xs:element name="partitionMax" type="xs:int" minOccurs="1" maxOccurs="1" nillable="false"/>
                                         <xs:element name="partitionMin" type="xs:int" minOccurs="1" maxOccurs="1" nillable="false"/>
                                     </xs:all>
@@ -88,7 +92,7 @@
                 <xs:element name="host" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
                 <xs:element name="displayName" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
                 <xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
-                <xs:element name="version" type="xs:float" minOccurs="1" maxOccurs="1" nillable="false"/>
+                <xs:element name="version" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
                 <xs:element name="defaultAutoscalingPolicy" type="xs:string" minOccurs="0" maxOccurs="1" nillable="false"/>
                 <xs:element name="multiTenant" type="xs:boolean" minOccurs="1" maxOccurs="1" nillable="false"/>
                 <xs:element name="portMapping" minOccurs="1" maxOccurs="unbounded">
@@ -219,11 +223,8 @@
 
     <xs:complexType name="thresholdValues">
         <xs:all>
-            <xs:element name="average" type="xs:int" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="gradient" type="xs:float" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="secondDerivative" type="xs:float" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="scaleDownMarginOfGradient" type="xs:float" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="scaleDownMarginOfSecondDerivative" type="xs:float" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="upperLimit" type="xs:float" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="lowerLimit" type="xs:float" minOccurs="1" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 </xs:schema>

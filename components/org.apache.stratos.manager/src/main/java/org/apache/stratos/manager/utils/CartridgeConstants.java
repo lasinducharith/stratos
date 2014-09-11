@@ -33,6 +33,7 @@ public class CartridgeConstants {
     public static final String UNSUBSCRIBED = "UNSUBSCRIBED";
     public static final String PUPPET_IP = "puppet.ip";
     public static final String PUPPET_HOSTNAME = "puppet.hostname";
+    public static final String PUPPET_DNS_AVAILABLE = "puppet.dns.available";
     public static final String PUPPET_ENVIRONMENT = "puppet.environment";
 
 	public static final String SUDO_SH = "sudo sh";
@@ -96,6 +97,9 @@ public class CartridgeConstants {
     // payload data related information
     public static final String LOAD_BALANCED_SERVICE_TYPE = "LOAD_BALANCED_SERVICE_TYPE";
     public static final String LB_CATEGORY = "LB_CATEGORY";
+    
+    // lb cluster
+    public static final String LB_CLUSTER_ID = "lbClusterId";
 
     public static final class DomainMappingInfo {
 		public static final String ACTUAL_HOST = "actual.host";
