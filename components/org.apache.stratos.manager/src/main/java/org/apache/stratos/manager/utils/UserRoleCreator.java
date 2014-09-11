@@ -50,8 +50,14 @@ public class UserRoleCreator {
                 if (log.isDebugEnabled()) {
                     log.debug("Creating new role: " + role);
                 }
-                Permission[] TenantUserPermissions = new Permission[]{new Permission(CartridgeConstants.Permissions.VIEW, UserMgtConstants.EXECUTE_ACTION),
-                                                                      new Permission(CartridgeConstants.Permissions.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION)
+                Permission[] TenantUserPermissions = new Permission[]{  new Permission(CartridgeConstants.Permissions.VIEW_AUTOSCALING_POLICY, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.VIEW_DEPLOYMENT_POLICY, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.VIEW_CARTRIDGE, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.VIEW_SERVICE, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.VIEW_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.ADD_GIT_SYNC, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                        new Permission(CartridgeConstants.Permissions.REST_LOGIN, UserMgtConstants.EXECUTE_ACTION),
                 };
 
                 String[] userList = new String[]{};

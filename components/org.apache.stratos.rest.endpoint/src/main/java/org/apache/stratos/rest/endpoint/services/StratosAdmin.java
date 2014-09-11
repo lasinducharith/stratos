@@ -114,7 +114,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cookie")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/restlogin")
     public Response getCookie(){
         HttpSession httpSession = httpServletRequest.getSession(true);//create session if not found
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -371,7 +371,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/tenanted/list")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getAvailableMultiTenantCartridges() throws RestAPIException {
         List<Cartridge> cartridges = ServiceUtils.getAvailableCartridges(null, true, getConfigContext());
         ResponseBuilder rb = Response.ok();
@@ -383,7 +383,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/list")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getAvailableSingleTenantCartridges() throws RestAPIException {
         List<Cartridge> cartridges = ServiceUtils.getAvailableCartridges(null, false, getConfigContext());
         ResponseBuilder rb = Response.ok();
@@ -395,7 +395,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/available/list")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getAvailableCartridges() throws RestAPIException {
         List<Cartridge> cartridges = ServiceUtils.getAvailableCartridges(null, null, getConfigContext());
         ResponseBuilder rb = Response.ok();
@@ -407,7 +407,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/list/subscribed")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getSubscribedCartridges() throws RestAPIException {
         List<Cartridge> cartridgeList = ServiceUtils.getSubscriptions(null,null, getConfigContext());
         // Following is very important when working with axis2
@@ -420,7 +420,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/list/subscribed/group/{serviceGroup}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getSubscribedCartridgesForServiceGroup(@PathParam("serviceGroup") String serviceGroup) throws RestAPIException {
         List<Cartridge> cartridgeList = ServiceUtils.getSubscriptions(null, serviceGroup, getConfigContext());
         // Following is very important when working with axis2
@@ -433,7 +433,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/info/{subscriptionAlias}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getCartridgeInfo(@PathParam("subscriptionAlias") String subscriptionAlias) throws RestAPIException {
         ResponseBuilder rb = Response.ok();
         rb.entity(ServiceUtils.getSubscription(subscriptionAlias, getConfigContext()));
@@ -444,7 +444,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/available/info/{cartridgeType}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getAvailableSingleTenantCartridgeInfo(@PathParam("cartridgeType") String cartridgeType)
                                             throws RestAPIException {
         ResponseBuilder rb = Response.ok();
@@ -456,7 +456,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/lb")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/admin/manage/view/cartridges")
+    @AuthorizationAction("/permission/admin/manage/view/cartridge")
     public Response getAvailableLbCartridges() throws RestAPIException {
     	List<Cartridge> lbCartridges = ServiceUtils.getAvailableLbCartridges(false, getConfigContext());
         return Response.ok().entity(lbCartridges.isEmpty() ? new Cartridge[0] : lbCartridges.toArray(new Cartridge[lbCartridges.size()])).build();

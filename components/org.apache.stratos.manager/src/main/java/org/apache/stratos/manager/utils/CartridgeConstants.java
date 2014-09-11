@@ -107,7 +107,14 @@ public class CartridgeConstants {
 	}
 
     public static final class Permissions {
-        public static final String VIEW = "/permission/admin/manage/view";
         public static final String ADD_SUBSCRIPTION = "/permission/admin/manage/add/subscription";
+        public static final String REST_LOGIN = "/permission/admin/restlogin";
+        public static final String ADD_GIT_SYNC = "/permission/admin/manage/add/sync";
+        public static final String VIEW_AUTOSCALING_POLICY = "/permission/admin/manage/view/autoscalingPolicy";
+        public static final String VIEW_DEPLOYMENT_POLICY = "/permission/admin/manage/view/deploymentPolicy";
+        public static final String VIEW_SUBSCRIPTION = "/permission/admin/manage/view/subscription";
+        public static final String VIEW_CARTRIDGE = "/permission/admin/manage/view/cartridge";
+        public static final String VIEW_SERVICE = "/permission/admin/manage/view/service";
+        public static final String VIEW_PARTITION = "/permission/admin/manage/view/partition";
     }
 }
