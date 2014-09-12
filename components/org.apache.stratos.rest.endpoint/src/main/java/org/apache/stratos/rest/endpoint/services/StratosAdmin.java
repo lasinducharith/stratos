@@ -90,7 +90,7 @@ public class StratosAdmin extends AbstractAdmin {
 
     @POST
     @Path("/init")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/restlogin")
     public StratosAdminResponse initialize ()
             throws RestAPIException {
 
@@ -191,7 +191,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/partition")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("//permission/admin/manage/view/partition")
+    @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartitions () throws RestAPIException {
         return Response.ok().entity(ServiceUtils.getAvailablePartitions()).build();
     }
@@ -209,7 +209,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/partition/group/{deploymentPolicyId}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartitionGroups (@PathParam("deploymentPolicyId") String deploymentPolicyId)
             throws RestAPIException {
         return Response.ok().entity(ServiceUtils.getPartitionGroups(deploymentPolicyId)).build();
@@ -383,7 +383,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cartridge/active/{cartridgeType}/{subscriptionAlias}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/instance")
     public Response getActiveInstances(@PathParam("cartridgeType") String cartridgeType,
                               @PathParam("subscriptionAlias") String subscriptionAlias) throws RestAPIException {
         ResponseBuilder rb = Response.ok();
@@ -409,7 +409,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cluster/")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getClustersForTenant() throws RestAPIException {
         return Response.ok().entity(ServiceUtils.getClustersForTenant(getConfigContext())).build();
     }
@@ -418,7 +418,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cluster/{cartridgeType}/")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getClusters(@PathParam("cartridgeType") String cartridgeType) throws RestAPIException {
 
         ResponseBuilder rb = Response.ok();
@@ -430,7 +430,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cluster/service/{cartridgeType}/")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getServiceClusters(@PathParam("cartridgeType") String cartridgeType) throws RestAPIException {
         ResponseBuilder rb = Response.ok();
         rb.entity(ServiceUtils.getClustersForTenantAndCartridgeType(getConfigContext(), cartridgeType));
@@ -441,7 +441,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cluster/{cartridgeType}/{subscriptionAlias}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getCluster(@PathParam("cartridgeType") String cartridgeType,
                               @PathParam("subscriptionAlias") String subscriptionAlias) throws RestAPIException, RestAPIException {
         ResponseBuilder rb = Response.ok();
@@ -453,7 +453,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/cluster/clusterId/{clusterId}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getCluster(@PathParam("clusterId") String clusterId) throws RestAPIException {
     	Cluster cluster = null;
     	if(log.isDebugEnabled()) {
@@ -967,7 +967,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/service/definition")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/add/service")
     public Response deployService (ServiceDefinitionBean serviceDefinitionBean)
             throws RestAPIException {
 
@@ -987,7 +987,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/service")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/service")
     public ServiceDefinitionBean[] getServices() throws RestAPIException {
         List<ServiceDefinitionBean> serviceDefinitionBeans = ServiceUtils.getdeployedServiceInformation();
         return serviceDefinitionBeans == null || serviceDefinitionBeans.isEmpty() ? new ServiceDefinitionBean[0] :
@@ -998,7 +998,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/service/{serviceType}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/service")
     public Response getService(@PathParam("serviceType") String serviceType)throws RestAPIException {
         ResponseBuilder rb;
         ServiceDefinitionBean serviceDefinitionBean = ServiceUtils.getDeployedServiceInformation(serviceType);
@@ -1014,7 +1014,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/service/active")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/service")
     public List<Cartridge> getActiveService()throws RestAPIException {
 
         return ServiceUtils.getActiveDeployedServiceInformation(getConfigContext());
@@ -1024,7 +1024,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/service/definition/{serviceType}")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/add/service")
     public Response unDeployService (@PathParam("serviceType") String serviceType) throws RestAPIException {
         try {
             ServiceUtils.undeployService(serviceType);
@@ -1038,7 +1038,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Path("/reponotification")
     @Produces("application/json")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/add/sync")
     public Response getRepoNotification(Payload payload) throws RestAPIException {
 
         ServiceUtils.getGitRepositoryNotification(payload);
@@ -1048,7 +1048,7 @@ public class StratosAdmin extends AbstractAdmin {
 	@POST
 	@Path("/cartridge/sync")
 	@Consumes("application/json")
-	@AuthorizationAction("/permission/protected/manage/monitor/tenants")
+	@AuthorizationAction("/permission/admin/manage/add/sync")
 	public Response synchronizeRepository(String alias) throws RestAPIException {
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Synchronizing Git repository for alias '%s'", alias));
@@ -1104,7 +1104,7 @@ public class StratosAdmin extends AbstractAdmin {
     @POST
     @Path("/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/add/domain")
     public Response addSubscriptionDomains(@PathParam("cartridgeType") String cartridgeType,
 
                                                        @PathParam("subscriptionAlias") String subscriptionAlias,
@@ -1116,7 +1116,7 @@ public class StratosAdmin extends AbstractAdmin {
     @GET
     @Path("/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/domain")
     public Response getSubscriptionDomains(@PathParam("cartridgeType") String cartridgeType,@PathParam("subscriptionAlias") String subscriptionAlias) throws RestAPIException {
 
         SubscriptionDomainBean[] subscriptionDomainBean = ServiceUtils.getSubscriptionDomains(getConfigContext(), cartridgeType, subscriptionAlias).toArray(new SubscriptionDomainBean[0]);
@@ -1131,7 +1131,7 @@ public class StratosAdmin extends AbstractAdmin {
     @GET
     @Path("/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains/{domainName}")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/domain")
     public Response getSubscriptionDomain(@PathParam("cartridgeType") String cartridgeType, @PathParam("subscriptionAlias") String subscriptionAlias, @PathParam("domainName") String domainName) throws RestAPIException {
 
         SubscriptionDomainBean subscriptionDomainBean = ServiceUtils.getSubscriptionDomain(getConfigContext(), cartridgeType, subscriptionAlias, domainName);
@@ -1145,7 +1145,7 @@ public class StratosAdmin extends AbstractAdmin {
     @DELETE
     @Path("/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains/{domainName}")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/add/domain")
     public Response removeSubscriptionDomain(@PathParam("cartridgeType") String cartridgeType,
                                                          @PathParam("subscriptionAlias") String subscriptionAlias,
                                                          @PathParam("domainName") String domainName) throws RestAPIException {
@@ -1160,7 +1160,7 @@ public class StratosAdmin extends AbstractAdmin {
     @GET
     @Path("/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/load-balancer-cluster")
     @Consumes("application/json")
-    @AuthorizationAction("/permission/protected/manage/monitor/tenants")
+    @AuthorizationAction("/permission/admin/manage/view/cluster")
     public Response getLoadBalancerCluster(@PathParam("cartridgeType") String cartridgeType,
                                            @PathParam("subscriptionAlias") String subscriptionAlias) throws RestAPIException {
         if (log.isDebugEnabled()) {

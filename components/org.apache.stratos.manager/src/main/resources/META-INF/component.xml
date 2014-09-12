@@ -42,5 +42,21 @@
             <DisplayName>REST Login</DisplayName>
             <ResourceId>/permission/admin/restlogin</ResourceId>
         </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Domain</DisplayName>
+            <ResourceId>/permission/admin/manage/add/domain</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Domain</DisplayName>
+            <ResourceId>/permission/admin/manage/view/domain</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Cluster</DisplayName>
+            <ResourceId>/permission/admin/manage/view/cluster</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Instance</DisplayName>
+            <ResourceId>/permission/admin/manage/view/instance</ResourceId>
+        </ManagementPermission>
     </ManagementPermissions>
 </component>

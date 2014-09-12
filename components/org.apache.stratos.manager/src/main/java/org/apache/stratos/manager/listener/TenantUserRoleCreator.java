@@ -69,8 +69,12 @@ public class TenantUserRoleCreator implements TenantMgtListener {
                                                                             new Permission(CartridgeConstants.Permissions.VIEW_CARTRIDGE, UserMgtConstants.EXECUTE_ACTION),
                                                                             new Permission(CartridgeConstants.Permissions.VIEW_SERVICE, UserMgtConstants.EXECUTE_ACTION),
                                                                             new Permission(CartridgeConstants.Permissions.VIEW_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                            new Permission(CartridgeConstants.Permissions.VIEW_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
+                                                                            new Permission(CartridgeConstants.Permissions.VIEW_CLUSTER, UserMgtConstants.EXECUTE_ACTION),
+                                                                            new Permission(CartridgeConstants.Permissions.VIEW_INSTANCE, UserMgtConstants.EXECUTE_ACTION),
                                                                             new Permission(CartridgeConstants.Permissions.ADD_GIT_SYNC, UserMgtConstants.EXECUTE_ACTION),
                                                                             new Permission(CartridgeConstants.Permissions.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                            new Permission(CartridgeConstants.Permissions.ADD_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
                                                                             new Permission(CartridgeConstants.Permissions.REST_LOGIN, UserMgtConstants.EXECUTE_ACTION),
                     };
 
