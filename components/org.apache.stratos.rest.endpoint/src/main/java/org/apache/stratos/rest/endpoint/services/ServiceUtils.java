@@ -1309,7 +1309,7 @@ public class ServiceUtils {
 
     public static List<UserInfoBean> getAllUsers() throws RestAPIException {
 
-        List<UserInfoBean> userList = null;
+        List<UserInfoBean> userList;
 
         try {
 
@@ -1323,7 +1323,7 @@ public class ServiceUtils {
     }
 
     /**
-     * Get Tenant aware UserStoreManager
+     * Get Tenant UserStoreManager
      *
      * @return UserStoreManager
      * @throws RestAPIException
