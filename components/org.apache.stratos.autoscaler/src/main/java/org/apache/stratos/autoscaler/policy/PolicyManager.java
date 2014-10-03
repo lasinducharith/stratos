@@ -86,10 +86,10 @@ public class PolicyManager {
         Iterator<AutoscalePolicy> asPolicyIterator = asPolicies.iterator();
         while (asPolicyIterator.hasNext()) {
             AutoscalePolicy asPolicy = asPolicyIterator.next();
-	    	try{
+	    	try {
 	                addASPolicyToInformationModel(asPolicy);
 	        }
-	    	catch (InvalidPolicyException e){
+	    	catch (InvalidPolicyException e) {
 	    		log.warn("Unable to load Autoscalar policy to information Model ["+ asPolicy.getTenantId() + "]");
 	    	}
     	}
@@ -104,10 +104,10 @@ public class PolicyManager {
         Iterator<DeploymentPolicy> depPolicyIterator = depPolicies.iterator();
         while (depPolicyIterator.hasNext()) {
             DeploymentPolicy depPolicy = depPolicyIterator.next();
-            try{
+            try {
             		addDeploymentPolicyToInformationModel(depPolicy);
             }
-            catch (InvalidPolicyException e){
+            catch (InvalidPolicyException e) {
             	log.warn("Unable to load Deployment policy to information Model ["+ depPolicy.getTenantId() + "]");
 	    	}
         }
@@ -120,7 +120,7 @@ public class PolicyManager {
      * @throws InvalidPolicyException
      */
     public boolean deployAutoscalePolicy(AutoscalePolicy policy) throws InvalidPolicyException {
-    	if(StringUtils.isEmpty(policy.getId())){
+    	if(StringUtils.isEmpty(policy.getId())) {
             throw new AutoScalerException("AutoScaling policy id can not be empty");
         }
         this.addASPolicyToInformationModel(policy);
@@ -142,10 +142,10 @@ public class PolicyManager {
     	
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	    	  
-    	if(asPolicy.getIsPublic()){
+    	if(asPolicy.getIsPublic()) {
         	addASPolicyToSpecificContainer(asPolicy, StratosConstants.PUBLIC_DEFINITION);
         }
-    	else{
+    	else {
     		addASPolicyToSpecificContainer(asPolicy, tenantId);
     	}
     }
@@ -160,8 +160,7 @@ public class PolicyManager {
     private void addASPolicyToSpecificContainer(AutoscalePolicy asPolicy, int tenantId) throws InvalidPolicyException {
     	
     	Map<String, AutoscalePolicy> policies;
-    	if(!autoscalePolicyListMap.containsKey(tenantId))
-    	{
+    	if(!autoscalePolicyListMap.containsKey(tenantId)) {
     		policies = new HashMap<String, AutoscalePolicy>();
     		autoscalePolicyListMap.put(tenantId, policies);
     	}
@@ -191,7 +190,7 @@ public class PolicyManager {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	AutoscalePolicy policyToDelete = getAutoscalePolicy(policy);
     	
-    	if((policyToDelete == null) || (policyToDelete.getTenantId() != tenantId))
+    	if ((policyToDelete == null) || (policyToDelete.getTenantId() != tenantId))
     		throw new InvalidPolicyException("No such policy [" + policy + "] exists");
     	
     	if (log.isDebugEnabled()) {
@@ -199,7 +198,7 @@ public class PolicyManager {
         }
         
     	RegistryManager.getInstance(tenantId).removeAutoscalerPolicy(policyToDelete);
-    	if(policyToDelete.getIsPublic()){
+    	if (policyToDelete.getIsPublic()) {
     		(autoscalePolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).remove(policy);
     	}
     	else {
@@ -217,10 +216,10 @@ public class PolicyManager {
     	List<AutoscalePolicy> policyList = new ArrayList<AutoscalePolicy>();
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	
-    	if(autoscalePolicyListMap.containsKey(tenantId))
+    	if (autoscalePolicyListMap.containsKey(tenantId))
     		policyList.addAll(autoscalePolicyListMap.get(tenantId).values());
 		
-    	if(autoscalePolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION))
+    	if (autoscalePolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION))
     		policyList.addAll(autoscalePolicyListMap.get(StratosConstants.PUBLIC_DEFINITION).values());
     	
     	return policyList.toArray(new AutoscalePolicy[0]);
@@ -234,13 +233,13 @@ public class PolicyManager {
      */
     public AutoscalePolicy getAutoscalePolicy(String id) {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-    	if(autoscalePolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION)){
-        	if((autoscalePolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(id))
+    	if (autoscalePolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION)) {
+        	if ((autoscalePolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(id))
         		return (autoscalePolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).get(id);
         }
     	
-    	if(autoscalePolicyListMap.containsKey(tenantId)){
-    		if((autoscalePolicyListMap.get(tenantId)).containsKey(id))
+    	if (autoscalePolicyListMap.containsKey(tenantId)) {
+    		if ((autoscalePolicyListMap.get(tenantId)).containsKey(id))
     			return (autoscalePolicyListMap.get(tenantId)).get(id);
         }
         
@@ -263,11 +262,11 @@ public class PolicyManager {
      * @throws InvalidPolicyException
      */
     public boolean deployDeploymentPolicy(DeploymentPolicy policy) throws InvalidPolicyException {
-    	if(StringUtils.isEmpty(policy.getId())){
+    	if (StringUtils.isEmpty(policy.getId())) {
             throw new AutoScalerException("Deploying policy id can not be empty");
         }
         try {
-            if(log.isInfoEnabled()) {
+            if (log.isInfoEnabled()) {
                 log.info(String.format("Deploying deployment policy: [id] %s", policy.getId()));
             }
             fillPartitions(policy);
@@ -294,10 +293,10 @@ public class PolicyManager {
     public void addDeploymentPolicyToInformationModel(DeploymentPolicy policy) throws InvalidPolicyException {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	
-        if(policy.getIsPublic()){
+        if (policy.getIsPublic()) {
         	addDeploymentPolicyToSpecificContainer(policy, StratosConstants.PUBLIC_DEFINITION);
         }
-        else{
+        else {
         	addDeploymentPolicyToSpecificContainer(policy, tenantId);
         }
     }
@@ -312,8 +311,7 @@ public class PolicyManager {
     private void addDeploymentPolicyToSpecificContainer(DeploymentPolicy deploymentPolicy, int tenantId) throws InvalidPolicyException {
     	
     	Map<String, DeploymentPolicy> policies;
-    	if(!deploymentPolicyListMap.containsKey(tenantId))
-    	{
+    	if (!deploymentPolicyListMap.containsKey(tenantId)) {
     		policies = new HashMap<String, DeploymentPolicy>();
     		deploymentPolicyListMap.put(tenantId, policies);
     	}
@@ -373,7 +371,7 @@ public class PolicyManager {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	DeploymentPolicy policyToDelete = getDeploymentPolicy(policy);
     	
-    	if((policyToDelete == null) || (policyToDelete.getTenantId() != tenantId))
+    	if ((policyToDelete == null) || (policyToDelete.getTenantId() != tenantId))
     		throw new InvalidPolicyException("No such policy [" + policy + "] exists");
     	
     	if (log.isDebugEnabled()) {
@@ -381,7 +379,7 @@ public class PolicyManager {
         }
         
     	RegistryManager.getInstance(tenantId).removeDeploymentPolicy(policyToDelete);
-    	if(policyToDelete.getIsPublic()){
+    	if (policyToDelete.getIsPublic()) {
     		(deploymentPolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).remove(policy);
     	}
     	else {
@@ -398,10 +396,10 @@ public class PolicyManager {
     	List<DeploymentPolicy> policyList = new ArrayList<DeploymentPolicy>();
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	
-    	if(deploymentPolicyListMap.containsKey(tenantId))
+    	if (deploymentPolicyListMap.containsKey(tenantId))
     			policyList.addAll(deploymentPolicyListMap.get(CarbonContext.getThreadLocalCarbonContext().getTenantId()).values());
 		
-    	if(deploymentPolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION))
+    	if (deploymentPolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION))
     			policyList.addAll(deploymentPolicyListMap.get(StratosConstants.PUBLIC_DEFINITION).values());
     	
     	return policyList.toArray(new DeploymentPolicy[0]);
@@ -415,13 +413,13 @@ public class PolicyManager {
      */
     public DeploymentPolicy getDeploymentPolicy(String id) {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-    	if(deploymentPolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION)){
-    		if((deploymentPolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(id))
+    	if (deploymentPolicyListMap.containsKey(StratosConstants.PUBLIC_DEFINITION)) {
+    		if ((deploymentPolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(id))
     			return (deploymentPolicyListMap.get(StratosConstants.PUBLIC_DEFINITION)).get(id);
         }
     	
-    	if(deploymentPolicyListMap.containsKey(tenantId)){
-    		if((deploymentPolicyListMap.get(tenantId)).containsKey(id))
+    	if (deploymentPolicyListMap.containsKey(tenantId)) {
+    		if ((deploymentPolicyListMap.get(tenantId)).containsKey(id))
     			return (deploymentPolicyListMap.get(tenantId)).get(id);
         }
     	

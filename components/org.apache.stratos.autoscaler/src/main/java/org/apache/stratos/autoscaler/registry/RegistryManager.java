@@ -125,7 +125,7 @@ public class RegistryManager {
 
     public void persistPartition(Partition partition) {
     	String resourcePath;
-    	if(!partition.getIsPublic()) {
+    	if (!partition.getIsPublic()) {
 	        resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE + "/" + AutoScalerConstants.TENANT_RESOURCE + "/" + partition.getId();
     	} else {
     		resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE + "/" + AutoScalerConstants.PUBLIC_RESOURCE + "/" + partition.getId();
@@ -148,7 +148,7 @@ public class RegistryManager {
 
     public void persistAutoscalerPolicy(AutoscalePolicy autoscalePolicy) {
     	String resourcePath;
-    	if(!autoscalePolicy.getIsPublic()) {
+    	if (!autoscalePolicy.getIsPublic()) {
 	        resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE + "/" + AutoScalerConstants.TENANT_RESOURCE + "/" + autoscalePolicy.getId();
     	} else {
     		resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE + "/" + AutoScalerConstants.PUBLIC_RESOURCE + "/" + autoscalePolicy.getId();
@@ -162,7 +162,7 @@ public class RegistryManager {
 
     public void persistDeploymentPolicy(DeploymentPolicy deploymentPolicy) {
     	String resourcePath;
-    	if(!deploymentPolicy.getIsPublic()) {
+    	if (!deploymentPolicy.getIsPublic()) {
 	        resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE + "/" + AutoScalerConstants.TENANT_RESOURCE + "/" + deploymentPolicy.getId();
     	} else {
     		resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE + "/" + AutoScalerConstants.PUBLIC_RESOURCE + "/" + deploymentPolicy.getId();
@@ -196,9 +196,9 @@ public class RegistryManager {
         String[] publicPartitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE + AutoScalerConstants.PUBLIC_RESOURCE);
         
         ArrayList<String> allPartitions = new ArrayList<String>();
-        if(partitionsResourceList != null)
+        if (partitionsResourceList != null)
         	allPartitions.addAll(Arrays.asList(partitionsResourceList));
-        if(publicPartitionsResourceList != null)
+        if (publicPartitionsResourceList != null)
         	allPartitions.addAll(Arrays.asList(publicPartitionsResourceList));
 
         if (allPartitions != null) {
@@ -269,9 +269,9 @@ public class RegistryManager {
         String[] publicAsPolicyResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE + AutoScalerConstants.PUBLIC_RESOURCE);
         
         ArrayList<String> allAsPolicies = new ArrayList<String>();
-        if(asPolicyResourceList != null)
+        if (asPolicyResourceList != null)
         	allAsPolicies.addAll(Arrays.asList(asPolicyResourceList));
-        if(publicAsPolicyResourceList != null)
+        if (publicAsPolicyResourceList != null)
         	allAsPolicies.addAll(Arrays.asList(publicAsPolicyResourceList));
         
         if (allAsPolicies != null) {
@@ -308,9 +308,9 @@ public class RegistryManager {
         String[] publicDepPolicyResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE + AutoScalerConstants.PUBLIC_RESOURCE);
         
         ArrayList<String> allDepPolicies = new ArrayList<String>();
-        if(depPolicyResourceList != null)
+        if (depPolicyResourceList != null)
         	allDepPolicies.addAll(Arrays.asList(depPolicyResourceList));
-        if(publicDepPolicyResourceList != null)
+        if (publicDepPolicyResourceList != null)
         	allDepPolicies.addAll(Arrays.asList(publicDepPolicyResourceList));
 
         if (allDepPolicies != null) {

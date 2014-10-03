@@ -77,14 +77,14 @@ public class PartitionManager {
     	return (partitions.containsKey(tenantId));
     }
 
-    public boolean partitionExist(String partitionId){
+    public boolean partitionExist(String partitionId) {
 		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if(partitions.containsKey(StratosConstants.PUBLIC_DEFINITION)){
+        if (partitions.containsKey(StratosConstants.PUBLIC_DEFINITION)) {
         	if ((partitions.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(partitionId))
         		return true;
         }
         
-        if(partitions.containsKey(tenantId)){
+        if(partitions.containsKey(tenantId)) {
     		return (partitions.get(tenantId)).containsKey(partitionId);
         }
         
@@ -95,7 +95,7 @@ public class PartitionManager {
      * Deploy a new partition to Auto Scaler.
      */
     public boolean addNewPartition(Partition partition) throws InvalidPartitionException {
-    	if (StringUtils.isEmpty(partition.getId())){
+    	if (StringUtils.isEmpty(partition.getId())) {
             throw new InvalidPartitionException("Partition id can not be empty");
         }
         if (this.partitionExist(partition.getId())) {
@@ -123,10 +123,10 @@ public class PartitionManager {
         Iterator<Partition> partitionIterator = partitions.iterator();
         while (partitionIterator.hasNext()) {
             Partition partition = partitionIterator.next();
-            try{
+            try {
             	addPartitionToInformationModel(partition);
             }
-            catch(InvalidPolicyException e){
+            catch(InvalidPolicyException e) {
             	// ignore and move on
             }
         }
@@ -156,14 +156,14 @@ public class PartitionManager {
      * @param partition the partition
      * @throws InvalidPolicyException the invalid policy exception
      */
-    public void addPartitionToInformationModel(Partition partition) throws InvalidPolicyException {
+    private void addPartitionToInformationModel(Partition partition) throws InvalidPolicyException {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	        
-        if(partition.getIsPublic()){
-        	addPartitionToSpecificContainer(partition, StratosConstants.PUBLIC_DEFINITION);
+        if (partition.getIsPublic()) {
+        	addToSpecificContainer(partition, StratosConstants.PUBLIC_DEFINITION);
         }
-        else{
-        	addPartitionToSpecificContainer(partition, tenantId);
+        else {
+        	addToSpecificContainer(partition, tenantId);
         }
 	}
     
@@ -174,11 +174,10 @@ public class PartitionManager {
      * @param tenantId the tenant id
      * @throws InvalidPolicyException the invalid policy exception
      */
-    private void addPartitionToSpecificContainer(Partition partition, int tenantId) throws InvalidPolicyException {
+    private void addToSpecificContainer(Partition partition, int tenantId) throws InvalidPolicyException {
     	
     	Map<String, Partition> partitionDefinitions;
-    	if(!partitions.containsKey(tenantId))
-    	{
+    	if (!partitions.containsKey(tenantId)) {
     		partitionDefinitions = new HashMap<String, Partition>();
     		partitions.put(tenantId, partitionDefinitions);
     	}
@@ -201,12 +200,12 @@ public class PartitionManager {
     public Partition getPartitionById(String partitionId) {
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	    	
-    	if(partitions.containsKey(StratosConstants.PUBLIC_DEFINITION)){
+    	if (partitions.containsKey(StratosConstants.PUBLIC_DEFINITION)) {
         	if ((partitions.get(StratosConstants.PUBLIC_DEFINITION)).containsKey(partitionId))
         		return (partitions.get(StratosConstants.PUBLIC_DEFINITION)).get(partitionId);		
         }
     	
-    	if(partitions.containsKey(tenantId)){
+    	if (partitions.containsKey(tenantId)) {
     		if ((partitions.get(tenantId)).containsKey(partitionId))
     			return (partitions.get(tenantId)).get(partitionId);
         }
@@ -215,16 +214,16 @@ public class PartitionManager {
 	}
 
     public Partition[] getAllPartitions() {
-		List<Partition> policyList = new ArrayList<Partition>();
+		List<Partition> partitionList = new ArrayList<Partition>();
     	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 		
-    	if(partitions.containsKey(tenantId))
-    		policyList.addAll(partitions.get(tenantId).values());
+    	if (partitions.containsKey(tenantId))
+    		partitionList.addAll(partitions.get(tenantId).values());
 		
-    	if(partitions.containsKey(StratosConstants.PUBLIC_DEFINITION))
-    		policyList.addAll(partitions.get(StratosConstants.PUBLIC_DEFINITION).values());
+    	if (partitions.containsKey(StratosConstants.PUBLIC_DEFINITION))
+    		partitionList.addAll(partitions.get(StratosConstants.PUBLIC_DEFINITION).values());
     	
-    	return policyList.toArray(new Partition[0]);
+    	return partitionList.toArray(new Partition[0]);
 	}
 
     public boolean validatePartitionViaCloudController(Partition partition) throws PartitionValidationException {
