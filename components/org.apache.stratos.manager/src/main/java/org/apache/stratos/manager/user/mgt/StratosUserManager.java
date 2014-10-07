@@ -73,9 +73,9 @@ public class StratosUserManager {
             }
 
         } catch (UserStoreException e) {
-            String msg = "Error in adding the user : "+ userInfoBean.getUserName();
+            String msg = "Error in adding the user: "+ userInfoBean.getUserName();
             log.error(msg, e);
-            throw new UserManagementException(e.getMessage(), e);
+            throw new UserManagementException(msg, e);
         }
     }
 
@@ -92,9 +92,9 @@ public class StratosUserManager {
         try {
             userStoreManager.deleteUser(userName);
         } catch (UserStoreException e) {
-            String msg = "Error in deleting the user : "+ userName;
+            String msg = "Error in deleting the user: "+ userName;
             log.error(msg, e);
-            throw new UserManagementException(e.getMessage(), e);
+            throw new UserManagementException(msg, e);
         }
     }
 
@@ -126,9 +126,9 @@ public class StratosUserManager {
 
             }
         } catch (UserStoreException e) {
-            String msg = "Error in updating the user : "+ userInfoBean.getUserName();
+            String msg = "Error in updating the user: "+ userInfoBean.getUserName();
             log.error(msg, e);
-            throw new UserManagementException(e.getMessage(), e);
+            throw new UserManagementException(msg, e);
         }
 
     }
@@ -160,7 +160,7 @@ public class StratosUserManager {
         } catch (UserStoreException e) {
             String msg = "Error in listing users";
             log.error(msg, e);
-            throw new UserManagementException(e.getMessage(), e);
+            throw new UserManagementException(msg, e);
         }
 
         return userList;
