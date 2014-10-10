@@ -25,7 +25,7 @@ import org.apache.stratos.common.beans.TenantInfoBean;
 import org.apache.stratos.common.exception.StratosException;
 import org.apache.stratos.common.listeners.TenantMgtListener;
 import org.apache.stratos.manager.internal.DataHolder;
-import org.apache.stratos.manager.user.mgt.exception.UserManagementException;
+import org.apache.stratos.manager.user.mgt.exception.UserManagerException;
 import org.apache.stratos.manager.utils.UserRoleCreator;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -57,14 +57,15 @@ public class TenantUserRoleCreator implements TenantMgtListener {
                 UserRealm userRealm = DataHolder.getRealmService().getTenantUserRealm(tenantInfo.getTenantId());
                 UserStoreManager userStoreManager = userRealm.getUserStoreManager();
                 //Call Util class to create the user role
+
                 UserRoleCreator.createTenantUserRole(userStoreManager);
 
             } catch (UserStoreException e) {
-                String msg = "Error while retrieving the user store for tenant : "+ tenantInfo.getTenantDomain();
+                String msg = "Error while retrieving the user store for tenant: "+ tenantInfo.getTenantDomain();
                 log.error(msg, e);
                 throw new StratosException(e.getMessage(), e);
-            } catch (UserManagementException e) {
-                String msg = "Error while creating the user role in tenant : "+ tenantInfo.getTenantDomain();
+            } catch (UserManagerException e) {
+                String msg = "Error while creating the user role in tenant: "+ tenantInfo.getTenantDomain();
                 log.error(msg, e);
                 throw new StratosException(e.getMessage(), e);
             } finally {

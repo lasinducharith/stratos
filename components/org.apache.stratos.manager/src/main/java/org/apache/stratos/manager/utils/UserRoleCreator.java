@@ -22,7 +22,7 @@ package org.apache.stratos.manager.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.manager.user.mgt.exception.UserManagementException;
+import org.apache.stratos.manager.user.mgt.exception.UserManagerException;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
@@ -35,40 +35,36 @@ public class UserRoleCreator {
     /**
      * Creating a Internal/user Role at Carbon Server Start-up
      */
-    public static void createTenantUserRole(UserStoreManager manager) throws UserManagementException{
+    public static void createTenantUserRole(UserStoreManager manager) throws UserManagerException {
 
         String userRole = "Internal/user";
-        try {
 
+        try {
             if (!manager.isExistingRole(userRole)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Creating new role: " + userRole);
                 }
                 //Set permissions to the Internal/user role
-                Permission[] tenantUserPermissions = new Permission[]{  new Permission(PermissionConstants.VIEW_AUTOSCALING_POLICY, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_DEPLOYMENT_POLICY, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_CARTRIDGE, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_SERVICE, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_CLUSTER, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_INSTANCE, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.VIEW_KUBERNETES, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.ADD_GIT_SYNC, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.ADD_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
-                                                                        new Permission(PermissionConstants.REST_LOGIN, UserMgtConstants.EXECUTE_ACTION),
+                Permission[] tenantUserPermissions = new Permission[]{new Permission(PermissionConstants.VIEW_AUTOSCALING_POLICY, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_DEPLOYMENT_POLICY, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_CARTRIDGE, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_SERVICE, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_CLUSTER, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_INSTANCE, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.VIEW_KUBERNETES, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.ADD_GIT_SYNC, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.ADD_SUBSCRIPTION, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.ADD_DOMAIN, UserMgtConstants.EXECUTE_ACTION),
+                                                                      new Permission(PermissionConstants.REST_LOGIN, UserMgtConstants.EXECUTE_ACTION),
                 };
 
                 String[] userList = new String[]{};
                 manager.addRole(userRole, userList, tenantUserPermissions);
             }
-
         } catch (UserStoreException e) {
-            log.error("Error while creating the role: " + userRole + " - " +
-                      e.getMessage());
-            throw new UserManagementException(e.getMessage(), e);
+            e.printStackTrace();
         }
-
     }
 }
