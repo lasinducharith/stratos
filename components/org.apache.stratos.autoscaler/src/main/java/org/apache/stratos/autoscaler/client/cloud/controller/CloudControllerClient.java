@@ -268,6 +268,12 @@ public class CloudControllerClient {
         }
     }
 
+    /**
+     * @param kubernetesClusterId
+     * @param clusterId
+     * @return
+     * @throws SpawningException
+     */
     public synchronized MemberContext createContainer(String kubernetesClusterId, String clusterId) throws SpawningException {
         try {
         	

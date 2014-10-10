@@ -64,7 +64,9 @@ public class UserRoleCreator {
                 manager.addRole(userRole, userList, tenantUserPermissions);
             }
         } catch (UserStoreException e) {
-            e.printStackTrace();
+            String msg = "Error while creating the role: " + userRole;
+            log.error(msg, e);
+            throw new UserManagerException(msg, e);
         }
     }
 }
