@@ -19,10 +19,21 @@
 
 package org.apache.stratos.manager.user.mgt.exception;
 
+public class UserManagerException extends Exception {
 
-public class UserManagementException extends Exception {
+    private final String message;
 
-    public UserManagementException(String message, Throwable cause) {
+    public UserManagerException(String message, Throwable cause) {
         super(message, cause);
+        this.message = message;
+    }
+
+    public UserManagerException(String message) {
+        super(message);
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

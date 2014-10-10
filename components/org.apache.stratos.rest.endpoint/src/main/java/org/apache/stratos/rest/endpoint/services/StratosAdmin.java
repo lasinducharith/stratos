@@ -33,7 +33,7 @@ import org.apache.stratos.manager.subscription.CartridgeSubscription;
 import org.apache.stratos.manager.subscription.SubscriptionDomain;
 import org.apache.stratos.manager.user.mgt.StratosUserManager;
 import org.apache.stratos.manager.user.mgt.beans.UserInfoBean;
-import org.apache.stratos.manager.user.mgt.exception.UserManagementException;
+import org.apache.stratos.manager.user.mgt.exception.UserManagerException;
 import org.apache.stratos.rest.endpoint.ServiceHolder;
 import org.apache.stratos.rest.endpoint.Utils;
 import org.apache.stratos.rest.endpoint.annotation.AuthorizationAction;
@@ -1163,9 +1163,8 @@ public class StratosAdmin extends AbstractAdmin {
         try {
             stratosUserManager.addUser(getTenantUserStoreManager(), userInfoBean);
 
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
+        } catch (UserManagerException e) {
+            throw new RestAPIException(e.getMessage());
         }
         log.info("Successfully added an user with Username " + userInfoBean.getUserName());
         URI url = uriInfo.getAbsolutePathBuilder().path(userInfoBean.getUserName()).build();
@@ -1184,9 +1183,8 @@ public class StratosAdmin extends AbstractAdmin {
         try {
             stratosUserManager.deleteUser(getTenantUserStoreManager(), userName);
 
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
+        } catch (UserManagerException e) {
+            throw new RestAPIException(e.getMessage());
         }
         log.info("Successfully deleted an user with Username " + userName);
         return Response.noContent().build();
@@ -1204,13 +1202,12 @@ public class StratosAdmin extends AbstractAdmin {
         try {
             stratosUserManager.updateUser(getTenantUserStoreManager(), userInfoBean);
 
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
+        } catch (UserManagerException e) {
+            throw new RestAPIException(e.getMessage());
         }
+
         log.info("Successfully updated an user with Username " + userInfoBean.getUserName());
-        URI url = uriInfo.getAbsolutePathBuilder().path(userInfoBean.getUserName()).build();
-        return Response.created(url).build();
+        return Response.noContent().build();
     }
 
     @GET
@@ -1225,9 +1222,8 @@ public class StratosAdmin extends AbstractAdmin {
         try {
             userList = stratosUserManager.getAllUsers(getTenantUserStoreManager());
 
-        } catch (UserManagementException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
+        } catch (UserManagerException e) {
+            throw new RestAPIException(e.getMessage());
         }
         return userList.toArray(new UserInfoBean[userList.size()]);
     }
@@ -1236,21 +1232,22 @@ public class StratosAdmin extends AbstractAdmin {
      * Get Tenant UserStoreManager
      *
      * @return UserStoreManager
-     * @throws RestAPIException
+     * @throws UserManagerException
      */
-    private static UserStoreManager getTenantUserStoreManager() throws RestAPIException {
+    private static UserStoreManager getTenantUserStoreManager() throws UserManagerException {
 
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
-        UserRealm userRealm = null;
-        UserStoreManager userStoreManager = null;
+        UserRealm userRealm;
+        UserStoreManager userStoreManager;
 
         try {
             userRealm = carbonContext.getUserRealm();
             userStoreManager = userRealm.getUserStoreManager();
 
         } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
-            throw new RestAPIException(e.getMessage(), e);
+            String msg = "Error in retrieving UserStore Manager";
+            log.error(msg, e);
+            throw new UserManagerException(msg, e);
         }
 
         return userStoreManager;
