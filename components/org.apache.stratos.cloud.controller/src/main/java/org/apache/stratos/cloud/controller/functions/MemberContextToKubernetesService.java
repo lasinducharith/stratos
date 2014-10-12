@@ -22,6 +22,7 @@ import org.apache.stratos.cloud.controller.pojo.ClusterContext;
 import org.apache.stratos.cloud.controller.pojo.KubernetesClusterContext;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
 import org.apache.stratos.kubernetes.client.model.Selector;
@@ -35,7 +36,7 @@ import com.google.common.base.Function;
  */
 public class MemberContextToKubernetesService implements Function<MemberContext, Service> {
 
-    private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
 
     @Override
     public Service apply(MemberContext memberContext) {

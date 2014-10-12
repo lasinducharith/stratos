@@ -29,6 +29,7 @@ import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.pojo.PortMapping;
 import org.apache.stratos.cloud.controller.pojo.Property;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
 import org.apache.stratos.kubernetes.client.model.Container;
@@ -44,7 +45,7 @@ import com.google.common.base.Function;
 public class MemberContextToKubernetesContainer implements Function<MemberContext, Container> {
 
     private static final Log log = LogFactory.getLog(MemberContextToKubernetesContainer.class);
-    private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
 
     @Override
     public Container apply(MemberContext memberContext) {

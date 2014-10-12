@@ -21,6 +21,7 @@ package org.apache.cartridge.autoscaler.service.axiom;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import junit.framework.TestCase;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 
 public class FasterLookupDataHolderTest extends TestCase {
     
@@ -35,7 +36,7 @@ public class FasterLookupDataHolderTest extends TestCase {
     public final void testMemberContextOperations() throws Exception {
     	
     	
-    	FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    	FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
     	Thread t1 = new Thread(new MemberAdder(dataHolder));
     	t1.start();
     	t1.join();

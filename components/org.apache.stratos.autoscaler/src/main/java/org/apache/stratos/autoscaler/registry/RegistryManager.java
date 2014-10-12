@@ -59,7 +59,7 @@ public class RegistryManager {
      */
     public static RegistryManager getInstance(int tenantId) {
     	try {
-    		registryService = ServiceReferenceHolder.getInstance().getRegistry();
+    		registryService = ServiceReferenceHolder.getInstance().getRegistryService();
     		registry = (Registry) registryService.getGovernanceSystemRegistry(tenantId);
     	}
     	catch(RegistryException e){

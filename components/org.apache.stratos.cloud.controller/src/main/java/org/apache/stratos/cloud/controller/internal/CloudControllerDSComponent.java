@@ -22,7 +22,6 @@ package org.apache.stratos.cloud.controller.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.cloud.controller.exception.CloudControllerException;
 import org.apache.stratos.cloud.controller.impl.CloudControllerServiceImpl;
 import org.apache.stratos.cloud.controller.interfaces.CloudControllerService;
 import org.apache.stratos.cloud.controller.publisher.TopologySynchronizerTaskScheduler;
@@ -34,9 +33,8 @@ import org.apache.stratos.messaging.broker.subscribe.TopicSubscriber;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.ntask.core.service.TaskService;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -83,6 +81,8 @@ public class CloudControllerDSComponent {
 			BundleContext bundleContext = context.getBundleContext();
 			bundleContext.registerService(CloudControllerService.class.getName(),
 			                              new CloudControllerServiceImpl(), null);
+            bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
+                                          new CCTenantArtifactLoader(), null);
 
 			if (log.isInfoEnabled()) {
 				log.info("Scheduling tasks");
@@ -116,23 +116,14 @@ public class CloudControllerDSComponent {
 		if (log.isDebugEnabled()) {
 			log.debug("Setting the Registry Service");
 		}
-
-		try {
-			UserRegistry registry = registryService
-					.getGovernanceSystemRegistry();
-			ServiceReferenceHolder.getInstance().setRegistry(registry);
-		} catch (RegistryException e) {
-			String msg = "Failed when retrieving Governance System Registry.";
-			log.error(msg, e);
-			throw new CloudControllerException(msg, e);
-		}
+		ServiceReferenceHolder.getInstance().setRegistryService(registryService);
 	}
 
 	protected void unsetRegistryService(RegistryService registryService) {
 		if (log.isDebugEnabled()) {
 			log.debug("Unsetting the Registry Service");
 		}
-		ServiceReferenceHolder.getInstance().setRegistry(null);
+		ServiceReferenceHolder.getInstance().setRegistryService(null);
 	}
 
 	protected void setConfigurationContextService(

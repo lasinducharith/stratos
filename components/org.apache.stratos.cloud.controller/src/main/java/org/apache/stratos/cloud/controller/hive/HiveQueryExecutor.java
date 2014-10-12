@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.exception.CloudControllerException;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceHiveExecutionException;
 import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceStub;
@@ -43,7 +44,7 @@ public class HiveQueryExecutor {
     private HiveExecutionServiceStub hiveService;
     private String payloadPrefix = CloudControllerConstants.PAYLOAD_PREFIX;
     private String hiveTable = "cloudController";
-    private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
     
     public HiveQueryExecutor() {
 

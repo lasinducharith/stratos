@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.registry.RegistryManager;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.databridge.agent.thrift.AsyncDataPublisher;
 
 import java.io.Serializable;
@@ -111,9 +112,9 @@ public class FasterLookUpDataHolder implements Serializable{
 
 		if (ctxt == null) {
 			synchronized (FasterLookUpDataHolder.class) {
-				if (ctxt == null && RegistryManager.getInstance() != null) {
+				if (ctxt == null && RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()) != null) {
 
-					Object obj = RegistryManager.getInstance().retrieve();
+					Object obj = RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).retrieve();
 					if (obj != null) {
 						if (obj instanceof FasterLookUpDataHolder) {
 							ctxt = (FasterLookUpDataHolder) obj;

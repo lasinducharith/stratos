@@ -24,6 +24,7 @@ import org.apache.stratos.cloud.controller.exception.CloudControllerException;
 import org.apache.stratos.cloud.controller.pojo.Cartridge;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -56,7 +57,7 @@ public class CartridgeInstanceDataPublisher {
                                String serviceName,
                                String status,
                                NodeMetadata metadata) {
-        if(!FasterLookUpDataHolder.getInstance().getEnableBAMDataPublisher()){
+        if(!FasterLookupDataHolderManager.getDataHolderForTenant().getEnableBAMDataPublisher()){
             return;
         }
         log.debug(CloudControllerConstants.DATA_PUB_TASK_NAME+" cycle started.");
@@ -74,9 +75,9 @@ public class CartridgeInstanceDataPublisher {
         }
 
 
-        MemberContext memberContext = FasterLookUpDataHolder.getInstance().getMemberContextOfMemberId(memberId);
+        MemberContext memberContext = FasterLookupDataHolderManager.getDataHolderForTenant().getMemberContextOfMemberId(memberId);
         String cartridgeType = memberContext.getCartridgeType();
-        Cartridge cartridge = FasterLookUpDataHolder.getInstance().getCartridge(cartridgeType);
+        Cartridge cartridge = FasterLookupDataHolderManager.getDataHolderForTenant().getCartridge(cartridgeType);
         
         //Construct the data to be published
         List<Object> payload = new ArrayList<Object>();
@@ -138,7 +139,7 @@ public class CartridgeInstanceDataPublisher {
     }
     
     private static void release(){
-        FasterLookUpDataHolder.getInstance().setPublisherRunning(false);
+        FasterLookupDataHolderManager.getDataHolderForTenant().setPublisherRunning(false);
     }
     
     private static StreamDefinition initializeStream() throws Exception {
@@ -182,8 +183,8 @@ public class CartridgeInstanceDataPublisher {
         String trustStorePath = serverConfig.getFirstProperty("Security.TrustStore.Location");
         String trustStorePassword = serverConfig.getFirstProperty("Security.TrustStore.Password");
         String bamServerUrl = serverConfig.getFirstProperty("BamServerURL");
-        String adminUsername = FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamUsername();
-        String adminPassword = FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamPassword();
+        String adminUsername = FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamUsername();
+        String adminPassword = FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamPassword();
 
         System.setProperty("javax.net.ssl.trustStore", trustStorePath);
         System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
@@ -191,7 +192,7 @@ public class CartridgeInstanceDataPublisher {
 
         try {
             dataPublisher = new AsyncDataPublisher("tcp://" +  bamServerUrl + "", adminUsername, adminPassword);
-            FasterLookUpDataHolder.getInstance().setDataPublisher(dataPublisher);
+            FasterLookupDataHolderManager.getDataHolderForTenant().setDataPublisher(dataPublisher);
             initializeStream();
             dataPublisher.addStreamDefinition(streamDefinition);
         } catch (Exception e) {

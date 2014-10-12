@@ -21,6 +21,7 @@ package org.apache.stratos.cloud.controller.functions;
 import org.apache.stratos.cloud.controller.pojo.ClusterContext;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
 import org.apache.stratos.kubernetes.client.model.Container;
@@ -40,7 +41,7 @@ import com.google.common.base.Function;
 public class MemberContextToReplicationController implements
         Function<MemberContext, ReplicationController> {
 
-    private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
 
     @Override
     public ReplicationController apply(MemberContext memberContext) {

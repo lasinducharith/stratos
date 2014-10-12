@@ -32,6 +32,7 @@ import org.apache.stratos.cloud.controller.pojo.DataPublisherConfig;
 import org.apache.stratos.cloud.controller.pojo.IaasProvider;
 import org.apache.stratos.cloud.controller.pojo.TopologyConfig;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 
 /**
@@ -61,10 +62,10 @@ public class CloudControllerConfigParser {
 
 
     private static void extractIaasProviders(OMElement elt, List<OMNode> nodeList) {
-        List<IaasProvider> iaasProviders = FasterLookUpDataHolder.getInstance().getIaasProviders();
+        List<IaasProvider> iaasProviders = FasterLookupDataHolderManager.getDataHolderForTenant().getIaasProviders();
 
         if (iaasProviders == null) {
-            FasterLookUpDataHolder.getInstance()
+            FasterLookupDataHolderManager.getDataHolderForTenant()
                     .setIaasProviders((iaasProviders = new ArrayList<IaasProvider>()));
         }
 
@@ -86,7 +87,7 @@ public class CloudControllerConfigParser {
             return;
         }
 
-        FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+        FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
         // get enable attribute
         boolean isEnable =
                 Boolean.parseBoolean(element.getAttributeValue(new QName(

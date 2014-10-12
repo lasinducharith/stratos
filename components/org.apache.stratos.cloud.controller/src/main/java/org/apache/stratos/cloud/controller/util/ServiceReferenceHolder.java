@@ -20,8 +20,7 @@ package org.apache.stratos.cloud.controller.util;
 
 import org.apache.axis2.engine.AxisConfiguration;
 import org.wso2.carbon.ntask.core.service.TaskService;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.registry.api.RegistryService;
 
 /**
  * Singleton class to hold all the service references.
@@ -30,7 +29,7 @@ public class ServiceReferenceHolder {
 
     private static ServiceReferenceHolder instance;
     private TaskService taskService;
-    private Registry registry;
+    private RegistryService registryService;
     private AxisConfiguration axisConfiguration;
     
     private ServiceReferenceHolder() {
@@ -59,12 +58,12 @@ public class ServiceReferenceHolder {
         this.taskService = taskService;
     }
     
-	public void setRegistry(UserRegistry governanceSystemRegistry) {
-		registry = governanceSystemRegistry;
+	public void setRegistryService(RegistryService registryService) {
+		this.registryService = registryService;
     }
 
-	public Registry getRegistry() {
-	    return registry;
+	public RegistryService getRegistryService() {
+	    return registryService;
     }
     
 }

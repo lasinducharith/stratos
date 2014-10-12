@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.stratos.cloud.controller.axiom.AxiomXpathParserUtil;
 import org.apache.stratos.cloud.controller.axiom.parser.CloudControllerConfigParser;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 
 import java.io.File;
 import java.util.List;
@@ -47,18 +48,18 @@ public class AxiomXpathParserTest extends TestCase {
     public void testGetMatchingNodes(){
         List<OMNode> list = AxiomXpathParserUtil.getMatchingNodes("/cloudController/iaasProviders/iaasProvider/provider", docElt);
         assertEquals(1, list.size());
-        assertEquals(1, FasterLookUpDataHolder.getInstance().getIaasProviders().size());
+        assertEquals(1, FasterLookupDataHolderManager.getDataHolderForTenant().getIaasProviders().size());
     }
     
     public void testDataPublisherConfig() {
-		assertEquals(true, FasterLookUpDataHolder.getInstance().getEnableBAMDataPublisher());
-		assertEquals("nirmal", FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamUsername());
-		assertEquals("nirmal", FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamPassword());
+		assertEquals(true, FasterLookupDataHolderManager.getDataHolderForTenant().getEnableBAMDataPublisher());
+		assertEquals("nirmal", FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamUsername());
+		assertEquals("nirmal", FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamPassword());
 	}
     
     public void testTopologySynchParser() {
-		assertNotNull(FasterLookUpDataHolder.getInstance().getTopologyConfig());
-		assertEquals("1 * * * * ? *", FasterLookUpDataHolder.getInstance().getTopologyConfig().getProperty("cron"));
+		assertNotNull(FasterLookupDataHolderManager.getDataHolderForTenant().getTopologyConfig());
+		assertEquals("1 * * * * ? *", FasterLookupDataHolderManager.getDataHolderForTenant().getTopologyConfig().getProperty("cron"));
 	}
 
 }

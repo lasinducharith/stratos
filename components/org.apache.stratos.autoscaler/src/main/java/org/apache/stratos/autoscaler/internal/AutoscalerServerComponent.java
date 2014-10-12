@@ -20,22 +20,16 @@ package org.apache.stratos.autoscaler.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.autoscaler.NetworkPartitionLbHolder;
-import org.apache.stratos.autoscaler.deployment.policy.DeploymentPolicy;
-import org.apache.stratos.autoscaler.exception.AutoScalerException;
 import org.apache.stratos.autoscaler.kubernetes.KubernetesManager;
 import org.apache.stratos.autoscaler.message.receiver.health.AutoscalerHealthStatEventReceiver;
 import org.apache.stratos.autoscaler.message.receiver.topology.AutoscalerTopologyEventReceiver;
 import org.apache.stratos.autoscaler.partition.PartitionManager;
 import org.apache.stratos.autoscaler.policy.PolicyManager;
-import org.apache.stratos.autoscaler.policy.model.AutoscalePolicy;
 import org.apache.stratos.autoscaler.registry.RegistryManager;
 import org.apache.stratos.autoscaler.util.ServiceReferenceHolder;
-import org.apache.stratos.cloud.controller.stub.deployment.partition.Partition;
 import org.apache.stratos.common.kubernetes.KubernetesGroup;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
 import java.util.Iterator;
@@ -121,13 +115,13 @@ public class AutoscalerServerComponent {
         if (log.isDebugEnabled()) {
             log.debug("Setting the Registry Service");
         }
-        ServiceReferenceHolder.getInstance().setRegistry(registryService);
+        ServiceReferenceHolder.getInstance().setRegistryService(registryService);
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the Registry Service");
         }
-        ServiceReferenceHolder.getInstance().setRegistry(null);
+        ServiceReferenceHolder.getInstance().setRegistryService(null);
     }
 }

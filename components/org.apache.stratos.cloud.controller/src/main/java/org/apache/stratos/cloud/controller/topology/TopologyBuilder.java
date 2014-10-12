@@ -25,6 +25,7 @@ import org.apache.stratos.cloud.controller.exception.InvalidMemberException;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.publisher.CartridgeInstanceDataPublisher;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
 import org.apache.stratos.messaging.domain.topology.*;
@@ -339,7 +340,7 @@ public class TopologyBuilder {
             TopologyManager.acquireWriteLock();
             member.setStatus(MemberStatus.Activated);
             log.info("member started event adding status activated");
-            Cartridge cartridge = FasterLookUpDataHolder.getInstance().
+            Cartridge cartridge = FasterLookupDataHolderManager.getDataHolderForTenant().
                     getCartridge(instanceActivatedEvent.getServiceName());
 
             List<PortMapping> portMappings = cartridge.getPortMappings();

@@ -40,11 +40,11 @@ public class ServiceReferenceHolder {
 	        return instance;
 	}
 	 
-	public void setRegistry(RegistryService registrySerivice) {
+	public void setRegistryService(RegistryService registrySerivice) {
 		this.registryService = registrySerivice;
 	}
 
-    public RegistryService getRegistry() {
+    public RegistryService getRegistryService() {
 		return this.registryService;
 	}
     
