@@ -42,6 +42,7 @@ import java.util.Properties;
  */
 public class ExtensionUtils {
     private static final Log log = LogFactory.getLog(ExtensionUtils.class);
+    private static final int tenantId = CartridgeAgentConfiguration.getInstance().getTenantId();
 
     private static String getExtensionsDir() {
         String extensionsDir = System.getProperty(CartridgeAgentConstants.EXTENSIONS_DIR);
@@ -69,7 +70,7 @@ public class ExtensionUtils {
         envParameters.put("STRATOS_APP_PATH", CartridgeAgentConfiguration.getInstance().getAppPath());
         envParameters.put("STRATOS_PARAM_FILE_PATH", System.getProperty(CartridgeAgentConstants.PARAM_FILE_PATH));
         envParameters.put("STRATOS_SERVICE_NAME", CartridgeAgentConfiguration.getInstance().getServiceName());
-        envParameters.put("STRATOS_TENANT_ID", CartridgeAgentConfiguration.getInstance().getTenantId());
+        envParameters.put("STRATOS_TENANT_ID", String.valueOf(CartridgeAgentConfiguration.getInstance().getTenantId()));
         envParameters.put("STRATOS_CARTRIDGE_KEY", CartridgeAgentConfiguration.getInstance().getCartridgeKey());
         envParameters.put("STRATOS_LB_CLUSTER_ID", CartridgeAgentConfiguration.getInstance().getLbClusterId());
         envParameters.put("STRATOS_CLUSTER_ID", CartridgeAgentConfiguration.getInstance().getClusterId());
@@ -93,7 +94,7 @@ public class ExtensionUtils {
         envParameters.put("STRATOS_LB_IP", lbIp);
         envParameters.put("STRATOS_LB_PUBLIC_IP", lbPublicIp);
 
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         if (topology.isInitialized()){
             Service service = topology.getService(CartridgeAgentConfiguration.getInstance().getServiceName());
             Cluster cluster = service.getCluster(CartridgeAgentConfiguration.getInstance().getClusterId());
@@ -118,7 +119,7 @@ public class ExtensionUtils {
     }
 
     public static String[] getLbMemberIp(String lbClusterId) {
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(CartridgeAgentConfiguration.getInstance().getTenantId());
         Collection<Service> serviceCollection = topology.getServices();
 
         for (Service service : serviceCollection) {
@@ -140,7 +141,7 @@ public class ExtensionUtils {
         if (clusterIdInPayload == null) {
             return false;
         }
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         if (topology == null || !topology.isInitialized()) {
             return false;
         }
@@ -533,7 +534,7 @@ public class ExtensionUtils {
 
     public static boolean isTopologyInitialized() {
         TopologyManager.acquireReadLock();
-        boolean active = TopologyManager.getTopology().isInitialized();
+        boolean active = TopologyManager.getTopology(tenantId).isInitialized();
         TopologyManager.releaseReadLock();
         return active;
     }
@@ -551,7 +552,7 @@ public class ExtensionUtils {
     }
 
     public static boolean checkTopologyConsistency(String serviceName, String clusterId, String memberId){
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(serviceName);
         if (service == null) {
             if (log.isErrorEnabled()) {

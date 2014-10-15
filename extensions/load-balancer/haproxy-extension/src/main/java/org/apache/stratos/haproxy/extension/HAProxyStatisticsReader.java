@@ -51,7 +51,7 @@ public class HAProxyStatisticsReader implements LoadBalancerStatisticsReader {
         String[] array;
         int totalWeight, weight;
 
-        for (Service service : TopologyManager.getTopology().getServices()) {
+        for (Service service : TopologyManager.getTopology(-1234).getServices()) {
             for (Cluster cluster : service.getClusters()) {
                 if (cluster.getClusterId().equals(clusterId)) {
                     totalWeight = 0;

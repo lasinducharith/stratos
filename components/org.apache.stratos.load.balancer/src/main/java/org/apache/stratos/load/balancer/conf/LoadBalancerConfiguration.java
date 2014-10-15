@@ -98,8 +98,9 @@ public class LoadBalancerConfiguration {
             instance = null;
             // Clear load balancer context
             LoadBalancerContext.getInstance().clear();
+            //TODO Remove Hard Coded tenant ID
             // Clear topology
-            TopologyManager.getTopology().clear();
+            TopologyManager.getTopology(-1234).clear();
         }
     }
 
@@ -496,16 +497,17 @@ public class LoadBalancerConfiguration {
 
                         // Add service to topology manager if not exists
                         try {
+                            //TODO Remove Hard Coded tenant ID
                             TopologyManager.acquireWriteLock();
-                            if (!TopologyManager.getTopology().serviceExists(service.getServiceName())) {
-                                TopologyManager.getTopology().addService(service);
+                            if (!TopologyManager.getTopology(-1234).serviceExists(service.getServiceName())) {
+                                TopologyManager.getTopology(-1234).addService(service);
                             }
                         } finally {
                             TopologyManager.releaseWriteLock();
                         }
-
+                        //TODO Remove Hard Coded tenant ID
                         // Add cluster to load balancer context
-                        LoadBalancerContextUtil.addClusterAgainstHostNames(cluster);
+                        LoadBalancerContextUtil.addClusterAgainstHostNames(-1234, cluster);
                     }
                 }
             }

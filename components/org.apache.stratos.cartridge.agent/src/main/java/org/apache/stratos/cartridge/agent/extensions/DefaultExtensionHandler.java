@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.cartridge.agent.CartridgeAgent;
 import org.apache.stratos.cartridge.agent.artifact.deployment.synchronizer.RepositoryInformation;
 import org.apache.stratos.cartridge.agent.artifact.deployment.synchronizer.git.impl.GitBasedArtifactRepository;
 import org.apache.stratos.cartridge.agent.config.CartridgeAgentConfiguration;
@@ -62,6 +63,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
     private static final Type serviceType = new TypeToken<Collection<Service>>() {
     }.getType();
     private final ArrayList<Member> wkMembers = new ArrayList<Member>();
+    private final int tenantId = CartridgeAgentConfiguration.getInstance().getTenantId();
 
     @Override
     public void onInstanceStartedEvent() {
@@ -107,7 +109,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             String localRepoPath = CartridgeAgentConfiguration.getInstance().getAppPath();
             String repoPassword = CartridgeAgentUtils.decryptPassword(artifactUpdatedEvent.getRepoPassword());
             String repoUsername = artifactUpdatedEvent.getRepoUserName();
-            String tenantId = artifactUpdatedEvent.getTenantId();
+            int tenantId = artifactUpdatedEvent.getTenantId();
             boolean isMultitenant = CartridgeAgentConfiguration.getInstance().isMultitenant();
 
             if (log.isInfoEnabled()) {
@@ -132,7 +134,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             }
             Map<String, String> env = new HashMap<String, String>();
             env.put("STRATOS_ARTIFACT_UPDATED_CLUSTER_ID", artifactUpdatedEvent.getClusterId());
-            env.put("STRATOS_ARTIFACT_UPDATED_TENANT_ID", artifactUpdatedEvent.getTenantId());
+            env.put("STRATOS_ARTIFACT_UPDATED_TENANT_ID", String.valueOf(artifactUpdatedEvent.getTenantId()));
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_URL", artifactUpdatedEvent.getRepoURL());
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_PASSWORD", artifactUpdatedEvent.getRepoPassword());
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_USERNAME", artifactUpdatedEvent.getRepoUserName());
@@ -245,7 +247,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
 
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberActivatedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberActivatedEvent.getClusterId());
         String lbClusterId = cluster.getMember(memberActivatedEvent.getMemberId()).getLbClusterId();
@@ -410,7 +412,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
 
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberTerminatedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberTerminatedEvent.getClusterId());
         Member terminatedMember = cluster.getMember(memberTerminatedEvent.getMemberId());
@@ -469,7 +471,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         }
 
         String clusterId = memberSuspendedEvent.getClusterId();
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberSuspendedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberSuspendedEvent.getClusterId());
         Member suspendedMember = cluster.getMember(memberSuspendedEvent.getMemberId());
@@ -525,7 +527,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
         String clusterId = memberStartedEvent.getClusterId();
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberStartedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberStartedEvent.getClusterId());
         Member startedMember = cluster.getMember(memberStartedEvent.getMemberId());
@@ -561,7 +563,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
     }
 
     private boolean isWKMemberGroupReady(Map<String, String> envParameters, int minCount) {
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         if (topology == null || !topology.isInitialized()) {
             return false;
         }
@@ -710,8 +712,8 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         TopologyManager.acquireReadLock();
 
         try {
-            Service managerService = TopologyManager.getTopology().getService(managerServiceName);
-            Service workerService = TopologyManager.getTopology().getService(workerServiceName);
+            Service managerService = TopologyManager.getTopology(tenantId).getService(managerServiceName);
+            Service workerService = TopologyManager.getTopology(tenantId).getService(workerServiceName);
 
             if (managerService == null) {
                 log.warn("Service [ "+managerServiceName+" ] is not found");
@@ -907,7 +909,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                 }
                 return;
             }
-            Topology topology = TopologyManager.getTopology();
+            Topology topology = TopologyManager.getTopology(tenantId);
             Service service = topology.getService(serviceNameInPayload);
             Cluster cluster = service.getCluster(clusterIdInPayload);
 

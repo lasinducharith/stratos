@@ -27,6 +27,7 @@ import org.apache.stratos.messaging.event.instance.status.InstanceReadyToShutdow
 import org.apache.stratos.messaging.event.instance.status.InstanceStartedEvent;
 import org.apache.stratos.messaging.util.Constants;
 import org.apache.stratos.messaging.util.Util;
+import org.wso2.carbon.context.CarbonContext;
 
 import javax.jms.TextMessage;
 
@@ -39,6 +40,7 @@ public class InstanceStatusEventMessageDelegator implements Runnable {
 
         while (true) {
             try {
+                int tenantId = getTenantId();
                 TextMessage message = InstanceStatusEventMessageQueue.getInstance().take();
 
                 // retrieve the header
@@ -48,22 +50,22 @@ public class InstanceStatusEventMessageDelegator implements Runnable {
                 if (InstanceStartedEvent.class.getName().equals(type)) {
                     // retrieve the actual message
                     String json = message.getText();
-                    TopologyBuilder.handleMemberStarted((InstanceStartedEvent) Util.
+                    TopologyBuilder.handleMemberStarted(tenantId, (InstanceStartedEvent) Util.
                             jsonToObject(json, InstanceStartedEvent.class));
                 } else if (InstanceActivatedEvent.class.getName().equals(type)) {
                     // retrieve the actual message
                     String json = message.getText();
-                    TopologyBuilder.handleMemberActivated((InstanceActivatedEvent) Util.
+                    TopologyBuilder.handleMemberActivated(tenantId,(InstanceActivatedEvent) Util.
                             jsonToObject(json, InstanceActivatedEvent.class));
                 } else if (InstanceReadyToShutdownEvent.class.getName().equals(type)) {
                     //retrieve the actual message
                     String json = message.getText();
-                    TopologyBuilder.handleMemberReadyToShutdown((InstanceReadyToShutdownEvent) Util.
+                    TopologyBuilder.handleMemberReadyToShutdown(tenantId,(InstanceReadyToShutdownEvent) Util.
                             jsonToObject(json, InstanceReadyToShutdownEvent.class));
                 } else if (InstanceMaintenanceModeEvent.class.getName().equals(type)) {
                     //retrieve the actual message
                     String json = message.getText();
-                    TopologyBuilder.handleMemberMaintenance((InstanceMaintenanceModeEvent) Util.
+                    TopologyBuilder.handleMemberMaintenance(tenantId,(InstanceMaintenanceModeEvent) Util.
                             jsonToObject(json, InstanceMaintenanceModeEvent.class));
                 } else {
                     log.warn("Event message received is not InstanceStartedEvent or InstanceActivatedEvent");
@@ -75,5 +77,9 @@ public class InstanceStatusEventMessageDelegator implements Runnable {
                 //throw new RuntimeException(error, e);
             }
         }
+    }
+
+    private int getTenantId(){
+        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
     }
 }

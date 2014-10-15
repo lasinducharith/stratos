@@ -55,6 +55,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
 
             @Override
             protected void onEvent(Event event) {
+                int tenantId = event.getTenantId();
                 if (!initialized) {
                     CompleteTenantEvent completeTenantEvent = (CompleteTenantEvent) event;
                     if (log.isDebugEnabled()) {
@@ -62,7 +63,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                     }
                     for (Tenant tenant : completeTenantEvent.getTenants()) {
                         for (Subscription subscription : tenant.getSubscriptions()) {
-                            if (isMultiTenantService(subscription.getServiceName())) {
+                            if (isMultiTenantService(tenantId, subscription.getServiceName())) {
                                 LoadBalancerContextUtil.addClustersAgainstHostNamesAndTenantIds(
                                         subscription.getServiceName(),
                                         tenant.getTenantId(),
@@ -70,7 +71,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                             }
 
                             for (SubscriptionDomain subscriptionDomain : subscription.getSubscriptionDomains()) {
-                                LoadBalancerContextUtil.addClustersAgainstDomain(
+                                LoadBalancerContextUtil.addClustersAgainstDomain(event.getTenantId(),
                                         subscription.getServiceName(),
                                         subscription.getClusterIds(),
                                         subscriptionDomain.getDomainName());
@@ -87,6 +88,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
         tenantEventReceiver.addEventListener(new TenantSubscribedEventListener() {
             @Override
             protected void onEvent(Event event) {
+                int tenantId = event.getTenantId();
                 TenantSubscribedEvent tenantSubscribedEvent = (TenantSubscribedEvent) event;
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Tenant subscribed event received: [tenant-id] %d [service] %s [cluster-ids] %s",
@@ -95,7 +97,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                             tenantSubscribedEvent.getClusterIds()));
                 }
 
-                if (isMultiTenantService(tenantSubscribedEvent.getServiceName())) {
+                if (isMultiTenantService(tenantId, tenantSubscribedEvent.getServiceName())) {
                     LoadBalancerContextUtil.addClustersAgainstHostNamesAndTenantIds(
                             tenantSubscribedEvent.getServiceName(),
                             tenantSubscribedEvent.getTenantId(),
@@ -106,6 +108,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
         tenantEventReceiver.addEventListener(new TenantUnSubscribedEventListener() {
             @Override
             protected void onEvent(Event event) {
+                int tenantId = event.getTenantId();
                 TenantUnSubscribedEvent tenantUnSubscribedEvent = (TenantUnSubscribedEvent) event;
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Tenant un-subscribed event received: [tenant-id] %d [service] %s [cluster-ids] %s",
@@ -114,7 +117,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                             tenantUnSubscribedEvent.getClusterIds()));
                 }
 
-                if (isMultiTenantService(tenantUnSubscribedEvent.getServiceName())) {
+                if (isMultiTenantService(tenantId, tenantUnSubscribedEvent.getServiceName())) {
                     LoadBalancerContextUtil.removeClustersAgainstHostNamesAndTenantIds(
                             tenantUnSubscribedEvent.getServiceName(),
                             tenantUnSubscribedEvent.getTenantId(),
@@ -145,7 +148,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                             subscriptionDomainAddedEvent.getDomainName()));
                 }
 
-                LoadBalancerContextUtil.addClustersAgainstDomain(
+                LoadBalancerContextUtil.addClustersAgainstDomain(event.getTenantId(),
                         subscriptionDomainAddedEvent.getServiceName(),
                         subscriptionDomainAddedEvent.getClusterIds(),
                         subscriptionDomainAddedEvent.getDomainName());
@@ -168,7 +171,7 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
                             subscriptionDomainRemovedEvent.getDomainName()));
                 }
 
-                LoadBalancerContextUtil.removeClustersAgainstDomain(
+                LoadBalancerContextUtil.removeClustersAgainstDomain(event.getTenantId(),
                         subscriptionDomainRemovedEvent.getServiceName(),
                         subscriptionDomainRemovedEvent.getClusterIds(),
                         subscriptionDomainRemovedEvent.getDomainName());
@@ -179,10 +182,10 @@ public class LoadBalancerTenantEventReceiver implements Runnable {
         });
     }
 
-    private boolean isMultiTenantService(String serviceName) {
+    private boolean isMultiTenantService(int tenantId, String serviceName) {
         try {
             TopologyManager.acquireReadLock();
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service != null) {
                 return (service.getServiceType() == ServiceType.MultiTenant);
             }

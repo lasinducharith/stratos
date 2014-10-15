@@ -287,8 +287,9 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
             MemberAverageMemoryConsumptionEvent memberAverageMemoryConsumptionEvent) {
 
         String memberId = memberAverageMemoryConsumptionEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
-        String networkPartitionId = getNetworkPartitionIdByMemberId(memberId);
+        int tenantId = memberAverageMemoryConsumptionEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
+        String networkPartitionId = getNetworkPartitionIdByMemberId(tenantId, memberId);
         NetworkPartitionContext networkPartitionCtxt = getNetworkPartitionCtxt(networkPartitionId);
         PartitionContext partitionCtxt = networkPartitionCtxt.getPartitionCtxt(member.getPartitionId());
         MemberStatsContext memberStatsContext = partitionCtxt.getMemberStatsContext(memberId);
@@ -307,8 +308,9 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
             MemberGradientOfMemoryConsumptionEvent memberGradientOfMemoryConsumptionEvent) {
 
         String memberId = memberGradientOfMemoryConsumptionEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
-        String networkPartitionId = getNetworkPartitionIdByMemberId(memberId);
+        int tenantId = memberGradientOfMemoryConsumptionEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
+        String networkPartitionId = getNetworkPartitionIdByMemberId(tenantId, memberId);
         NetworkPartitionContext networkPartitionCtxt = getNetworkPartitionCtxt(networkPartitionId);
         PartitionContext partitionCtxt = networkPartitionCtxt.getPartitionCtxt(member.getPartitionId());
         MemberStatsContext memberStatsContext = partitionCtxt.getMemberStatsContext(memberId);
@@ -333,8 +335,8 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
             MemberAverageLoadAverageEvent memberAverageLoadAverageEvent) {
 
         String memberId = memberAverageLoadAverageEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
-        String networkPartitionId = getNetworkPartitionIdByMemberId(memberId);
+        Member member = getMemberByMemberId(memberAverageLoadAverageEvent.getTenantId(), memberId);
+        String networkPartitionId = getNetworkPartitionIdByMemberId(memberAverageLoadAverageEvent.getTenantId(), memberId);
         NetworkPartitionContext networkPartitionCtxt = getNetworkPartitionCtxt(networkPartitionId);
         PartitionContext partitionCtxt = networkPartitionCtxt.getPartitionCtxt(member.getPartitionId());
         MemberStatsContext memberStatsContext = partitionCtxt.getMemberStatsContext(memberId);
@@ -353,8 +355,9 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
             MemberGradientOfLoadAverageEvent memberGradientOfLoadAverageEvent) {
 
         String memberId = memberGradientOfLoadAverageEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
-        String networkPartitionId = getNetworkPartitionIdByMemberId(memberId);
+        int tenantId= memberGradientOfLoadAverageEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
+        String networkPartitionId = getNetworkPartitionIdByMemberId(tenantId, memberId);
         NetworkPartitionContext networkPartitionCtxt = getNetworkPartitionCtxt(networkPartitionId);
         PartitionContext partitionCtxt = networkPartitionCtxt.getPartitionCtxt(member.getPartitionId());
         MemberStatsContext memberStatsContext = partitionCtxt.getMemberStatsContext(memberId);
@@ -373,8 +376,9 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
             MemberSecondDerivativeOfLoadAverageEvent memberSecondDerivativeOfLoadAverageEvent) {
 
         String memberId = memberSecondDerivativeOfLoadAverageEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
-        String networkPartitionId = getNetworkPartitionIdByMemberId(memberId);
+        int tenantId = memberSecondDerivativeOfLoadAverageEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
+        String networkPartitionId = getNetworkPartitionIdByMemberId(tenantId, memberId);
         NetworkPartitionContext networkPartitionCtxt = getNetworkPartitionCtxt(networkPartitionId);
         PartitionContext partitionCtxt = networkPartitionCtxt.getPartitionCtxt(member.getPartitionId());
         MemberStatsContext memberStatsContext = partitionCtxt.getMemberStatsContext(memberId);
@@ -392,7 +396,8 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
     public void handleMemberFaultEvent(MemberFaultEvent memberFaultEvent) {
 
         String memberId = memberFaultEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
+        int tenantId = memberFaultEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
         if (null == member) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -409,7 +414,7 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
 
         NetworkPartitionContext nwPartitionCtxt;
         nwPartitionCtxt = getNetworkPartitionCtxt(member);
-        String partitionId = getPartitionOfMember(memberId);
+        String partitionId = getPartitionOfMember(tenantId, memberId);
         PartitionContext partitionCtxt = nwPartitionCtxt.getPartitionCtxt(partitionId);
         if (!partitionCtxt.activeMemberExist(memberId)) {
             if (log.isDebugEnabled()) {
@@ -486,7 +491,7 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
 
         // start a new member in the same Partition
         String memberId = memberReadyToShutdownEvent.getMemberId();
-        String partitionId = getPartitionOfMember(memberId);
+        String partitionId = getPartitionOfMember(memberReadyToShutdownEvent.getTenantId(), memberId);
         PartitionContext partitionCtxt = nwPartitionCtxt.getPartitionCtxt(partitionId);
         // terminate the shutdown ready member
         CloudControllerClient ccClient = CloudControllerClient.getClientWithMutualAuthHeaderSet();
@@ -548,8 +553,8 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
 
     }
 
-    private String getNetworkPartitionIdByMemberId(String memberId) {
-        for (Service service : TopologyManager.getTopology().getServices()) {
+    private String getNetworkPartitionIdByMemberId(int tenantId, String memberId) {
+        for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
             for (Cluster cluster : service.getClusters()) {
                 if (cluster.memberExists(memberId)) {
                     return cluster.getMember(memberId).getNetworkPartitionId();
@@ -559,10 +564,10 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
         return null;
     }
 
-    private Member getMemberByMemberId(String memberId) {
+    private Member getMemberByMemberId(int tenantId, String memberId) {
         try {
             TopologyManager.acquireReadLock();
-            for (Service service : TopologyManager.getTopology().getServices()) {
+            for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
                 for (Cluster cluster : service.getClusters()) {
                     if (cluster.memberExists(memberId)) {
                         return cluster.getMember(memberId);
@@ -586,8 +591,8 @@ abstract public class VMClusterMonitor extends AbstractClusterMonitor {
         return null;
     }
 
-    public String getPartitionOfMember(String memberId) {
-        for (Service service : TopologyManager.getTopology().getServices()) {
+    public String getPartitionOfMember(int tenantId, String memberId) {
+        for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
             for (Cluster cluster : service.getClusters()) {
                 if (cluster.memberExists(memberId)) {
                     return cluster.getMember(memberId).getPartitionId();

@@ -20,7 +20,7 @@ package org.apache.stratos.cloud.controller.util;
 
 import org.apache.axis2.engine.AxisConfiguration;
 import org.wso2.carbon.ntask.core.service.TaskService;
-import org.wso2.carbon.registry.api.RegistryService;
+import org.wso2.carbon.registry.core.service.RegistryService;
 
 /**
  * Singleton class to hold all the service references.

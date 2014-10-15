@@ -64,7 +64,7 @@
                 maxKeepAliveRequests="200"
                 acceptCount="200"
                 server="WSO2 Carbon Server"
-                clientAuth="false"
+                clientAuth="want"
                 compression="on"
                 scheme="https"
                 secure="true"

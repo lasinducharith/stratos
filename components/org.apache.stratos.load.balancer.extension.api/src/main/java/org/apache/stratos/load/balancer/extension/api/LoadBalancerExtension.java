@@ -95,7 +95,7 @@ public class LoadBalancerExtension implements Runnable {
 
                     if (!loadBalancerStarted) {
                         // Configure load balancer
-                        loadBalancer.configure(TopologyManager.getTopology());
+                        loadBalancer.configure(TopologyManager.getTopology(event.getTenantId()));
 
                         // Start load balancer
                         loadBalancer.start();
@@ -112,39 +112,39 @@ public class LoadBalancerExtension implements Runnable {
         topologyEventReceiver.addEventListener(new MemberActivatedEventListener() {
             @Override
             protected void onEvent(Event event) {
-                reloadConfiguration();
+                reloadConfiguration(event.getTenantId());
             }
         });
         topologyEventReceiver.addEventListener(new MemberSuspendedEventListener() {
             @Override
             protected void onEvent(Event event) {
-                reloadConfiguration();
+                reloadConfiguration(event.getTenantId());
             }
         });
         topologyEventReceiver.addEventListener(new MemberTerminatedEventListener() {
             @Override
             protected void onEvent(Event event) {
-                reloadConfiguration();
+                reloadConfiguration(event.getTenantId());
             }
         });
         topologyEventReceiver.addEventListener(new ClusterRemovedEventListener() {
             @Override
             protected void onEvent(Event event) {
-                reloadConfiguration();
+                reloadConfiguration(event.getTenantId());
             }
         });
         topologyEventReceiver.addEventListener(new ServiceRemovedEventListener() {
             @Override
             protected void onEvent(Event event) {
-                reloadConfiguration();
+                reloadConfiguration(event.getTenantId());
             }
         });
     }
 
-    private void reloadConfiguration() {
+    private void reloadConfiguration(int tenantId) {
         try {
             if (loadBalancerStarted) {
-                loadBalancer.reload(TopologyManager.getTopology());
+                loadBalancer.reload(TopologyManager.getTopology(tenantId));
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

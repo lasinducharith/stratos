@@ -58,6 +58,7 @@ public class CartridgeAgentEventPublisher {
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool
 					.getPublisher(topic);
+            event.setTenantId(getTenantIdOfCartridge());
 			eventPublisher.publish(event);
 			setStarted(true);
 			if (log.isInfoEnabled()) {
@@ -87,6 +88,7 @@ public class CartridgeAgentEventPublisher {
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool
 					.getPublisher(topic);
+            event.setTenantId(getTenantIdOfCartridge());
 			eventPublisher.publish(event);
 			if (log.isInfoEnabled()) {
 				log.info("Instance activated event published");
@@ -122,6 +124,7 @@ public class CartridgeAgentEventPublisher {
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool
 					.getPublisher(topic);
+            event.setTenantId(getTenantIdOfCartridge());
 			eventPublisher.publish(event);
 			setReadyToShutdown(true);
 			if (log.isInfoEnabled()) {
@@ -148,6 +151,7 @@ public class CartridgeAgentEventPublisher {
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool
 					.getPublisher(topic);
+            event.setTenantId(getTenantIdOfCartridge());
 			eventPublisher.publish(event);
 			setMaintenance(true);
 			if (log.isInfoEnabled()) {
@@ -191,4 +195,8 @@ public class CartridgeAgentEventPublisher {
 	public static void setMaintenance(boolean maintenance) {
 		CartridgeAgentEventPublisher.maintenance = maintenance;
 	}
+
+    private static int getTenantIdOfCartridge(){
+        return CartridgeAgentConfiguration.getInstance().getTenantId();
+    }
 }

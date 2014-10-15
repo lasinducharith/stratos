@@ -21,8 +21,6 @@ package org.apache.stratos.cloud.controller.runtime;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.pojo.*;
-import org.apache.stratos.cloud.controller.registry.RegistryManager;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.databridge.agent.thrift.AsyncDataPublisher;
 
 import java.io.Serializable;
@@ -43,7 +41,7 @@ public class FasterLookUpDataHolder implements Serializable{
     
     private static final Log log = LogFactory.getLog(FasterLookUpDataHolder.class);
 
-	private static volatile FasterLookUpDataHolder ctxt;
+	//private static volatile FasterLookUpDataHolder ctxt;
 
 	/* We keep following maps in order to make the look up time, small. */
 	
@@ -90,47 +88,30 @@ public class FasterLookUpDataHolder implements Serializable{
 	 */
 	private List<Cartridge> cartridges;
 
-	/**
-	 * List of IaaS Providers.
-	 */
-	private List<IaasProvider> iaasProviders;
 
+//	public static FasterLookUpDataHolder getInstance() {
+//
+//		if (ctxt == null) {
+//			synchronized (FasterLookUpDataHolder.class) {
+//				if (ctxt == null && RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()) != null) {
+//
+//					Object obj = RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).retrieve();
+//					if (obj != null) {
+//						if (obj instanceof FasterLookUpDataHolder) {
+//							ctxt = (FasterLookUpDataHolder) obj;
+//						}
+//					}
+//				}
+//				if(ctxt == null) {
+//					ctxt = new FasterLookUpDataHolder();
+//				}
+//			}
+//		}
+//
+//		return ctxt;
+//	}
 
-	private String serializationDir;
-	private boolean enableBAMDataPublisher;
-	private transient DataPublisherConfig dataPubConfig;
-	private boolean enableTopologySync;
-	private transient TopologyConfig topologyConfig;
-
-	private transient AsyncDataPublisher dataPublisher;
-	private String streamId;
-	private boolean isPublisherRunning;
-	private boolean isTopologySyncRunning;
-
-
-	public static FasterLookUpDataHolder getInstance() {
-
-		if (ctxt == null) {
-			synchronized (FasterLookUpDataHolder.class) {
-				if (ctxt == null && RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()) != null) {
-
-					Object obj = RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).retrieve();
-					if (obj != null) {
-						if (obj instanceof FasterLookUpDataHolder) {
-							ctxt = (FasterLookUpDataHolder) obj;
-						}
-					} 
-				}
-				if(ctxt == null) {
-					ctxt = new FasterLookUpDataHolder();
-				}
-			}
-		}
-
-		return ctxt;
-	}
-
-	private FasterLookUpDataHolder() {
+	public FasterLookUpDataHolder() {
 
 		cartridges = new ArrayList<Cartridge>();
 		
@@ -167,99 +148,6 @@ public class FasterLookUpDataHolder implements Serializable{
 
 	}
 	
-	public IaasProvider getIaasProvider(String type) {
-	    if(type == null) {
-	        return null;
-	    }
-	    
-	    for (IaasProvider iaasProvider : iaasProviders) {
-            if(type.equals(iaasProvider.getType())) {
-                return iaasProvider;
-            }
-        }
-	    return null;
-	}
-
-	public List<IaasProvider> getIaasProviders() {
-		return iaasProviders;
-	}
-
-	public void setIaasProviders(List<IaasProvider> iaasProviders) {
-		this.iaasProviders = iaasProviders;
-	}
-
-	public String getSerializationDir() {
-		return serializationDir;
-	}
-
-	public void setSerializationDir(String serializationDir) {
-		this.serializationDir = serializationDir;
-	}
-
-	public AsyncDataPublisher getDataPublisher() {
-		return dataPublisher;
-	}
-
-	public void setDataPublisher(AsyncDataPublisher dataPublisher) {
-		this.dataPublisher = dataPublisher;
-	}
-
-	public String getStreamId() {
-		return streamId;
-	}
-
-	public void setStreamId(String streamId) {
-		this.streamId = streamId;
-	}
-
-	public boolean getEnableBAMDataPublisher() {
-		return enableBAMDataPublisher;
-	}
-
-	public void setEnableBAMDataPublisher(boolean enableBAMDataPublisher) {
-		this.enableBAMDataPublisher = enableBAMDataPublisher;
-	}
-
-	public boolean isPublisherRunning() {
-		return isPublisherRunning;
-	}
-
-	public void setPublisherRunning(boolean isPublisherRunning) {
-		this.isPublisherRunning = isPublisherRunning;
-	}
-
-	public boolean getEnableTopologySync() {
-		return enableTopologySync;
-	}
-
-	public void setEnableTopologySync(boolean enableTopologySync) {
-		this.enableTopologySync = enableTopologySync;
-	}
-
-	public boolean isTopologySyncRunning() {
-	    return isTopologySyncRunning;
-    }
-
-	public void setTopologySyncRunning(boolean isTopologySyncRunning) {
-	    this.isTopologySyncRunning = isTopologySyncRunning;
-    }
-
-	public TopologyConfig getTopologyConfig() {
-		return topologyConfig;
-	}
-
-	public void setTopologyConfig(TopologyConfig topologyConfig) {
-		this.topologyConfig = topologyConfig;
-	}
-
-    public DataPublisherConfig getDataPubConfig() {
-        return dataPubConfig;
-    }
-
-    public void setDataPubConfig(DataPublisherConfig dataPubConfig) {
-        this.dataPubConfig = dataPubConfig;
-    }
-    
     public void addMemberContext(MemberContext ctxt) {
         memberIdToContext.put(ctxt.getMemberId(), ctxt);
         
@@ -290,7 +178,7 @@ public class FasterLookUpDataHolder implements Serializable{
         }
         if(log.isDebugEnabled()) {
         	
-        	log.debug("Removed Member Context from the information model. "+ctxt);
+        	log.debug("Removed Member Context from the information model. "+ ctxts);
         }
     }
     

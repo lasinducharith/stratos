@@ -74,7 +74,8 @@ public class LoadBalancerStatisticsNotifier implements Runnable {
                     try {
                         TopologyManager.acquireReadLock();
                         int requestCount;
-                        for (Service service : TopologyManager.getTopology().getServices()) {
+                        //TODO Remove Hard Coded tenant ID
+                        for (Service service : TopologyManager.getTopology(-1234).getServices()) {
                             for (Cluster cluster : service.getClusters()) {
                                 if (!cluster.isLbCluster()) {
                                     // Publish in-flight request count of load balancer's network partition

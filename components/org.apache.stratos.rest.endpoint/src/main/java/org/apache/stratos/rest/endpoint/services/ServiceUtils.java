@@ -659,7 +659,7 @@ public class ServiceUtils {
             if (tenantRange.equals(Constants.TENANT_RANGE_ALL)) {
                 //check whether any active instances found for this service in the Topology
 
-                Cluster cluster = TopologyManager.getTopology().getService(service.getType()).
+                Cluster cluster = TopologyManager.getTopology(tenantId).getService(service.getType()).
                         getCluster(service.getClusterId());
                 boolean activeMemberFound = false;
                 for (Member member : cluster.getMembers()) {

@@ -170,9 +170,11 @@ public class CartridgeSubscriptionUtils {
                 if (log.isInfoEnabled()) {
                     log.info(String.format("Publishing tenant subscribed event: [tenant-id] %d [service] %s", tenantId, serviceName));
                 }
-                TenantSubscribedEvent subscribedEvent = new TenantSubscribedEvent(tenantId, serviceName, clusterIds);
+                TenantSubscribedEvent subscribedEvent = new TenantSubscribedEvent(serviceName, clusterIds);
+                subscribedEvent.setTenantId(tenantId);
                 String topic = Util.getMessageTopicName(subscribedEvent);
                 EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+                subscribedEvent.setTenantId(tenantId);
                 eventPublisher.publish(subscribedEvent);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
@@ -202,9 +204,10 @@ public class CartridgeSubscriptionUtils {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Publishing tenant un-subscribed event: [tenant-id] %d [service] %s", tenantId, serviceName));
             }
-            TenantUnSubscribedEvent event = new TenantUnSubscribedEvent(tenantId, serviceName, clusterIds);
+            TenantUnSubscribedEvent event = new TenantUnSubscribedEvent(serviceName, clusterIds);
 	        String topic = Util.getMessageTopicName(event);
             EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+            event.setTenantId(tenantId);
             eventPublisher.publish(event);
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

@@ -53,7 +53,7 @@ public class CartridgeAgentConfiguration {
     private final boolean isCheckoutEnabled;
     private final String listenAddress;
     private final String lbClusterId;
-    private final String tenantId;
+    private final int tenantId;
     private final String isClustered;
     private final String minCount;
     private Map<String, String> parameters;
@@ -94,7 +94,7 @@ public class CartridgeAgentConfiguration {
 
             listenAddress = System.getProperty(CartridgeAgentConstants.LISTEN_ADDRESS);
             isInternalRepo = readInternalRepo(CartridgeAgentConstants.PROVIDER);
-            tenantId = readParameterValue(CartridgeAgentConstants.TENANT_ID);
+            tenantId = Integer.parseInt(readParameterValue(CartridgeAgentConstants.TENANT_ID));
             lbClusterId = readLBClusterIdValue(CartridgeAgentConstants.LB_CLUSTER_ID);
             minCount = readMinCountValue(CartridgeAgentConstants.MIN_INSTANCE_COUNT);
             // not mandatory
@@ -481,7 +481,7 @@ public class CartridgeAgentConfiguration {
         return isInternalRepo;
     }
 
-    public String getTenantId() {
+    public int getTenantId() {
         return tenantId;
     }
 

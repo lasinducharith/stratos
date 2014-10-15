@@ -37,6 +37,7 @@ import org.apache.stratos.kubernetes.client.model.EnvironmentVariable;
 import org.apache.stratos.kubernetes.client.model.Port;
 
 import com.google.common.base.Function;
+import org.wso2.carbon.context.CarbonContext;
 
 /**
  * Is responsible for converting a {@link MemberContext} object to a Kubernetes
@@ -45,7 +46,7 @@ import com.google.common.base.Function;
 public class MemberContextToKubernetesContainer implements Function<MemberContext, Container> {
 
     private static final Log log = LogFactory.getLog(MemberContextToKubernetesContainer.class);
-    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant(CarbonContext.getThreadLocalCarbonContext().getTenantId());
 
     @Override
     public Container apply(MemberContext memberContext) {

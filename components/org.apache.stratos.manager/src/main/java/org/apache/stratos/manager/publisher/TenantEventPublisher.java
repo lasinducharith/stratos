@@ -52,6 +52,7 @@ public class TenantEventPublisher implements TenantMgtListener {
 			TenantCreatedEvent event = new TenantCreatedEvent(tenant);
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+            event.setTenantId(tenantInfo.getTenantId());
 			eventPublisher.publish(event);
 		} catch (Exception e) {
 			log.error("Could not publish tenant created event", e);
@@ -70,6 +71,7 @@ public class TenantEventPublisher implements TenantMgtListener {
 			                                                  tenantInfo.getTenantDomain());
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+            event.setTenantId(tenantInfo.getTenantId());
 			eventPublisher.publish(event);
 		} catch (Exception e) {
 			log.error("Could not publish tenant updated event");
@@ -85,6 +87,7 @@ public class TenantEventPublisher implements TenantMgtListener {
 			TenantRemovedEvent event = new TenantRemovedEvent(tenantId);
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+            event.setTenantId(tenantId);
 			eventPublisher.publish(event);
 		} catch (Exception e) {
 			log.error("Could not publish tenant removed event");

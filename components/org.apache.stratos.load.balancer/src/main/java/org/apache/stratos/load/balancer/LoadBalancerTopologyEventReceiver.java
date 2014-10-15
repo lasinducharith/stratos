@@ -80,10 +80,10 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                 if(!initialized) {
                     try {
                         TopologyManager.acquireReadLock();
-                        for (Service service : TopologyManager.getTopology().getServices()) {
+                        for (Service service : TopologyManager.getTopology(event.getTenantId()).getServices()) {
                             for (Cluster cluster : service.getClusters()) {
                                 if (clusterHasActiveMembers(cluster)) {
-                                    LoadBalancerContextUtil.addClusterAgainstHostNames(cluster);
+                                    LoadBalancerContextUtil.addClusterAgainstHostNames(event.getTenantId(), cluster);
                                 } else {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Cluster does not have any active members");
@@ -122,7 +122,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                     TopologyManager.acquireReadLock();
 
                     MemberActivatedEvent memberActivatedEvent = (MemberActivatedEvent) event;
-                    Service service = TopologyManager.getTopology().getService(memberActivatedEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(memberActivatedEvent.getServiceName());
                     if (service == null) {
                         if (log.isWarnEnabled()) {
                             log.warn(String.format("Service not found in topology: [service] %s",
@@ -163,7 +163,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
 
                     // Add cluster to load balancer context when its first member is activated:
                     // Cluster not found in load balancer context, add it
-                    LoadBalancerContextUtil.addClusterAgainstHostNames(cluster);
+                    LoadBalancerContextUtil.addClusterAgainstHostNames(event.getTenantId(), cluster);
                 } catch (Exception e) {
                     log.error("Error processing event", e);
                 } finally {
@@ -177,7 +177,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                 try {
                     TopologyManager.acquireReadLock();
                     MemberMaintenanceModeEvent memberMaintenanceModeEvent = (MemberMaintenanceModeEvent) event;
-                    Member member = findMember(memberMaintenanceModeEvent.getServiceName(),
+                    Member member = findMember(event.getTenantId(), memberMaintenanceModeEvent.getServiceName(),
                             memberMaintenanceModeEvent.getClusterId(), memberMaintenanceModeEvent.getMemberId());
 
                     if (member != null) {
@@ -196,7 +196,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                 try {
                     TopologyManager.acquireReadLock();
                     MemberSuspendedEvent memberSuspendedEvent = (MemberSuspendedEvent) event;
-                    Member member = findMember(memberSuspendedEvent.getServiceName(),
+                    Member member = findMember(event.getTenantId(), memberSuspendedEvent.getServiceName(),
                             memberSuspendedEvent.getClusterId(), memberSuspendedEvent.getMemberId());
 
                     if (member != null) {
@@ -215,7 +215,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                 try {
                     TopologyManager.acquireReadLock();
                     MemberTerminatedEvent memberTerminatedEvent = (MemberTerminatedEvent) event;
-                    Member member = findMember(memberTerminatedEvent.getServiceName(),
+                    Member member = findMember(event.getTenantId(), memberTerminatedEvent.getServiceName(),
                             memberTerminatedEvent.getClusterId(), memberTerminatedEvent.getMemberId());
 
                     if (member != null) {
@@ -241,7 +241,7 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
                         for (Member member : cluster.getMembers()) {
                             removeMemberIpsFromMemberIpHostnameMap(member);
                         }
-                        LoadBalancerContextUtil.removeClusterAgainstHostNames(cluster.getClusterId());
+                        LoadBalancerContextUtil.removeClusterAgainstHostNames(event.getTenantId(), cluster.getClusterId());
                     } else {
                         if (log.isWarnEnabled()) {
                             log.warn(String.format("Cluster not found in load balancer context: [service] %s [cluster] %s",
@@ -263,13 +263,13 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
 
                     // Remove all clusters of given service from context
                     ServiceRemovedEvent serviceRemovedEvent = (ServiceRemovedEvent) event;
-                    Service service = TopologyManager.getTopology().getService(serviceRemovedEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(serviceRemovedEvent.getServiceName());
                     if (service != null) {
                         for (Cluster cluster : service.getClusters()) {
                             for (Member member : cluster.getMembers()) {
                                 removeMemberIpsFromMemberIpHostnameMap(member);
                             }
-                            LoadBalancerContextUtil.removeClusterAgainstHostNames(cluster.getClusterId());
+                            LoadBalancerContextUtil.removeClusterAgainstHostNames(event.getTenantId(), cluster.getClusterId());
                         }
                     } else {
                         if (log.isWarnEnabled()) {
@@ -286,8 +286,8 @@ public class LoadBalancerTopologyEventReceiver implements Runnable {
         });
     }
 
-    private Member findMember(String serviceName, String clusterId, String memberId) {
-        Service service = TopologyManager.getTopology().getService(serviceName);
+    private Member findMember(int tenantId, String serviceName, String clusterId, String memberId) {
+        Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
         if (service == null) {
             if (log.isWarnEnabled()) {
                 log.warn(String.format("Service not found in topology: [service] %s", serviceName));

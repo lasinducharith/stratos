@@ -54,67 +54,89 @@ public class FasterLookupDataHolderManager {
         return (tenantIdTofasterLookUpDataHolderMap.containsKey(tenantId));
     }
 
-    public static void loadFasterLookupDataHolderToMemoryModel() {
-        Object obj = RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).retrieve();
-        if (obj != null) {
-            try {
-                Object dataObj = Deserializer
-                        .deserializeFromByteArray((byte[]) obj);
-                if (dataObj instanceof FasterLookUpDataHolder) {
-                    FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
-                    FasterLookUpDataHolder currentData = FasterLookUpDataHolder
-                            .getInstance();
+    public static FasterLookUpDataHolder loadFasterLookupDataHolderToMemoryModel(int tenantId) {
+        synchronized (FasterLookupDataHolderManager.class) {
+            if (RegistryManager.getInstance() != null) {
+                Object obj = RegistryManager.getInstance().retrieve(tenantId);
 
-                    // assign necessary data
-                    currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
-                    currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
-                    currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
-                    currentData.setCartridges(serializedObj.getCartridges());
-                    currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
-                    addFasterLookupDataHolderToMemoryModel(currentData);
+                if (obj != null) {
+                    try {
+                        Object dataObj = Deserializer
+                                .deserializeFromByteArray((byte[]) obj);
+                        if (dataObj instanceof FasterLookUpDataHolder) {
+                            FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
+                            FasterLookUpDataHolder currentData = new FasterLookUpDataHolder();
 
-                    if (log.isDebugEnabled()) {
+                            // assign necessary data
+                            currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
+                            currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
+                            currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
+                            currentData.setCartridges(serializedObj.getCartridges());
+                            currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
+                            if (log.isDebugEnabled()) {
 
-                        log.debug("Cloud Controller Data is retrieved from registry.");
-                    }
-                } else {
-                    if (log.isDebugEnabled()) {
+                                log.debug("Cloud Controller Data is retrieved from registry.");
+                            }
+                            return currentData;
+                            //addFasterLookupDataHolderToMemoryModel(currentData);
 
-                        log.debug("Cloud Controller Data cannot be found in registry.");
+
+                        } else {
+                            if (log.isDebugEnabled()) {
+
+                                log.debug("Cloud Controller Data cannot be found in registry.");
+                            }
+                        }
+
+                    } catch (Exception e) {
+
+                        String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
+                        log.warn(msg, e);
                     }
                 }
-            } catch (Exception e) {
-
-                String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
-                log.warn(msg, e);
+            }
+            return null;
+        }
+    }
+        private static void addFasterLookupDataHolderToMemoryModel (int tenantId,
+                FasterLookUpDataHolder fasterLookUpDataHolder){
+            if (!tenantIdTofasterLookUpDataHolderMap.containsKey(tenantId)) {
+                tenantIdTofasterLookUpDataHolderMap.put(tenantId, fasterLookUpDataHolder);
             }
         }
-    }
 
-    private static void addFasterLookupDataHolderToMemoryModel(
-            FasterLookUpDataHolder fasterLookUpDataHolder) {
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if (!tenantIdTofasterLookUpDataHolderMap.containsKey(tenantId)) {
-            tenantIdTofasterLookUpDataHolderMap.put(tenantId, fasterLookUpDataHolder);
+//        public static FasterLookUpDataHolder getDataHolderForTenant () {
+//            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+//            if (getDataHolderForTenantFromMemoryModel(tenantId) == null) {
+//                if(loadFasterLookupDataHolderToMemoryModel(tenantId)==null){
+//                addFasterLookupDataHolderToMemoryModel(tenantId, new FasterLookUpDataHolder());
+//                }
+//                return getDataHolderForTenantFromMemoryModel(tenantId);
+//            } else {
+//                return getDataHolderForTenantFromMemoryModel(tenantId);
+//            }
+//        }
+
+    public static FasterLookUpDataHolder getDataHolderForTenant (int tenantId) {
+        if (getDataHolderForTenantFromMemoryModel(tenantId) == null) {
+            FasterLookUpDataHolder fasterLookUpDataHolder = loadFasterLookupDataHolderToMemoryModel(tenantId);
+            if(fasterLookUpDataHolder==null){
+                addFasterLookupDataHolderToMemoryModel(tenantId, new FasterLookUpDataHolder());
+            }
+            else{
+                addFasterLookupDataHolderToMemoryModel(tenantId, fasterLookUpDataHolder);
+            }
+            return getDataHolderForTenantFromMemoryModel(tenantId);
+        } else {
+            return getDataHolderForTenantFromMemoryModel(tenantId);
         }
     }
 
-    public static FasterLookUpDataHolder getDataHolderForTenant(){
-       int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-       if(getDataHolderForTenantFromMemoryModel(tenantId)==null){
-           loadFasterLookupDataHolderToMemoryModel();
-           return getDataHolderForTenantFromMemoryModel(tenantId);
-       }
-        else{
-           return getDataHolderForTenantFromMemoryModel(tenantId);
-       }
-    }
 
-
-    private static FasterLookUpDataHolder getDataHolderForTenantFromMemoryModel(int tenantId){
-        if (tenantIdTofasterLookUpDataHolderMap.containsKey(tenantId)) {
-            return tenantIdTofasterLookUpDataHolderMap.get(tenantId);
+        private static FasterLookUpDataHolder getDataHolderForTenantFromMemoryModel (int tenantId){
+            if (tenantIdTofasterLookUpDataHolderMap.containsKey(tenantId)) {
+                return tenantIdTofasterLookUpDataHolderMap.get(tenantId);
+            }
+            return null;
         }
-        return null;
     }
-}

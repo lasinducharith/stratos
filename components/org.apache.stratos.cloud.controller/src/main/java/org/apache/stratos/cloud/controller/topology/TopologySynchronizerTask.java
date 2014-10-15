@@ -22,22 +22,24 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.ntask.core.Task;
 
 public class TopologySynchronizerTask implements Task{
     private static final Log log = LogFactory.getLog(TopologySynchronizerTask.class);
+    private static CommonDataHolder commonDataHolder = CommonDataHolder.getInstance();
 
     @Override
     public void execute() {
         if (log.isDebugEnabled()) {
             log.debug("Executing topology synchronization task");
         }
-        
-        if(FasterLookupDataHolderManager.getDataHolderForTenant().isTopologySyncRunning() ||
-        		// this is a temporary fix to avoid task execution - limitation with ntask
-                (!FasterLookupDataHolderManager.getDataHolderForTenant().getEnableTopologySync())){
+        int tenantId = getTenantId();
+        // this is a temporary fix to avoid task execution - limitation with ntask
+        if(!CommonDataHolder.getInstance().getEnableTopologySync()){
             if(log.isWarnEnabled()) {
                 log.warn("Topology synchronization is disabled.");
             }
@@ -45,8 +47,8 @@ public class TopologySynchronizerTask implements Task{
         }
         
     	// publish to the topic 
-        if (TopologyManager.getTopology() != null) {
-            TopologyEventPublisher.sendCompleteTopologyEvent(TopologyManager.getTopology());
+        if (TopologyManager.getTopology(tenantId) != null) {
+            TopologyEventPublisher.sendCompleteTopologyEvent(tenantId, TopologyManager.getTopology(tenantId));
         }
     }
     
@@ -54,7 +56,7 @@ public class TopologySynchronizerTask implements Task{
     public void init() {
 
     	// this is a temporary fix to avoid task execution - limitation with ntask
-		if(!FasterLookupDataHolderManager.getDataHolderForTenant().getEnableTopologySync()){
+		if(!CommonDataHolder.getInstance().getEnableTopologySync()){
             if(log.isWarnEnabled()) {
                 log.warn("Topology synchronization is disabled.");
             }
@@ -64,5 +66,8 @@ public class TopologySynchronizerTask implements Task{
 
     @Override
     public void setProperties(Map<String, String> arg0) {}
-    
+
+    private int getTenantId(){
+        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+    }
 }

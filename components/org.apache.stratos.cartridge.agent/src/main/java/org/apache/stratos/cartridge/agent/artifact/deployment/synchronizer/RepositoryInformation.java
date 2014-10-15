@@ -29,7 +29,7 @@ public class RepositoryInformation {
 	private String repoUsername;
 	private String repoPassword;
 	private String repoPath;
-	private String tenantId;
+	private int tenantId;
 	private boolean isMultitenant;
     private boolean commitEnabled;
 	
@@ -57,10 +57,10 @@ public class RepositoryInformation {
 	public void setRepoPath(String repoPath) {
 		this.repoPath = repoPath;
 	}
-	public String getTenantId() {
+	public int getTenantId() {
 		return tenantId;
 	}
-	public void setTenantId(String tenantId) {
+	public void setTenantId(int tenantId) {
 		this.tenantId = tenantId;
 	}
 	public boolean isMultitenant() {

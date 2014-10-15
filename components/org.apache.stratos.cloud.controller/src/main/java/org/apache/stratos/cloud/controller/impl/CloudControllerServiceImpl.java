@@ -36,6 +36,7 @@ import org.apache.stratos.cloud.controller.persist.Deserializer;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.publisher.CartridgeInstanceDataPublisher;
 import org.apache.stratos.cloud.controller.registry.RegistryManager;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.topology.TopologyBuilder;
@@ -85,46 +86,47 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 		//acquireData();
 	}
 
-	private void acquireData() {
+//	private void acquireData() {
+//
+//		Object obj = RegistryManager.getInstance().retrieve();
+//		if (obj != null) {
+//			try {
+//				Object dataObj = Deserializer
+//						.deserializeFromByteArray((byte[]) obj);
+//				if (dataObj instanceof FasterLookUpDataHolder) {
+//					FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
+//					FasterLookUpDataHolder currentData = FasterLookUpDataHolder
+//							.getInstance();
+//
+//					// assign necessary data
+//					currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
+//					currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
+//					currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
+//					currentData.setCartridges(serializedObj.getCartridges());
+//					currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
+//
+//					if(log.isDebugEnabled()) {
+//
+//					    log.debug("Cloud Controller Data is retrieved from registry.");
+//					}
+//				} else {
+//				    if(log.isDebugEnabled()) {
+//
+//				        log.debug("Cloud Controller Data cannot be found in registry.");
+//				    }
+//				}
+//			} catch (Exception e) {
+//
+//				String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
+//				log.warn(msg, e);
+//			}
+//
+//		}
+//	}
 
-		Object obj = RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).retrieve();
-		if (obj != null) {
-			try {
-				Object dataObj = Deserializer
-						.deserializeFromByteArray((byte[]) obj);
-				if (dataObj instanceof FasterLookUpDataHolder) {
-					FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
-					FasterLookUpDataHolder currentData = FasterLookUpDataHolder
-							.getInstance();
-
-					// assign necessary data
-					currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
-					currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
-					currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
-					currentData.setCartridges(serializedObj.getCartridges());
-					currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
-
-					if(log.isDebugEnabled()) {
-					    
-					    log.debug("Cloud Controller Data is retrieved from registry.");
-					}
-				} else {
-				    if(log.isDebugEnabled()) {
-				        
-				        log.debug("Cloud Controller Data cannot be found in registry.");
-				    }
-				}
-			} catch (Exception e) {
-
-				String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
-				log.warn(msg, e);
-			}
-
-		}
-	}
-
-    public void deployCartridgeDefinition(CartridgeConfig cartridgeConfig) throws InvalidCartridgeDefinitionException, 
+    public void deployCartridgeDefinition(CartridgeConfig cartridgeConfig) throws InvalidCartridgeDefinitionException,
     InvalidIaasProviderException {
+        int tenantId = getTenantId();
         if (cartridgeConfig == null) {
             String msg = "Invalid Cartridge Definition: Definition is null.";
             log.error(msg);
@@ -166,8 +168,8 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         
         // TODO transaction begins
         String cartridgeType = cartridge.getType();
-        if(getTenantDataHolder().getCartridge(cartridgeType) != null) {
-        	Cartridge cartridgeToBeRemoved = getTenantDataHolder().getCartridge(cartridgeType);
+        if(getTenantDataHolder(tenantId).getCartridge(cartridgeType) != null) {
+        	Cartridge cartridgeToBeRemoved = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
         	// undeploy
             try {
 				undeployCartridgeDefinition(cartridgeToBeRemoved.getType());
@@ -176,18 +178,18 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 			}
             populateNewCartridge(cartridge, cartridgeToBeRemoved);
         }
-        synchronized (this){
-        getTenantDataHolder().addCartridge(cartridge);
+
+        getTenantDataHolder(tenantId).addCartridge(cartridge);
         
         // persist
-        persist();
+        persist(tenantId);
 
         List<Cartridge> cartridgeList = new ArrayList<Cartridge>();
         cartridgeList.add(cartridge);
 
-        TopologyBuilder.handleServiceCreated(cartridgeList);
+        TopologyBuilder.handleServiceCreated(tenantId, cartridgeList);
         // transaction ends
-        }
+
         log.info("Successfully deployed the Cartridge definition: " + cartridgeType);
     }
 
@@ -216,22 +218,23 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
 	public void undeployCartridgeDefinition(String cartridgeType) throws InvalidCartridgeTypeException {
 
+        int tenantId = getTenantId();
         Cartridge cartridge = null;
-        if((cartridge = getTenantDataHolder().getCartridge(cartridgeType)) != null) {
-            if (getTenantDataHolder().getCartridges().remove(cartridge)) {
+        if((cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType)) != null) {
+            if (getTenantDataHolder(tenantId).getCartridges().remove(cartridge)) {
             	// invalidate partition validation cache
-                getTenantDataHolder().removeFromCartridgeTypeToPartitionIds(cartridgeType);
+                getTenantDataHolder(tenantId).removeFromCartridgeTypeToPartitionIds(cartridgeType);
             	
             	if (log.isDebugEnabled()) {
             		log.debug("Partition cache invalidated for cartridge "+cartridgeType);
             	}
             	
-                persist();
+                persist(tenantId);
                 
                 // sends the service removed event
                 List<Cartridge> cartridgeList = new ArrayList<Cartridge>();
                 cartridgeList.add(cartridge);
-                TopologyBuilder.handleServiceRemoved(cartridgeList);
+                TopologyBuilder.handleServiceRemoved(tenantId, cartridgeList);
                 
                 if(log.isInfoEnabled()) {
                     log.info("Successfully undeployed the Cartridge definition: " + cartridgeType);
@@ -248,6 +251,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
     public MemberContext startInstance(MemberContext memberContext) throws
         UnregisteredCartridgeException, InvalidIaasProviderException {
 
+        int tenantId = getTenantId();
     	if(log.isDebugEnabled()) {
     		log.debug("CloudControllerServiceImpl:startInstance");
     	}
@@ -276,7 +280,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         }
 
         String partitionId = partition.getId();
-        ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId);
+        ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
 
         if (ctxt == null) {
             String msg = "Instance start-up failed. Invalid cluster id. " + memberContext.toString();
@@ -286,7 +290,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
         String cartridgeType = ctxt.getCartridgeType();
 
-        Cartridge cartridge = getTenantDataHolder().getCartridge(cartridgeType);
+        Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
 
         if (cartridge == null) {
             String msg =
@@ -464,10 +468,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
     /**
 	 * Persist data in registry.
 	 */
-	private void persist() {
+	private void persist(int tenantId) {
 		try {
-			RegistryManager.getInstance(CarbonContext.getThreadLocalCarbonContext().getTenantId()).persist(
-                    getTenantDataHolder());
+			RegistryManager.getInstance().persist(tenantId,
+                    getTenantDataHolder(tenantId));
 		} catch (RegistryException e) {
 
 			String msg = "Failed to persist the Cloud Controller data in registry. Further, transaction roll back also failed.";
@@ -491,7 +495,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
             throw new IllegalArgumentException(msg);
         }
         
-        MemberContext ctxt = getTenantDataHolder().getMemberContextOfMemberId(memberId);
+        MemberContext ctxt = getTenantDataHolder(getTenantId()).getMemberContextOfMemberId(memberId);
         
         if(ctxt == null) {
             String msg = "Termination failed. Invalid Member Id: "+memberId;
@@ -514,7 +518,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
         @Override
         public void run() {
-
+            int tenantId = getTenantId();
             String memberId = ctxt.getMemberId();
             String clusterId = ctxt.getClusterId();
             String partitionId = ctxt.getPartition().getId();
@@ -523,7 +527,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
             try {
                 // these will never be null, since we do not add null values for these.
-                Cartridge cartridge = getTenantDataHolder().getCartridge(cartridgeType);
+                Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
 
                 log.info("Starting to terminate an instance with member id : " + memberId +
                          " in partition id: " + partitionId + " of cluster id: " + clusterId +
@@ -551,10 +555,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
                 IaasProvider iaasProvider = cartridge.getIaasProviderOfPartition(partitionId);
 
                 // terminate it!
-                terminate(iaasProvider, nodeId, ctxt);
+                terminate(tenantId, iaasProvider, nodeId, ctxt);
 
                 // log information
-                logTermination(ctxt);
+                logTermination(tenantId, ctxt);
 
             } catch (Exception e) {
                 String msg =
@@ -582,10 +586,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         @Override
         public void run() {
 
-
+            int tenantId = getTenantId();
             String clusterId = memberContext.getClusterId();
             Partition partition = memberContext.getPartition();
-            ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId);
+            ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
             Iaas iaas = iaasProvider.getIaas();
             String publicIp = null;
             
@@ -695,7 +699,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	       	                				     " - terminating node:"  + memberContext.toString();
 	    	                        log.error(msg);
 	    	                		// terminate instance
-	    	                        terminate(iaasProvider, 
+	    	                        terminate(tenantId, iaasProvider,
 	    	                    			node.getId(), memberContext);
 	    	                        throw new CloudControllerException(msg);
 	    	                	}
@@ -704,7 +708,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
   	                				     " - terminating node:"  + memberContext.toString();
                     			log.error(msg);
                     			// terminate instance
-                    			terminate(iaasProvider, 
+                    			terminate(tenantId, iaasProvider,
 	                    			node.getId(), memberContext);
                     			throw new CloudControllerException(msg);
                     		}
@@ -747,14 +751,14 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
                         log.info("Retrieving Private IP Address. " + memberContext.toString());
                     }
 
-                getTenantDataHolder().addMemberContext(memberContext);
+                getTenantDataHolder(tenantId).addMemberContext(memberContext);
 
                     // persist in registry
-                    persist();
+                    persist(tenantId);
 
 
                     // trigger topology
-                    TopologyBuilder.handleMemberSpawned(cartridgeType, clusterId, 
+                    TopologyBuilder.handleMemberSpawned(tenantId, cartridgeType, clusterId,
                     		partition.getId(), ip, publicIp, memberContext);
                     
                     String memberID = memberContext.getMemberId();
@@ -803,7 +807,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 		    throw new IllegalArgumentException(msg);
 		}
 		
-		List<MemberContext> ctxts = getTenantDataHolder().getMemberContextsOfClusterId(clusterId);
+		List<MemberContext> ctxts = getTenantDataHolder(getTenantId()).getMemberContextsOfClusterId(clusterId);
 		
 		if(ctxts == null) {
 		    String msg = "Instance termination failed. No members found for cluster id: "+clusterId;
@@ -826,7 +830,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
      * @param nodeId
      * @return will return the IaaSProvider
      */
-	private IaasProvider terminate(IaasProvider iaasProvider, 
+	private IaasProvider terminate(int tenantId, IaasProvider iaasProvider,
 			String nodeId, MemberContext ctxt) {
 	    Iaas iaas = iaasProvider.getIaas();
 	    if (iaas == null) {
@@ -844,7 +848,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	    }
 	    
 	    //detach volumes if any
-	    detachVolume(iaasProvider, ctxt);
+	    detachVolume(tenantId, iaasProvider, ctxt);
 	    
 		// destroy the node
 		iaasProvider.getComputeService().destroyNode(nodeId);
@@ -858,9 +862,9 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 		return iaasProvider;
 	}
 
-	private void detachVolume(IaasProvider iaasProvider, MemberContext ctxt) {
+	private void detachVolume(int tenantId, IaasProvider iaasProvider, MemberContext ctxt) {
 		String clusterId = ctxt.getClusterId();
-		ClusterContext clusterCtxt = getTenantDataHolder().getClusterContext(clusterId);
+		ClusterContext clusterCtxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
 		if (clusterCtxt.getVolumes() != null) {
 			for (Volume volume : clusterCtxt.getVolumes()) {
 				try {
@@ -879,10 +883,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 		}
 	}
 
-	private void logTermination(MemberContext memberContext) {
+	private void logTermination(int tenantId, MemberContext memberContext) {
 
         //updating the topology
-        TopologyBuilder.handleMemberTerminated(memberContext.getCartridgeType(), 
+        TopologyBuilder.handleMemberTerminated(tenantId, memberContext.getCartridgeType(),
         		memberContext.getClusterId(), memberContext.getNetworkPartitionId(), 
         		memberContext.getPartition().getId(), memberContext.getMemberId());
 
@@ -896,10 +900,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
                                                         null);
 
         // update data holders
-        getTenantDataHolder().removeMemberContext(memberContext.getMemberId(), memberContext.getClusterId());
+        getTenantDataHolder(tenantId).removeMemberContext(memberContext.getMemberId(), memberContext.getClusterId());
         
 		// persist
-		persist();
+		persist(tenantId);
 
 	}
 
@@ -907,6 +911,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	public boolean registerService(Registrant registrant)
 			throws UnregisteredCartridgeException {
 
+        int tenantId = getTenantId();
 	    String cartridgeType = registrant.getCartridgeType();
 	    String clusterId = registrant.getClusterId();
         String payload = registrant.getPayload();
@@ -920,7 +925,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	    }
 	    
         Cartridge cartridge = null;
-        if ((cartridge = getTenantDataHolder().getCartridge(cartridgeType)) == null) {
+        if ((cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType)) == null) {
 
             String msg = "Registration of cluster: "+clusterId+
                     " failed. - Unregistered Cartridge type: " + cartridgeType;
@@ -936,10 +941,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 				payload, hostName, props, isLb, registrant.getPersistence());
 
 
-        getTenantDataHolder().addClusterContext(ctxt);
-	    TopologyBuilder.handleClusterCreated(registrant, isLb);
+        getTenantDataHolder(tenantId).addClusterContext(ctxt);
+	    TopologyBuilder.handleClusterCreated(tenantId, registrant, isLb);
 	    
-	    persist();
+	    persist(tenantId);
 	    
 	    log.info("Successfully registered: "+registrant);
 	    
@@ -1018,8 +1023,9 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
     @Override
 	public String[] getRegisteredCartridges() {
+        int tenantId = getTenantId();
 		// get the list of cartridges registered
-		List<Cartridge> cartridges = getTenantDataHolder()
+		List<Cartridge> cartridges = getTenantDataHolder(tenantId)
 				.getCartridges();
 
 		if (cartridges == null) {
@@ -1040,7 +1046,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	@Override
 	public CartridgeInfo getCartridgeInfo(String cartridgeType)
 			throws UnregisteredCartridgeException {
-		Cartridge cartridge = getTenantDataHolder()
+		Cartridge cartridge = getTenantDataHolder(getTenantId())
 				.getCartridge(cartridgeType);
 
 		if (cartridge != null) {
@@ -1057,9 +1063,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
     @Override
 	public void unregisterService(String clusterId) throws UnregisteredClusterException {
+        final int tenantId = getTenantId();
         final String clusterId_ = clusterId;
         
-        ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId_);
+        ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId_);
 
         if (ctxt == null) {
             String msg = "Instance start-up failed. Invalid cluster id. " + clusterId;
@@ -1069,7 +1076,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         
         String cartridgeType = ctxt.getCartridgeType();
 
-        Cartridge cartridge = getTenantDataHolder().getCartridge(cartridgeType);
+        Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
 
         if (cartridge == null) {
             String msg =
@@ -1084,17 +1091,17 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         	
         } else {
         
-	        TopologyBuilder.handleClusterMaintenanceMode(getTenantDataHolder().getClusterContext(clusterId_));
+	        TopologyBuilder.handleClusterMaintenanceMode(tenantId, getTenantDataHolder(tenantId).getClusterContext(clusterId_));
 	
 	        Runnable terminateInTimeout = new Runnable() {
 	            @Override
 	            public void run() {
-	                ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId_);
+	                ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId_);
 	                 if(ctxt == null) {
 	                     String msg = "Unregistration of service cluster failed. Cluster not found: " + clusterId_;
 	                     log.error(msg);
 	                 }
-	                 Collection<Member> members = TopologyManager.getTopology().
+	                 Collection<Member> members = TopologyManager.getTopology(tenantId).
 	                         getService(ctxt.getCartridgeType()).getCluster(clusterId_).getMembers();
 	                 //finding the responding members from the existing members in the topology.
 	                int sizeOfRespondingMembers = 0;
@@ -1127,12 +1134,12 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	        };
 	        Runnable unregister = new Runnable() {
 	             public void run() {
-	                 ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId_);
+	                 ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId_);
 	                 if(ctxt == null) {
 	                     String msg = "Unregistration of service cluster failed. Cluster not found: " + clusterId_;
 	                     log.error(msg);
 	                 }
-	                 Collection<Member> members = TopologyManager.getTopology().
+	                 Collection<Member> members = TopologyManager.getTopology(tenantId).
 	                         getService(ctxt.getCartridgeType()).getCluster(clusterId_).getMembers();
 	                 // TODO why end time is needed?
 	                 // long endTime = System.currentTimeMillis() + ctxt.getTimeoutInMillis() * members.size();
@@ -1144,12 +1151,12 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	
 	                 log.info("Unregistration of service cluster: " + clusterId_);
 	                 deleteVolumes(ctxt);
-	                 onClusterRemoval(clusterId_);
+	                 onClusterRemoval(tenantId, clusterId_);
 	             }
 	
 	            private void deleteVolumes(ClusterContext ctxt) {
 	                if(ctxt.isVolumeRequired()) {
-	                     Cartridge cartridge = getTenantDataHolder().getCartridge(ctxt.getCartridgeType());
+	                     Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(ctxt.getCartridgeType());
 	                     if(cartridge != null && cartridge.getIaases() != null && ctxt.getVolumes() != null) {
 	                         for (Volume volume : ctxt.getVolumes()) {
 	                            if(volume.getId() != null) {
@@ -1195,7 +1202,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 			throw new UnregisteredClusterException(msg, e);
 		}
     	// send cluster removal notifications and update the state
-		onClusterRemoval(clusterId);
+		onClusterRemoval(getTenantId(), clusterId);
 	}
 
 
@@ -1203,7 +1210,8 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
     public boolean validateDeploymentPolicy(String cartridgeType, Partition[] partitions) 
             throws InvalidPartitionException, InvalidCartridgeTypeException {
 
-    	Map<String, List<String>> validatedCache = getTenantDataHolder().getCartridgeTypeToPartitionIds();
+        int tenantId = getTenantId();
+    	Map<String, List<String>> validatedCache = getTenantDataHolder(tenantId).getCartridgeTypeToPartitionIds();
     	List<String> validatedPartitions = new ArrayList<String>();
     	
     	if (validatedCache.containsKey(cartridgeType)) {
@@ -1223,7 +1231,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 			log.debug("Deployment policy validation started for cartridge type: "+cartridgeType);
 		}
 
-        Cartridge cartridge = getTenantDataHolder().getCartridge(cartridgeType);
+        Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
 
         if (cartridge == null) {
             String msg = "Invalid Cartridge Type: " + cartridgeType;
@@ -1242,7 +1250,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 			
 			Callable<IaasProvider> worker = new PartitionValidatorCallable(
 					partition, cartridge);
-			Future<IaasProvider> job = getTenantDataHolder()
+			Future<IaasProvider> job = getTenantDataHolder(tenantId)
 					.getExecutor().submit(worker);
 			jobList.put(partition.getId(), job);
 		}
@@ -1259,7 +1267,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
             	partitionToIaasProviders.put(partitionId, job.get());
             	
             	// add to cache
-            	this.getTenantDataHolder().addToCartridgeTypeToPartitionIdMap(cartridgeType, partitionId);
+            	this.getTenantDataHolder(tenantId).addToCartridgeTypeToPartitionIdMap(cartridgeType, partitionId);
             	
 				if (log.isDebugEnabled()) {
 					log.debug("Partition "+partitionId+" added to the cache against cartridge type: "+cartridgeType);
@@ -1274,7 +1282,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         cartridge.addIaasProviders(partitionToIaasProviders);
         
         // persist data
-        persist();
+        persist(tenantId);
         
         log.info("All partitions "+CloudControllerUtil.getPartitionIds(partitions)+
         		" were validated successfully, against the Cartridge: "+cartridgeType);
@@ -1282,19 +1290,19 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         return true;
     }
     
-    private void onClusterRemoval(final String clusterId) {
-		ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId);
-		TopologyBuilder.handleClusterRemoved(ctxt);
-        getTenantDataHolder().removeClusterContext(clusterId);
-        getTenantDataHolder().removeMemberContextsOfCluster(clusterId);
-		persist();
+    private void onClusterRemoval(int tenantId, final String clusterId) {
+		ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
+		TopologyBuilder.handleClusterRemoved(tenantId, ctxt);
+        getTenantDataHolder(tenantId).removeClusterContext(clusterId);
+        getTenantDataHolder(tenantId).removeMemberContextsOfCluster(clusterId);
+		persist(tenantId);
 	}
 
     @Override
     public boolean validatePartition(Partition partition) throws InvalidPartitionException {
     	//FIXME add logs
         String provider = partition.getProvider();
-        IaasProvider iaasProvider = getTenantDataHolder().getIaasProvider(provider);
+        IaasProvider iaasProvider = CommonDataHolder.getInstance().getIaasProvider(provider);
 
         if (iaasProvider == null) {
             String msg =
@@ -1330,13 +1338,14 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 
     public ClusterContext getClusterContext (String clusterId) {
 
-        return getTenantDataHolder().getClusterContext(clusterId);
+        return getTenantDataHolder(getTenantId()).getClusterContext(clusterId);
     }
 
 	@Override
 	public MemberContext startContainers(MemberContext memberContext)
 			throws UnregisteredCartridgeException {
-		
+
+		int tenantId = getTenantId();
 		if(log.isDebugEnabled()) {
     		log.debug("CloudControllerServiceImpl:startContainer");
     	}
@@ -1352,7 +1361,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         	log.debug("Received an instance spawn request : " + memberContext.toString());
         }
 
-        ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId);
+        ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
 
         if (ctxt == null) {
             String msg = "Instance start-up failed. Invalid cluster id. " + memberContext.toString();
@@ -1363,7 +1372,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         
         String cartridgeType = ctxt.getCartridgeType();
 
-        Cartridge cartridge = getTenantDataHolder().getCartridge(cartridgeType);
+        Cartridge cartridge = getTenantDataHolder(tenantId).getCartridge(cartridgeType);
 
         if (cartridge == null) {
             String msg =
@@ -1410,7 +1419,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 				throw new IllegalArgumentException(msg);
 			}
 			
-			KubernetesClusterContext kubClusterContext = getKubernetesClusterContext(kubernetesClusterId, kubernetesMasterIp, kubernetesPortRange);
+			KubernetesClusterContext kubClusterContext = getKubernetesClusterContext(tenantId, kubernetesClusterId, kubernetesMasterIp, kubernetesPortRange);
 			
 			KubernetesApiClient kubApi = kubClusterContext.getKubApi();
 			
@@ -1452,14 +1461,14 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
                     .getProperties(), StratosConstants.ALLOCATED_SERVICE_HOST_PORT,
                     CloudControllerUtil.getProperty(ctxt.getProperties(),
                             StratosConstants.ALLOCATED_SERVICE_HOST_PORT)));
-            getTenantDataHolder().addMemberContext(memberContext);
+            getTenantDataHolder(tenantId).addMemberContext(memberContext);
 
 			// persist in registry
-			persist();
+			persist(tenantId);
 
 			// trigger topology
 			// update the topology with the newly spawned member
-			TopologyBuilder.handleMemberSpawned(cartridgeType, clusterId, null,
+			TopologyBuilder.handleMemberSpawned(tenantId, cartridgeType, clusterId, null,
 					kubernetesMasterIp, kubernetesMasterIp, memberContext);
 
 			// publish data
@@ -1483,22 +1492,22 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
         }
 	}
 
-	private KubernetesClusterContext getKubernetesClusterContext(
+	private KubernetesClusterContext getKubernetesClusterContext(int tenantId,
 			String kubernetesClusterId, String kubernetesMasterIp,
 			String kubernetesPortRange) {
 		
-		KubernetesClusterContext origCtxt = getTenantDataHolder().getKubernetesClusterContext(kubernetesClusterId);
+		KubernetesClusterContext origCtxt = getTenantDataHolder(tenantId).getKubernetesClusterContext(kubernetesClusterId);
 		KubernetesClusterContext newCtxt = new KubernetesClusterContext(kubernetesClusterId, kubernetesPortRange, kubernetesMasterIp);
 		
 		if (origCtxt == null) {
-            getTenantDataHolder().addKubernetesClusterContext(newCtxt);
+            getTenantDataHolder(tenantId).addKubernetesClusterContext(newCtxt);
 			return newCtxt;
 		}
 		
 		if (!origCtxt.equals(newCtxt)) {
 			// if for some reason master IP etc. have changed
 			newCtxt.setAvailableHostPorts(origCtxt.getAvailableHostPorts());
-            getTenantDataHolder().addKubernetesClusterContext(newCtxt);
+            getTenantDataHolder(tenantId).addKubernetesClusterContext(newCtxt);
 			return newCtxt;
 		}  else {
 			return origCtxt;
@@ -1508,8 +1517,8 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 	@Override
 	public void terminateAllContainers(String clusterId)
 			throws InvalidClusterException {
-		
-		ClusterContext ctxt = getTenantDataHolder().getClusterContext(clusterId);
+		int tenantId = getTenantId();
+		ClusterContext ctxt = getTenantDataHolder(tenantId).getClusterContext(clusterId);
 
         if (ctxt == null) {
             String msg = "Kubernetes units temrination failed. Invalid cluster id. "+clusterId;
@@ -1527,7 +1536,7 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 			throw new IllegalArgumentException(msg);
 		}
         
-        KubernetesClusterContext kubClusterContext = getTenantDataHolder().getKubernetesClusterContext(kubernetesClusterId);
+        KubernetesClusterContext kubClusterContext = getTenantDataHolder(tenantId).getKubernetesClusterContext(kubernetesClusterId);
 		
 		if (kubClusterContext == null) {
 			String msg = "Kubernetes units termination failed. Cannot find a matching Kubernetes Cluster for cluster id: " 
@@ -1572,10 +1581,10 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 					+ StratosConstants.ALLOCATED_SERVICE_HOST_PORT);
 		}
 
-        getTenantDataHolder().removeMemberContextsOfCluster(clusterId);
+        getTenantDataHolder(tenantId).removeMemberContextsOfCluster(clusterId);
 		
 		// persist
-		persist();
+		persist(tenantId);
 	}
 
 	@Override
@@ -1584,8 +1593,12 @@ public class CloudControllerServiceImpl extends AbstractAdmin implements CloudCo
 		// TODO Auto-generated method stub
 		
 	}
-    private FasterLookUpDataHolder getTenantDataHolder(){
-        return fasterLookupDataHolderManager.getDataHolderForTenant();
+    private FasterLookUpDataHolder getTenantDataHolder(int tenantId){
+        return fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
+    }
+
+    private int getTenantId(){
+        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
     }
 
 }

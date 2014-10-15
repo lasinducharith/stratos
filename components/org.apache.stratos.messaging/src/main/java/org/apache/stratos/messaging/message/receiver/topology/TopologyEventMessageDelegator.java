@@ -74,7 +74,7 @@ class TopologyEventMessageDelegator implements Runnable {
                         if (log.isDebugEnabled()) {
                             log.debug(String.format("Delegating topology event message: %s", type));
                         }
-                        processorChain.process(type, json, TopologyManager.getTopology());
+                        processorChain.process(type, json, TopologyManager.getTopology(-1234));
                     } finally {
                         TopologyManager.releaseWriteLock();
                     }

@@ -111,9 +111,7 @@ public class InstanceStatusListener implements MqttCallback {
 							InstanceNotificationPublisher publisher =
 							                                          new InstanceNotificationPublisher();
 							publisher.sendArtifactUpdateEvent(cartridgeSubscription.getRepository(),
-							                                  clusterId,
-							                                  String.valueOf(cartridgeSubscription.getSubscriber()
-							                                                                      .getTenantId()));
+							                                  clusterId,cartridgeSubscription.getSubscriber().getTenantId());
 
 						} else {
 							if (log.isDebugEnabled()) {

@@ -32,7 +32,6 @@ public class ArtifactUpdatedEvent extends InstanceNotifierEvent implements Seria
     private String repoUserName;
     private String repoPassword;
     private String repoURL;
-    private String tenantId;
     private boolean commitEnabled;
 
     public String getClusterId() {
@@ -73,14 +72,6 @@ public class ArtifactUpdatedEvent extends InstanceNotifierEvent implements Seria
 
 	public void setRepoURL(String repoURL) {
 		this.repoURL = repoURL;
-	}
-
-	public String getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
 	}
 
     @Override

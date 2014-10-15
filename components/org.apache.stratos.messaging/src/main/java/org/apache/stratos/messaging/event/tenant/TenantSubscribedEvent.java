@@ -28,19 +28,17 @@ import java.util.*;
 public class TenantSubscribedEvent extends TenantEvent implements Serializable {
     private static final long serialVersionUID = -4023221432696893312L;
 
-    private final int tenantId;
     private final String serviceName;
     private final Set<String> clusterIds;
 
-    public TenantSubscribedEvent(int tenantId, String serviceName, Set<String> clusterIds) {
-        this.tenantId = tenantId;
+    public TenantSubscribedEvent(String serviceName, Set<String> clusterIds) {
         this.serviceName = serviceName;
         this.clusterIds = clusterIds;
     }
 
-    public int getTenantId() {
-        return tenantId;
-    }
+//    public int getTenantId() {
+//        return tenantId;
+//    }
 
     public String getServiceName() {
         return serviceName;

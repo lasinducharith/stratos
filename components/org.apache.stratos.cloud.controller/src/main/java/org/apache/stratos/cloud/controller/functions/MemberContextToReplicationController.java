@@ -33,6 +33,7 @@ import org.apache.stratos.kubernetes.client.model.Selector;
 import org.apache.stratos.kubernetes.client.model.State;
 
 import com.google.common.base.Function;
+import org.wso2.carbon.context.CarbonContext;
 
 /**
  * Is responsible for converting a {@link MemberContext} object to a Kubernetes
@@ -41,7 +42,7 @@ import com.google.common.base.Function;
 public class MemberContextToReplicationController implements
         Function<MemberContext, ReplicationController> {
 
-    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
+    private FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant(CarbonContext.getThreadLocalCarbonContext().getTenantId());
 
     @Override
     public ReplicationController apply(MemberContext memberContext) {

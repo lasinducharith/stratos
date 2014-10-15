@@ -52,8 +52,9 @@ public class CCTenantArtifactLoader extends AbstractAxis2ConfigurationContextObs
     
     private void updateArtifacts()
     {
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
     	// Adding the registry stored FasterLookupDataHolderManager to the information model
-        FasterLookupDataHolderManager.getInstance().loadFasterLookupDataHolderToMemoryModel();
+        FasterLookupDataHolderManager.getInstance().loadFasterLookupDataHolderToMemoryModel(tenantId);
     }
     
     private void clearArtifacts()

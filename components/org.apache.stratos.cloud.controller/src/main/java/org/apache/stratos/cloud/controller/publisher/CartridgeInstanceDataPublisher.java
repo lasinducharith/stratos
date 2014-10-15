@@ -23,11 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.exception.CloudControllerException;
 import org.apache.stratos.cloud.controller.pojo.Cartridge;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.databridge.agent.thrift.AsyncDataPublisher;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
 import org.wso2.carbon.databridge.commons.Attribute;
@@ -57,7 +59,8 @@ public class CartridgeInstanceDataPublisher {
                                String serviceName,
                                String status,
                                NodeMetadata metadata) {
-        if(!FasterLookupDataHolderManager.getDataHolderForTenant().getEnableBAMDataPublisher()){
+        int tenantId = getTenantId();
+        if(!CommonDataHolder.getInstance().getEnableBAMDataPublisher()){
             return;
         }
         log.debug(CloudControllerConstants.DATA_PUB_TASK_NAME+" cycle started.");
@@ -75,9 +78,9 @@ public class CartridgeInstanceDataPublisher {
         }
 
 
-        MemberContext memberContext = FasterLookupDataHolderManager.getDataHolderForTenant().getMemberContextOfMemberId(memberId);
+        MemberContext memberContext = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getMemberContextOfMemberId(memberId);
         String cartridgeType = memberContext.getCartridgeType();
-        Cartridge cartridge = FasterLookupDataHolderManager.getDataHolderForTenant().getCartridge(cartridgeType);
+        Cartridge cartridge = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getCartridge(cartridgeType);
         
         //Construct the data to be published
         List<Object> payload = new ArrayList<Object>();
@@ -139,7 +142,7 @@ public class CartridgeInstanceDataPublisher {
     }
     
     private static void release(){
-        FasterLookupDataHolderManager.getDataHolderForTenant().setPublisherRunning(false);
+        CommonDataHolder.getInstance().setPublisherRunning(false);
     }
     
     private static StreamDefinition initializeStream() throws Exception {
@@ -183,8 +186,8 @@ public class CartridgeInstanceDataPublisher {
         String trustStorePath = serverConfig.getFirstProperty("Security.TrustStore.Location");
         String trustStorePassword = serverConfig.getFirstProperty("Security.TrustStore.Password");
         String bamServerUrl = serverConfig.getFirstProperty("BamServerURL");
-        String adminUsername = FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamUsername();
-        String adminPassword = FasterLookupDataHolderManager.getDataHolderForTenant().getDataPubConfig().getBamPassword();
+        String adminUsername = CommonDataHolder.getInstance().getDataPubConfig().getBamUsername();
+        String adminPassword = CommonDataHolder.getInstance().getDataPubConfig().getBamPassword();
 
         System.setProperty("javax.net.ssl.trustStore", trustStorePath);
         System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
@@ -192,7 +195,6 @@ public class CartridgeInstanceDataPublisher {
 
         try {
             dataPublisher = new AsyncDataPublisher("tcp://" +  bamServerUrl + "", adminUsername, adminPassword);
-            FasterLookupDataHolderManager.getDataHolderForTenant().setDataPublisher(dataPublisher);
             initializeStream();
             dataPublisher.addStreamDefinition(streamDefinition);
         } catch (Exception e) {
@@ -202,5 +204,8 @@ public class CartridgeInstanceDataPublisher {
             throw new CloudControllerException(msg, e);
         }
     }
-    
+
+    private static int getTenantId(){
+        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+    }
 }

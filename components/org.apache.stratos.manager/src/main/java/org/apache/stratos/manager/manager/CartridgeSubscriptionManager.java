@@ -394,6 +394,7 @@ public class CartridgeSubscriptionManager {
                 clusterIds, domainName, applicationContext);
 	    String topic = Util.getMessageTopicName(event);
 	    EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+        event.setTenantId(tenantId);
         eventPublisher.publish(event);
     }
 
@@ -425,6 +426,7 @@ public class CartridgeSubscriptionManager {
                 clusterIds, domainName);
 	    String topic = Util.getMessageTopicName(event);
 	    EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
+        event.setTenantId(tenantId);
         eventPublisher.publish(event);
     }
 

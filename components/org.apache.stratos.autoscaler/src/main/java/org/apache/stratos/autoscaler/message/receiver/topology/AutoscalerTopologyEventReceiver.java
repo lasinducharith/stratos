@@ -101,7 +101,7 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
             protected void onEvent(Event event) {
                 try {
                     TopologyManager.acquireReadLock();
-                    for (Service service : TopologyManager.getTopology().getServices()) {
+                    for (Service service : TopologyManager.getTopology(event.getTenantId()).getServices()) {
                         for (Cluster cluster : service.getClusters()) {
                             startClusterMonitor(cluster);
                         }
@@ -146,7 +146,7 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
                     log.info("Event received: " + event);
                     ClusterCreatedEvent clusterCreatedEvent = (ClusterCreatedEvent) event;
                     TopologyManager.acquireReadLock();
-                    Service service = TopologyManager.getTopology().getService(clusterCreatedEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(clusterCreatedEvent.getServiceName());
                     Cluster cluster = service.getCluster(clusterCreatedEvent.getClusterId());
                     startClusterMonitor(cluster);
                 } catch (Exception e) {
@@ -165,7 +165,7 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
                     log.info("Event received: " + event);
                     ClusterMaintenanceModeEvent clusterMaintenanceModeEvent = (ClusterMaintenanceModeEvent) event;
                     TopologyManager.acquireReadLock();
-                    Service service = TopologyManager.getTopology().getService(clusterMaintenanceModeEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(clusterMaintenanceModeEvent.getServiceName());
                     Cluster cluster = service.getCluster(clusterMaintenanceModeEvent.getClusterId());
                     AbstractClusterMonitor monitor;
                     monitor = AutoscalerContext.getInstance().getClusterMonitor(cluster.getClusterId());

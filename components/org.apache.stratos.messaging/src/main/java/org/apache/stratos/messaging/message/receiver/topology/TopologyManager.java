@@ -22,6 +22,9 @@ package org.apache.stratos.messaging.message.receiver.topology;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.messaging.domain.topology.Topology;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -34,7 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class TopologyManager {
     private static final Log log = LogFactory.getLog(TopologyManager.class);
 
-    private static volatile Topology topology;
+    private static volatile Map<Integer, Topology> tIdToTopologyMap = new HashMap<Integer, Topology>();
     private static volatile ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private static volatile ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     private static volatile ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
@@ -67,7 +70,8 @@ public class TopologyManager {
         writeLock.unlock();
     }
 
-    public static Topology getTopology() {
+    public static Topology getTopology(int tenantId) {
+        Topology topology = getTenantTopology(tenantId);
         if (topology == null) {
             synchronized (TopologyManager.class){
                 if (topology == null) {
@@ -79,5 +83,19 @@ public class TopologyManager {
             }
         }
         return topology;
+    }
+
+    private static Topology getTenantTopology(int tenantId){
+        if(tIdToTopologyMap.containsKey(tenantId)){
+            return tIdToTopologyMap.get(tenantId);
+
+        }
+        return null;
+    }
+
+    private static void updateTenantTopology(int tenantId, Topology topology){
+        if(tIdToTopologyMap.containsKey(tenantId)){
+            tIdToTopologyMap.put(tenantId, topology);
+        }
     }
 }

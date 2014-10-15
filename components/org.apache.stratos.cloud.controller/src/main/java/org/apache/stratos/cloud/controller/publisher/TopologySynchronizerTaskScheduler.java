@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.topology.TopologySynchronizerTask;
@@ -40,7 +41,7 @@ public class TopologySynchronizerTaskScheduler {
 
     private static final Log log = LogFactory.getLog(TopologySynchronizerTaskScheduler.class);
 
-    private static final FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant();
+    private static final CommonDataHolder dataHolder = CommonDataHolder.getInstance();
 
     public static void schedule(TaskService taskService) {
         TaskManager taskManager = null;

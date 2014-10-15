@@ -221,7 +221,7 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
             protected void onEvent(org.apache.stratos.messaging.event.Event event) {
                 MemberAverageLoadAverageEvent memberAverageLoadAverageEvent = (MemberAverageLoadAverageEvent) event;
                 String memberId = memberAverageLoadAverageEvent.getMemberId();
-                Member member = getMemberByMemberId(memberId);
+                Member member = getMemberByMemberId(event.getTenantId(), memberId);
                 if (null == member) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -255,7 +255,7 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
             protected void onEvent(org.apache.stratos.messaging.event.Event event) {
                 MemberAverageMemoryConsumptionEvent memberAverageMemoryConsumptionEvent = (MemberAverageMemoryConsumptionEvent) event;
                 String memberId = memberAverageMemoryConsumptionEvent.getMemberId();
-                Member member = getMemberByMemberId(memberId);
+                Member member = getMemberByMemberId(event.getTenantId(), memberId);
                 if (null == member) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -316,7 +316,7 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
             protected void onEvent(org.apache.stratos.messaging.event.Event event) {
                 MemberGradientOfLoadAverageEvent memberGradientOfLoadAverageEvent = (MemberGradientOfLoadAverageEvent) event;
                 String memberId = memberGradientOfLoadAverageEvent.getMemberId();
-                Member member = getMemberByMemberId(memberId);
+                Member member = getMemberByMemberId(event.getTenantId(), memberId);
                 if (null == member) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -350,7 +350,7 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
             protected void onEvent(org.apache.stratos.messaging.event.Event event) {
                 MemberGradientOfMemoryConsumptionEvent memberGradientOfMemoryConsumptionEvent = (MemberGradientOfMemoryConsumptionEvent) event;
                 String memberId = memberGradientOfMemoryConsumptionEvent.getMemberId();
-                Member member = getMemberByMemberId(memberId);
+                Member member = getMemberByMemberId(event.getTenantId(), memberId);
                 if (null == member) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -384,7 +384,7 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
             protected void onEvent(org.apache.stratos.messaging.event.Event event) {
                 MemberSecondDerivativeOfLoadAverageEvent memberSecondDerivativeOfLoadAverageEvent = (MemberSecondDerivativeOfLoadAverageEvent) event;
                 String memberId = memberSecondDerivativeOfLoadAverageEvent.getMemberId();
-                Member member = getMemberByMemberId(memberId);
+                Member member = getMemberByMemberId(event.getTenantId(), memberId);
                 if (null == member) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -478,10 +478,10 @@ public class AutoscalerHealthStatEventReceiver implements Runnable {
         });
     }
 
-    private Member getMemberByMemberId(String memberId) {
+    private Member getMemberByMemberId(int tenantId, String memberId) {
         try {
             TopologyManager.acquireReadLock();
-            for (Service service : TopologyManager.getTopology().getServices()) {
+            for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
                 for (Cluster cluster : service.getClusters()) {
                     if (cluster.memberExists(memberId)) {
                         return cluster.getMember(memberId);

@@ -166,14 +166,15 @@ public class FaultHandlingWindowProcessor extends WindowProcessor implements Run
         if (StringUtils.isEmpty(memberId)){
             return null;
         }
-        if (TopologyManager.getTopology().isInitialized()){
+        //TODO Remove hard-coded tid
+        if (TopologyManager.getTopology(-1234).isInitialized()){
             TopologyManager.acquireReadLock();
-            if (TopologyManager.getTopology().getServices() == null){
+            if (TopologyManager.getTopology(-1234).getServices() == null){
                 return null;
             }
 
             // TODO make this efficient by adding APIs to messaging component
-            for (Service service : TopologyManager.getTopology().getServices()) {
+            for (Service service : TopologyManager.getTopology(-1234).getServices()) {
                 if (service.getClusters() != null) {
                     for (Cluster cluster : service.getClusters()) {
                         if (cluster.getMembers() != null) {
