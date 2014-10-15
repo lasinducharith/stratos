@@ -45,5 +45,39 @@
         <operation name="unregisterService">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/service</parameter>
         </operation>
+        <!--New set of authorization actions-->
+        <operation name="getClusterContext">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/view/cluster</parameter>
+        </operation>
+        <operation name="startContainers">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="startInstance">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/cartridge</parameter>
+        </operation>
+        <operation name="terminateAllContainers">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="terminateInstance">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/cartridge</parameter>
+        </operation>
+        <operation name="unregisterDockerService">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="updateContainers">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="validateDeploymentPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="terminateContainer">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/kubernetes</parameter>
+        </operation>
+        <operation name="terminateAllInstances">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/cartridge</parameter>
+        </operation>
+        <operation name="validatePartition">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/add/partition</parameter>
+        </operation>
     </service>
 </serviceGroup> 
