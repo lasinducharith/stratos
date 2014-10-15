@@ -52,7 +52,7 @@ public class InstanceNotificationPublisher {
 	 * @param clusterId
 	 * @param tenantId
 	 */
-	public void sendArtifactUpdateEvent(Repository repository, String clusterId, String tenantId) {
+	public void sendArtifactUpdateEvent(Repository repository, String clusterId, int tenantId) {
 		ArtifactUpdatedEvent artifactUpdateEvent = new ArtifactUpdatedEvent();
 		artifactUpdateEvent.setClusterId(clusterId);
 		artifactUpdateEvent.setRepoUserName(repository.getUserName());

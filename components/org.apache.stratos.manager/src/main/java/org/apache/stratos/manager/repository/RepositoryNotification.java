@@ -58,7 +58,7 @@ public class RepositoryNotification {
 			InstanceNotificationPublisher publisher = new InstanceNotificationPublisher();
 			publisher.sendArtifactUpdateEvent(cartridgeSubscription.getRepository(),
 					String.valueOf(cartridgeSubscription.getCluster().getClusterDomain()),
-					String.valueOf(cartridgeSubscription.getSubscriber().getTenantId()));
+					cartridgeSubscription.getSubscriber().getTenantId());
 
 			if (log.isDebugEnabled()) {
 				log.debug("Git pull request from " + cartridgeSubscription.getRepository()

@@ -62,7 +62,7 @@ public class LogPublisherManager {
 
         // stream definition identifier = {log.publisher.<cluster id>}
         try {
-        	streamDefinition = new StreamDefinition(Constants.LOG_PUBLISHER_STREAM_PREFIX + getValidTenantId(CartridgeAgentConfiguration.getInstance().getTenantId()) + "." + getAlias(CartridgeAgentConfiguration.getInstance().getClusterId()) + "." + getCurrentDate(),
+        	streamDefinition = new StreamDefinition(Constants.LOG_PUBLISHER_STREAM_PREFIX + getValidTenantId(String.valueOf(CartridgeAgentConfiguration.getInstance().getTenantId())) + "." + getAlias(CartridgeAgentConfiguration.getInstance().getClusterId()) + "." + getCurrentDate(),
                     Constants.LOG_PUBLISHER_STREAM_VERSION);
 
         } catch (MalformedStreamDefinitionException e) {
@@ -99,7 +99,7 @@ public class LogPublisherManager {
 
         LogPublisher fileBasedLogPublisher = new FileBasedLogPublisher(dataPublisherConfig, streamDefinition, filePath,
         		CartridgeAgentConfiguration.getInstance().getMemberId(),
-        		getValidTenantId(CartridgeAgentConfiguration.getInstance().getTenantId()),
+        		getValidTenantId(String.valueOf(CartridgeAgentConfiguration.getInstance().getTenantId())),
         		getAlias(CartridgeAgentConfiguration.getInstance().getClusterId()),
         		getDateTime());
 

@@ -91,7 +91,7 @@ public class GitBasedArtifactRepository {
 
         log.info("Initializing git context.");
 
-        int tenantId = Integer.parseInt(repositoryInformation.getTenantId());
+        int tenantId = repositoryInformation.getTenantId();
         String gitLocalRepoPath = repositoryInformation.getRepoPath();
         RepositoryContext gitRepoCtx = new RepositoryContext();
         String gitRemoteRepoUrl = repositoryInformation.getRepoUrl();
@@ -264,7 +264,7 @@ public class GitBasedArtifactRepository {
        // for (Entry<Integer, RepositoryContext> tenantMap : tenantToRepoContextMap
        //         .entrySet()) {
 
-            int tenantId = Integer.parseInt(repoInfo.getTenantId());
+            int tenantId = repoInfo.getTenantId();
             //log.info("map count has values..tenant Id : " + tenantId);
 
             RepositoryContext gitRepoCtx = retrieveCachedGitContext(tenantId);
@@ -488,7 +488,7 @@ public class GitBasedArtifactRepository {
     } */
    public boolean checkout (RepositoryInformation repositoryInformation) throws Exception {
 
-       int tenantId = Integer.parseInt(repositoryInformation.getTenantId());
+       int tenantId = repositoryInformation.getTenantId();
 
        // if context for tenant is not initialized
        if (tenantToRepoContextMap.get(tenantId) == null) {
@@ -640,7 +640,7 @@ public class GitBasedArtifactRepository {
 
     public void scheduleSyncTask(RepositoryInformation repoInformation, boolean autoCheckout, boolean autoCommit, long delay) {
 
-        int tenantId = Integer.parseInt(repoInformation.getTenantId());
+        int tenantId = repoInformation.getTenantId();
 
         RepositoryContext repoCtxt = tenantToRepoContextMap.get(tenantId);
         if (repoCtxt == null) {
@@ -671,7 +671,7 @@ public class GitBasedArtifactRepository {
 
     public boolean cloneExists(RepositoryInformation repositoryInformation) {
 
-        int tenantId = Integer.parseInt(repositoryInformation.getTenantId());
+        int tenantId = repositoryInformation.getTenantId();
 
         // if context for tenant is not initialized
         if (tenantToRepoContextMap.get(tenantId) == null) {

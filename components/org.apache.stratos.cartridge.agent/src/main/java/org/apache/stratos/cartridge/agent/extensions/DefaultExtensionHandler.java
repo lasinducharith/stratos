@@ -107,7 +107,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             String localRepoPath = CartridgeAgentConfiguration.getInstance().getAppPath();
             String repoPassword = CartridgeAgentUtils.decryptPassword(artifactUpdatedEvent.getRepoPassword());
             String repoUsername = artifactUpdatedEvent.getRepoUserName();
-            String tenantId = artifactUpdatedEvent.getTenantId();
+            int tenantId = artifactUpdatedEvent.getTenantId();
             boolean isMultitenant = CartridgeAgentConfiguration.getInstance().isMultitenant();
 
             if (log.isInfoEnabled()) {
@@ -132,7 +132,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             }
             Map<String, String> env = new HashMap<String, String>();
             env.put("STRATOS_ARTIFACT_UPDATED_CLUSTER_ID", artifactUpdatedEvent.getClusterId());
-            env.put("STRATOS_ARTIFACT_UPDATED_TENANT_ID", artifactUpdatedEvent.getTenantId());
+            env.put("STRATOS_ARTIFACT_UPDATED_TENANT_ID", String.valueOf(artifactUpdatedEvent.getTenantId()));
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_URL", artifactUpdatedEvent.getRepoURL());
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_PASSWORD", artifactUpdatedEvent.getRepoPassword());
             env.put("STRATOS_ARTIFACT_UPDATED_REPO_USERNAME", artifactUpdatedEvent.getRepoUserName());

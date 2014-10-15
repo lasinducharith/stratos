@@ -69,7 +69,7 @@ public class ExtensionUtils {
         envParameters.put("STRATOS_APP_PATH", CartridgeAgentConfiguration.getInstance().getAppPath());
         envParameters.put("STRATOS_PARAM_FILE_PATH", System.getProperty(CartridgeAgentConstants.PARAM_FILE_PATH));
         envParameters.put("STRATOS_SERVICE_NAME", CartridgeAgentConfiguration.getInstance().getServiceName());
-        envParameters.put("STRATOS_TENANT_ID", CartridgeAgentConfiguration.getInstance().getTenantId());
+        envParameters.put("STRATOS_TENANT_ID", String.valueOf(CartridgeAgentConfiguration.getInstance().getTenantId()));
         envParameters.put("STRATOS_CARTRIDGE_KEY", CartridgeAgentConfiguration.getInstance().getCartridgeKey());
         envParameters.put("STRATOS_LB_CLUSTER_ID", CartridgeAgentConfiguration.getInstance().getLbClusterId());
         envParameters.put("STRATOS_CLUSTER_ID", CartridgeAgentConfiguration.getInstance().getClusterId());
