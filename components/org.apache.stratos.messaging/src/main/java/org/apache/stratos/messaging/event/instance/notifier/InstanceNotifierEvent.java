@@ -28,4 +28,8 @@ import java.io.Serializable;
  */
 public abstract class InstanceNotifierEvent extends Event implements Serializable {
     private static final long serialVersionUID = -5113750577049033578L;
+
+    public InstanceNotifierEvent(int tenantId) {
+        super(tenantId);
+    }
 }

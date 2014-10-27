@@ -29,7 +29,8 @@ public class ClusterMaintenanceModeEvent extends TopologyEvent implements Serial
 	private final String clusterId;
     private ClusterStatus status;
 
-    public ClusterMaintenanceModeEvent(String serviceName, String clusterId) {
+    public ClusterMaintenanceModeEvent(int tenantId, String serviceName, String clusterId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
     }

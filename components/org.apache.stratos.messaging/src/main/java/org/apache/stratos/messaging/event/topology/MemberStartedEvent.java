@@ -37,7 +37,8 @@ public class MemberStartedEvent extends TopologyEvent implements Serializable {
     private MemberStatus status;
     private Properties properties;
 
-    public MemberStartedEvent(String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+    public MemberStartedEvent(int tenantId, String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

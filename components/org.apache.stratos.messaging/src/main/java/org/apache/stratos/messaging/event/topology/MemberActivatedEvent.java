@@ -40,7 +40,8 @@ public class MemberActivatedEvent extends TopologyEvent implements Serializable 
     private Map<Integer, Port> portMap;
     private String memberIp;
 
-    public MemberActivatedEvent(String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+    public MemberActivatedEvent(int tenantId, String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

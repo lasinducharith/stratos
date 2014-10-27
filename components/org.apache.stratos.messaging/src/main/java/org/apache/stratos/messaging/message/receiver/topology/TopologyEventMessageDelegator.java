@@ -20,10 +20,14 @@ package org.apache.stratos.messaging.message.receiver.topology;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.messaging.event.Event;
+import org.apache.stratos.messaging.event.topology.InstanceSpawnedEvent;
 import org.apache.stratos.messaging.listener.EventListener;
 import org.apache.stratos.messaging.message.processor.MessageProcessorChain;
+import org.apache.stratos.messaging.message.processor.topology.MemberActivatedMessageProcessor;
 import org.apache.stratos.messaging.message.processor.topology.TopologyMessageProcessorChain;
 import org.apache.stratos.messaging.util.Constants;
+import org.apache.stratos.messaging.util.Util;
 
 import javax.jms.TextMessage;
 
@@ -64,6 +68,7 @@ class TopologyEventMessageDelegator implements Runnable {
 
                     // Retrieve the actual message
                     String json = message.getText();
+                    Event e = (Event) Util.jsonToObject(json, Event.class);
 
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Topology event message [%s] received from queue: %s", type, messageQueue.getClass()));
@@ -74,7 +79,7 @@ class TopologyEventMessageDelegator implements Runnable {
                         if (log.isDebugEnabled()) {
                             log.debug(String.format("Delegating topology event message: %s", type));
                         }
-                        processorChain.process(type, json, TopologyManager.getTopology());
+                        processorChain.process(type, json, TopologyManager.getTopology(e.getTenantId()));
                     } finally {
                         TopologyManager.releaseWriteLock();
                     }

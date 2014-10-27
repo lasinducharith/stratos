@@ -40,7 +40,8 @@ public class InstanceSpawnedEvent extends TopologyEvent implements Serializable 
     private Properties properties;
 
 
-    public InstanceSpawnedEvent(String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+    public InstanceSpawnedEvent(int tenantId, String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

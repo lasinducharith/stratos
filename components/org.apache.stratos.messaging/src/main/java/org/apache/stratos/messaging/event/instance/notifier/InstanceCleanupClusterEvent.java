@@ -28,7 +28,8 @@ import java.io.Serializable;
 public class InstanceCleanupClusterEvent extends InstanceNotifierEvent implements Serializable {
     private String clusterId;
 
-    public InstanceCleanupClusterEvent(String clusterId) {
+    public InstanceCleanupClusterEvent(int tenantId, String clusterId) {
+        super(tenantId);
         this.clusterId = clusterId;
     }
 

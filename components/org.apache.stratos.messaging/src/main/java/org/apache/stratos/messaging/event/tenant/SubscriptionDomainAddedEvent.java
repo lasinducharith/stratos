@@ -30,7 +30,6 @@ import java.util.*;
 public class SubscriptionDomainAddedEvent extends Event implements Serializable {
     private static final long serialVersionUID = 3457484382856403382L;
 
-    private final int tenantId;
     private final String serviceName;
     private final Set<String> clusterIds;
     private final String domainName;
@@ -38,15 +37,11 @@ public class SubscriptionDomainAddedEvent extends Event implements Serializable 
 
     public SubscriptionDomainAddedEvent(int tenantId, String serviceName, Set<String> clusterIds, String domainName,
                                         String applicationContext) {
-        this.tenantId = tenantId;
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterIds = clusterIds;
         this.domainName = domainName;
         this.applicationContext = applicationContext;
-    }
-
-    public int getTenantId() {
-        return tenantId;
     }
 
     public String getServiceName() {

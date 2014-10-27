@@ -29,7 +29,8 @@ public class SecondDerivativeOfRequestsInFlightEvent extends Event {
     private final String networkPartitionId;
     private final float value;
 
-    public SecondDerivativeOfRequestsInFlightEvent(String clusterId, String networkPartitionId, float value) {
+    public SecondDerivativeOfRequestsInFlightEvent(int tenantId, String clusterId, String networkPartitionId, float value) {
+        super(tenantId);
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;
         this.value = value;

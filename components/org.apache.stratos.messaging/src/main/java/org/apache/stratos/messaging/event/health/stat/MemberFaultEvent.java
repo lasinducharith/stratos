@@ -31,7 +31,8 @@ public class MemberFaultEvent extends Event {
 
     private final float value;
 
-    public MemberFaultEvent(String clusterId, String memberId, String partitionId, float value) {
+    public MemberFaultEvent(int tenantId, String clusterId, String memberId, String partitionId, float value) {
+        super(tenantId);
         this.clusterId = clusterId;
         this.memberId = memberId;
         this.partitionId = partitionId;

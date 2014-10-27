@@ -28,7 +28,8 @@ import java.io.Serializable;
 public class InstanceCleanupMemberEvent extends InstanceNotifierEvent implements Serializable {
     private String memberId;
 
-    public InstanceCleanupMemberEvent(String memberId) {
+    public InstanceCleanupMemberEvent(int tenantId, String memberId) {
+        super(tenantId);
         this.memberId = memberId;
     }
 

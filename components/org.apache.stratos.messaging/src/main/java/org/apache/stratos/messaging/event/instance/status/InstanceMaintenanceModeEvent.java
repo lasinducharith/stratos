@@ -27,8 +27,9 @@ public class InstanceMaintenanceModeEvent extends InstanceStatusEvent implements
         private final String partitionId;
         private final String memberId;
 
-        public InstanceMaintenanceModeEvent(String serviceName, String clusterId,
+        public InstanceMaintenanceModeEvent(int tenantId, String serviceName, String clusterId,
                                             String networkPartitionId, String partitionId, String memberId) {
+            super(tenantId);
             this.serviceName = serviceName;
             this.clusterId = clusterId;
             this.networkPartitionId = networkPartitionId;

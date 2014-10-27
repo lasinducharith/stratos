@@ -27,16 +27,11 @@ import java.io.Serializable;
 public class TenantUpdatedEvent extends TenantEvent implements Serializable {
     private static final long serialVersionUID = -3507199180268215748L;
 
-    private int tenantId;
     private String tenantDomain;
 
     public TenantUpdatedEvent(int tenantId, String tenantDomain) {
-        this.tenantId = tenantId;
+        super(tenantId);
         this.tenantDomain = tenantDomain;
-    }
-
-    public int getTenantId() {
-        return tenantId;
     }
 
     public String getTenantDomain() {

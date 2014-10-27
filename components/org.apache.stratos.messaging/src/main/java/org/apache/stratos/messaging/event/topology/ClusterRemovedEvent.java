@@ -32,7 +32,8 @@ public class ClusterRemovedEvent extends TopologyEvent implements Serializable {
     private final String deploymentPolicy;
     private final boolean isLbCluster;
 
-    public ClusterRemovedEvent(String serviceName, String clusterId, String deploymentPolicy, boolean isLbCluster) {
+    public ClusterRemovedEvent(int tenantId, String serviceName, String clusterId, String deploymentPolicy, boolean isLbCluster) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.isLbCluster = isLbCluster;

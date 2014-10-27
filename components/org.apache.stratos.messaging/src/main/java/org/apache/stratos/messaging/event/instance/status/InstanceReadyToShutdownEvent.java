@@ -31,8 +31,9 @@ public class InstanceReadyToShutdownEvent extends InstanceStatusEvent implements
     private final String partitionId;
     private final String memberId;
 
-    public InstanceReadyToShutdownEvent(String serviceName, String clusterId,
+    public InstanceReadyToShutdownEvent(int tenantId, String serviceName, String clusterId,
                                         String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

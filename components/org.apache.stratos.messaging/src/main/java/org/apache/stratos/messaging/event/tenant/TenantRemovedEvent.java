@@ -27,13 +27,7 @@ import java.io.Serializable;
 public class TenantRemovedEvent extends TenantEvent implements Serializable {
     private static final long serialVersionUID = -5759024961420183959L;
 
-    private int tenantId;
-
     public TenantRemovedEvent(int tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public int getTenantId() {
-        return tenantId;
+        super(tenantId);
     }
 }

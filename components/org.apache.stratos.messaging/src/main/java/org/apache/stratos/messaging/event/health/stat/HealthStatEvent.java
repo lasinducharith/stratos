@@ -29,4 +29,8 @@ import java.io.Serializable;
 public abstract class HealthStatEvent extends Event implements Serializable {
 
     private static final long serialVersionUID = 878645729335256359L;
+
+    public HealthStatEvent(int tenantId) {
+        super(tenantId);
+    }
 }

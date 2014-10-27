@@ -27,4 +27,8 @@ import java.io.Serializable;
  * Ping event.
  */
 public class PingEvent extends InstanceNotifierEvent implements Serializable {
+
+    public PingEvent(int tenantId) {
+        super(tenantId);
+    }
 }

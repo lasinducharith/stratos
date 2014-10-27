@@ -30,9 +30,11 @@ public class AverageRequestsInFlightEvent extends Event {
     private final float value;
 
     public AverageRequestsInFlightEvent(String networkPartitionId, String clusterId, float value) {
+        super(2);
         this.networkPartitionId = networkPartitionId;
         this.clusterId = clusterId;
         this.value = value;
+
     }
 
 

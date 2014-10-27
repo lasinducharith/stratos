@@ -29,7 +29,8 @@ public class MemberSecondDerivativeOfLoadAverageEvent extends Event {
     private final String memberId;
     private final float value;
 
-    public MemberSecondDerivativeOfLoadAverageEvent(String memberId, float value) {
+    public MemberSecondDerivativeOfLoadAverageEvent(int tenantId, String memberId, float value) {
+        super(tenantId);
         this.memberId = memberId;
         this.value = value;
     }

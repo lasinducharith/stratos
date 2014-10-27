@@ -28,4 +28,8 @@ import java.io.Serializable;
  */
 public abstract class TopologyEvent extends Event implements Serializable {
     private static final long serialVersionUID = -3279032168352271675L;
+
+    public TopologyEvent(int tenantId) {
+        super(tenantId);
+    }
 }

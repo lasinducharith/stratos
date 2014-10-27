@@ -33,7 +33,8 @@ public class InstanceStartedEvent extends InstanceStatusEvent implements Seriali
     private final String partitionId;
     private final String memberId;
 
-    public InstanceStartedEvent(String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+    public InstanceStartedEvent(int tenantId, String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

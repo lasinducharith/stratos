@@ -32,7 +32,8 @@ public class CompleteTenantEvent extends TenantEvent {
 
     private List<Tenant> tenants;
 
-    public CompleteTenantEvent(List<Tenant> tenants) {
+    public CompleteTenantEvent(int tenantId, List<Tenant> tenants) {
+        super(tenantId);
         this.tenants = tenants;
     }
 

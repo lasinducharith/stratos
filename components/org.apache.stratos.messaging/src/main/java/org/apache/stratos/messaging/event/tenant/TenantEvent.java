@@ -28,4 +28,8 @@ import java.io.Serializable;
  */
 public abstract class TenantEvent extends Event implements Serializable {
     private static final long serialVersionUID = -214237911335280160L;
+
+    public TenantEvent(int tenantId) {
+        super(tenantId);
+    }
 }

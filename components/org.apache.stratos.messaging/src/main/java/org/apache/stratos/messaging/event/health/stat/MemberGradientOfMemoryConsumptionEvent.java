@@ -29,7 +29,8 @@ public class MemberGradientOfMemoryConsumptionEvent extends Event {
     private final String memberId;
     private final float value;
 
-    public MemberGradientOfMemoryConsumptionEvent(String memberId, float value) {
+    public MemberGradientOfMemoryConsumptionEvent(int tenantId, String memberId, float value) {
+        super(tenantId);
         this.memberId = memberId;
         this.value = value;
     }

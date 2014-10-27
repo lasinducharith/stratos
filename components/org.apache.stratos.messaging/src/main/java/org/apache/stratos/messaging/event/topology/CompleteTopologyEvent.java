@@ -33,7 +33,8 @@ public class CompleteTopologyEvent extends TopologyEvent implements Serializable
 
     private final Topology topology;
 
-    public CompleteTopologyEvent(Topology topology) {
+    public CompleteTopologyEvent(int tenantId, Topology topology) {
+        super(tenantId);
         this.topology = topology;
     }
 

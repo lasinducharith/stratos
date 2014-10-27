@@ -29,7 +29,8 @@ public class GradientOfMemoryConsumptionEvent extends Event {
     private final String clusterId;
     private final float value;
 
-    public GradientOfMemoryConsumptionEvent(String networkPartitionId, String clusterId, float value) {
+    public GradientOfMemoryConsumptionEvent(int tenantId, String networkPartitionId, String clusterId, float value) {
+        super(tenantId);
         this.networkPartitionId = networkPartitionId;
         this.clusterId = clusterId;
         this.value = value;

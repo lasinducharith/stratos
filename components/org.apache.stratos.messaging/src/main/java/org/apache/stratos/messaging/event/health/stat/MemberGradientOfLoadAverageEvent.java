@@ -29,7 +29,8 @@ public class MemberGradientOfLoadAverageEvent extends Event {
     private final String memberId;
     private final float value;
 
-    public MemberGradientOfLoadAverageEvent(String memberId, float value) {
+    public MemberGradientOfLoadAverageEvent(int tenantId, String memberId, float value) {
+        super(tenantId);
         this.memberId = memberId;
         this.value = value;
     }

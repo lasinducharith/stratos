@@ -30,20 +30,15 @@ import java.util.*;
 public class SubscriptionDomainRemovedEvent extends Event implements Serializable {
     private static final long serialVersionUID = -8837521344795740210L;
 
-    private final int tenantId;
     private final String serviceName;
     private final Set<String> clusterIds;
     private final String domainName;
 
     public SubscriptionDomainRemovedEvent(int tenantId, String serviceName, Set<String> clusterIds, String domainName) {
-        this.tenantId = tenantId;
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterIds = clusterIds;
         this.domainName = domainName;
-    }
-
-    public int getTenantId() {
-        return tenantId;
     }
 
     public String getServiceName() {

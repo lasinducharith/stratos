@@ -36,7 +36,8 @@ public class InstanceActivatedEvent extends InstanceStatusEvent implements Seria
     private final String partitionId;
     private final String memberId;
 
-    public InstanceActivatedEvent(String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+    public InstanceActivatedEvent(int tenantId, String serviceName, String clusterId, String networkPartitionId, String partitionId, String memberId) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         this.networkPartitionId = networkPartitionId;

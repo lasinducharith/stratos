@@ -29,7 +29,8 @@ public class GradientOfRequestsInFlightEvent extends Event {
     private final String clusterId;
     private final float value;
 
-    public GradientOfRequestsInFlightEvent(String networkPartitionId, String clusterId, float value) {
+    public GradientOfRequestsInFlightEvent(int tenantId, String networkPartitionId, String clusterId, float value) {
+        super(tenantId);
         this.networkPartitionId = networkPartitionId;
         this.clusterId = clusterId;
         this.value = value;

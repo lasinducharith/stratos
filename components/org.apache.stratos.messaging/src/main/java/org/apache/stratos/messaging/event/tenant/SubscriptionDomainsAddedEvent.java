@@ -30,20 +30,15 @@ import java.util.*;
 public class SubscriptionDomainsAddedEvent extends Event implements Serializable {
     private static final long serialVersionUID = 3457484382856403382L;
 
-    private final int tenantId;
     private final String serviceName;
     private final Set<String> clusterIds;
     private final Set<String> domains;
 
     public SubscriptionDomainsAddedEvent(int tenantId, String serviceName, Set<String> clusterIds, Set<String> domains) {
-        this.tenantId = tenantId;
+        super(tenantId);
         this.serviceName = serviceName;
         this.clusterIds = clusterIds;
         this.domains = (domains != null) ? domains : new HashSet<String>();
-    }
-
-    public int getTenantId() {
-        return tenantId;
     }
 
     public String getServiceName() {

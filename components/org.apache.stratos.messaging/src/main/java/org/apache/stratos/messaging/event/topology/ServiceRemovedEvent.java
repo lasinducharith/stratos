@@ -29,7 +29,8 @@ public class ServiceRemovedEvent extends TopologyEvent implements Serializable {
 
     private final String serviceName;
 
-    public ServiceRemovedEvent(String serviceName) {
+    public ServiceRemovedEvent(int tenantId, String serviceName) {
+        super(tenantId);
         this.serviceName = serviceName;
     }
 

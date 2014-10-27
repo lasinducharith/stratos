@@ -38,7 +38,8 @@ public class ServiceCreatedEvent extends TopologyEvent implements Serializable {
     private final Map<Integer, Port> portMap;
     private Properties properties;
 
-    public ServiceCreatedEvent(String serviceName, ServiceType serviceType) {
+    public ServiceCreatedEvent(int tenantId, String serviceName, ServiceType serviceType) {
+        super(tenantId);
         this.serviceName = serviceName;
         this.serviceType = serviceType;
         this.portMap = new HashMap<Integer, Port>();

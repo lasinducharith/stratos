@@ -32,6 +32,7 @@ public class TenantCreatedEvent extends TenantEvent implements Serializable {
     private Tenant tenant;
 
     public TenantCreatedEvent(Tenant tenant) {
+        super(tenant.getTenantId());
         this.tenant = tenant;
     }
 

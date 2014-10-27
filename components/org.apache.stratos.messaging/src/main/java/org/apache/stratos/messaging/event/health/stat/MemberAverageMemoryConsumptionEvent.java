@@ -28,7 +28,8 @@ public class MemberAverageMemoryConsumptionEvent extends Event {
     private final String memberId;
     private final float value;
 
-    public MemberAverageMemoryConsumptionEvent(String memberId, float value) {
+    public MemberAverageMemoryConsumptionEvent(int tenantId, String memberId, float value) {
+        super(tenantId);
         this.memberId = memberId;
         this.value = value;
     }

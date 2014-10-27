@@ -30,7 +30,8 @@ public class SecondDerivativeOfLoadAverageEvent extends Event {
     private final String clusterId;
     private final float value;
 
-    public SecondDerivativeOfLoadAverageEvent(String networkPartitionId, String clusterId, float value) {
+    public SecondDerivativeOfLoadAverageEvent(int tenantId, String networkPartitionId, String clusterId, float value) {
+        super(tenantId);
         this.networkPartitionId = networkPartitionId;
         this.clusterId = clusterId;
         this.value = value;

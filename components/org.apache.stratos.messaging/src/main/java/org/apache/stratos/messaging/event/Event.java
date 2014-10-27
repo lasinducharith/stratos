@@ -25,4 +25,13 @@ import java.io.Serializable;
  * Represents all distributed events in Stratos.
  */
 public abstract class Event implements Serializable {
+    private static int tenantId;
+
+    public Event(int tenantId){
+        this.tenantId = tenantId;
+    }
+
+    public static int getTenantId() {
+        return tenantId;
+    }
 }

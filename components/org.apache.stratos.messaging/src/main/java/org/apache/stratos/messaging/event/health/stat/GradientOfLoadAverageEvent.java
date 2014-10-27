@@ -29,7 +29,8 @@ public class GradientOfLoadAverageEvent extends Event {
     private final String clusterId;
     private final float value;
 
-    public GradientOfLoadAverageEvent(String networkPartitionId, String clusterId, float value) {
+    public GradientOfLoadAverageEvent(int tenantId, String networkPartitionId, String clusterId, float value) {
+        super(tenantId);
         this.networkPartitionId = networkPartitionId;
         this.clusterId = clusterId;
         this.value = value;
