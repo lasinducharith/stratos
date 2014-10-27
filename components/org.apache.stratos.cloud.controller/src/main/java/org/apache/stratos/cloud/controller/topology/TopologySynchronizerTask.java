@@ -22,7 +22,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
+import org.apache.stratos.messaging.domain.topology.Topology;
 import org.wso2.carbon.ntask.core.Task;
 
 public class TopologySynchronizerTask implements Task{
@@ -34,9 +35,8 @@ public class TopologySynchronizerTask implements Task{
             log.debug("Executing topology synchronization task");
         }
         
-        if(FasterLookUpDataHolder.getInstance().isTopologySyncRunning() ||
-        		// this is a temporary fix to avoid task execution - limitation with ntask
-                (!FasterLookUpDataHolder.getInstance().getEnableTopologySync())){
+        // this is a temporary fix to avoid task execution - limitation with ntask
+        if(!CommonDataHolder.getInstance().getEnableTopologySync()){
             if(log.isWarnEnabled()) {
                 log.warn("Topology synchronization is disabled.");
             }
@@ -44,8 +44,13 @@ public class TopologySynchronizerTask implements Task{
         }
         
     	// publish to the topic 
-        if (TopologyManager.getTopology() != null) {
-            TopologyEventPublisher.sendCompleteTopologyEvent(TopologyManager.getTopology());
+        if (TopologyManager.getCompleteTopology() != null) {
+            Map<Integer, Topology> tIdToTopologyMap = TopologyManager.getCompleteTopology();
+            for(int tenantId : tIdToTopologyMap.keySet()){
+                if(tIdToTopologyMap.get(tenantId)!=null) {
+                    TopologyEventPublisher.sendCompleteTopologyEvent(tenantId, tIdToTopologyMap.get(tenantId));
+                }
+            }
         }
     }
     
@@ -53,7 +58,7 @@ public class TopologySynchronizerTask implements Task{
     public void init() {
 
     	// this is a temporary fix to avoid task execution - limitation with ntask
-		if(!FasterLookUpDataHolder.getInstance().getEnableTopologySync()){
+		if(!CommonDataHolder.getInstance().getEnableTopologySync()){
             if(log.isWarnEnabled()) {
                 log.warn("Topology synchronization is disabled.");
             }

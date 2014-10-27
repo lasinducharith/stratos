@@ -30,11 +30,16 @@ import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 import org.apache.stratos.cloud.controller.util.ServiceReferenceHolder;
 import org.apache.stratos.messaging.domain.topology.Topology;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -78,7 +83,7 @@ public class RegistryManager {
      *
      * @param dataObj object to be persisted.
      */
-    public synchronized void persist(FasterLookUpDataHolder dataObj) throws RegistryException {
+    public synchronized void persist(int tenantId, FasterLookUpDataHolder dataObj) throws RegistryException {
         try {
         	
         	PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -91,7 +96,9 @@ public class RegistryManager {
 
             nodeResource.setContent(Serializer.serializeToByteArray(dataObj));
 
-            registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE + CloudControllerConstants.DATA_RESOURCE, nodeResource);
+            registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                    CloudControllerConstants.TENANT_RESOURCE + "/" + tenantId +
+                    CloudControllerConstants.DATA_RESOURCE, nodeResource);
 
             registryService.commitTransaction();
 
@@ -104,7 +111,7 @@ public class RegistryManager {
         }
     }
 
-    public synchronized void persistTopology(Topology topology) throws RegistryException {
+    public synchronized void persistTopology(int tenantId, Topology topology) throws RegistryException {
         try {
         	
         	PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -117,7 +124,9 @@ public class RegistryManager {
 
             nodeResource.setContent(Serializer.serializeToByteArray(topology));
 
-            registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE + CloudControllerConstants.TOPOLOGY_RESOURCE, nodeResource);
+            registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                    CloudControllerConstants.TENANT_RESOURCE + "/" + tenantId +
+                    CloudControllerConstants.TOPOLOGY_RESOURCE, nodeResource);
 
             registryService.commitTransaction();
 
@@ -131,14 +140,16 @@ public class RegistryManager {
     }
 
 
-    public synchronized Object retrieve() {
+    public synchronized Object retrieve(int tenantId) {
 
         try {
         	PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         	ctx.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         	ctx.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             Resource resource = registryService.get(
-            		CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE + CloudControllerConstants.DATA_RESOURCE);
+            		CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                            CloudControllerConstants.TENANT_RESOURCE + "/" + tenantId +
+                            CloudControllerConstants.DATA_RESOURCE);
 
             return resource.getContent();
 
@@ -153,7 +164,7 @@ public class RegistryManager {
 
     }
 
-    public synchronized Object retrieveTopology() {
+    public synchronized Object retrieveTopology(int tenantId) {
 
         try {
 			PrivilegedCarbonContext ctx = PrivilegedCarbonContext
@@ -162,8 +173,9 @@ public class RegistryManager {
 			ctx.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
 			Resource resource = registryService
-					.get(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE
-							+ CloudControllerConstants.TOPOLOGY_RESOURCE);
+					.get(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                            CloudControllerConstants.TENANT_RESOURCE + "/" + tenantId +
+                            CloudControllerConstants.TOPOLOGY_RESOURCE);
 
             return resource.getContent();
 
@@ -175,6 +187,38 @@ public class RegistryManager {
             log.error(msg, e);
             throw new CloudControllerException(msg, e);
         } 
+
+    }
+
+    public synchronized Map<Integer, Object> retrieveCompleteTopology() {
+
+        Map<Integer, Object> topologyList = new HashMap<Integer, Object>();
+        try {
+            PrivilegedCarbonContext ctx = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            ctx.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            ctx.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            Resource resource = registryService
+                    .get(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                            CloudControllerConstants.TENANT_RESOURCE);
+
+            Collection tenantCollection = (Collection) resource;
+            String[] tenantTopologiesDirectories = tenantCollection.getChildren();
+
+            for(String topologyLocation : tenantTopologiesDirectories){
+                topologyList.put(Integer.parseInt(topologyLocation), registryService.get(topologyLocation));
+            }
+
+            return topologyList;
+        } catch (ResourceNotFoundException ignore) {
+            // this means, we've never persisted CC info in registry
+            return null;
+        } catch (RegistryException e) {
+            String msg = "Failed to retrieve cloud controller data from registry.";
+            log.error(msg, e);
+            throw new CloudControllerException(msg, e);
+        }
 
     }
 

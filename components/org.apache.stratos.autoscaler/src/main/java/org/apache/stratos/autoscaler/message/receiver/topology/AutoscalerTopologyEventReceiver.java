@@ -101,9 +101,9 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
             protected void onEvent(Event event) {
                 try {
                     TopologyManager.acquireReadLock();
-                    for (Service service : TopologyManager.getTopology().getServices()) {
+                    for (Service service : TopologyManager.getTopology(event.getTenantId()).getServices()) {
                         for (Cluster cluster : service.getClusters()) {
-                            startClusterMonitor(cluster);
+                            startClusterMonitor(event.getTenantId(), cluster);
                         }
                     }
                 } catch (Exception e) {
@@ -146,9 +146,9 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
                     log.info("Event received: " + event);
                     ClusterCreatedEvent clusterCreatedEvent = (ClusterCreatedEvent) event;
                     TopologyManager.acquireReadLock();
-                    Service service = TopologyManager.getTopology().getService(clusterCreatedEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(clusterCreatedEvent.getServiceName());
                     Cluster cluster = service.getCluster(clusterCreatedEvent.getClusterId());
-                    startClusterMonitor(cluster);
+                    startClusterMonitor(event.getTenantId(), cluster);
                 } catch (Exception e) {
                     String msg = "Error processing event " + e.getLocalizedMessage();
                     log.error(msg, e);
@@ -165,7 +165,7 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
                     log.info("Event received: " + event);
                     ClusterMaintenanceModeEvent clusterMaintenanceModeEvent = (ClusterMaintenanceModeEvent) event;
                     TopologyManager.acquireReadLock();
-                    Service service = TopologyManager.getTopology().getService(clusterMaintenanceModeEvent.getServiceName());
+                    Service service = TopologyManager.getTopology(event.getTenantId()).getService(clusterMaintenanceModeEvent.getServiceName());
                     Cluster cluster = service.getCluster(clusterMaintenanceModeEvent.getClusterId());
                     AbstractClusterMonitor monitor;
                     monitor = AutoscalerContext.getInstance().getClusterMonitor(cluster.getClusterId());
@@ -303,9 +303,11 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
 
     private class ClusterMonitorAdder implements Runnable {
         private Cluster cluster;
+        private int tenantId;
 
-        public ClusterMonitorAdder(Cluster cluster) {
+        public ClusterMonitorAdder(int tenantId, Cluster cluster) {
             this.cluster = cluster;
+            this.tenantId = tenantId;
         }
 
         public void run() {
@@ -319,7 +321,7 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
                 }
 
                 try {
-                    monitor = ClusterMonitorFactory.getMonitor(cluster);
+                    monitor = ClusterMonitorFactory.getMonitor(tenantId, cluster);
                     success = true;
                 } catch (PolicyValidationException e) {
                     if (log.isDebugEnabled()) {
@@ -376,14 +378,14 @@ public class AutoscalerTopologyEventReceiver implements Runnable {
         terminated = true;
     }
 
-    protected synchronized void startClusterMonitor(Cluster cluster) {
+    protected synchronized void startClusterMonitor(int tenantId, Cluster cluster) {
         Thread th = null;
 
         AbstractClusterMonitor monitor;
         monitor = AutoscalerContext.getInstance().getClusterMonitor(cluster.getClusterId());
 
         if (null == monitor) {
-            th = new Thread(new ClusterMonitorAdder(cluster));
+            th = new Thread(new ClusterMonitorAdder(tenantId, cluster));
         }
         if (th != null) {
             th.start();

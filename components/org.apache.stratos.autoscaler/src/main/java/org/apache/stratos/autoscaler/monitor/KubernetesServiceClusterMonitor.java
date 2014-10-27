@@ -48,10 +48,10 @@ public final class KubernetesServiceClusterMonitor extends KubernetesClusterMoni
 
     private String lbReferenceType;
 
-    public KubernetesServiceClusterMonitor(KubernetesClusterContext kubernetesClusterCtxt,
+    public KubernetesServiceClusterMonitor(int tenantId, KubernetesClusterContext kubernetesClusterCtxt,
                                            String serviceClusterID, String serviceId,
                                            AutoscalePolicy autoscalePolicy) {
-        super(serviceClusterID, serviceId, kubernetesClusterCtxt,
+        super(tenantId, serviceClusterID, serviceId, kubernetesClusterCtxt,
               new AutoscalerRuleEvaluator(
                       StratosConstants.CONTAINER_MIN_CHECK_DROOL_FILE,
                       StratosConstants.CONTAINER_SCALE_CHECK_DROOL_FILE),
@@ -99,6 +99,7 @@ public final class KubernetesServiceClusterMonitor extends KubernetesClusterMoni
         String kubernetesClusterID = getKubernetesClusterCtxt().getKubernetesClusterID();
         String clusterId = getClusterId();
         if (rifReset || memoryConsumptionReset || loadAverageReset) {
+            getScaleCheckKnowledgeSession().setGlobal("tenantId", getTenantId());
             getScaleCheckKnowledgeSession().setGlobal("clusterId", clusterId);
             getScaleCheckKnowledgeSession().setGlobal("autoscalePolicy", autoscalePolicy);
             getScaleCheckKnowledgeSession().setGlobal("rifReset", rifReset);
@@ -120,6 +121,7 @@ public final class KubernetesServiceClusterMonitor extends KubernetesClusterMoni
     }
 
 	private void minCheck() {
+        getMinCheckKnowledgeSession().setGlobal("tenantId", getTenantId());
 		getMinCheckKnowledgeSession().setGlobal("clusterId", getClusterId());
 		String kubernetesClusterID = getKubernetesClusterCtxt().getKubernetesClusterID();
         if (log.isDebugEnabled()) {

@@ -21,6 +21,7 @@ package org.apache.stratos.cloud.controller.functions;
 import org.apache.stratos.cloud.controller.pojo.ClusterContext;
 import org.apache.stratos.cloud.controller.pojo.ContainerClusterContext;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
 import org.apache.stratos.kubernetes.client.model.Container;
@@ -40,7 +41,11 @@ import com.google.common.base.Function;
 public class ContainerClusterContextToReplicationController implements
         Function<ContainerClusterContext, ReplicationController> {
 
-    private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private FasterLookUpDataHolder dataHolder;
+
+    public ContainerClusterContextToReplicationController(FasterLookUpDataHolder dataHolder) {
+        this.dataHolder = dataHolder;
+    }
 
     @Override
     public ReplicationController apply(ContainerClusterContext memberContext) {
@@ -66,7 +71,7 @@ public class ContainerClusterContextToReplicationController implements
         manifest.setVersion("v1beta1");
         manifest.setId(clusterContext.getClusterId());
 
-        ContainerClusterContextToKubernetesContainer containerFunc = new ContainerClusterContextToKubernetesContainer();
+        ContainerClusterContextToKubernetesContainer containerFunc = new ContainerClusterContextToKubernetesContainer(dataHolder);
         Container container = containerFunc.apply(memberContext);
 
         manifest.setContainers(new Container[] { container });

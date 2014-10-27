@@ -56,6 +56,7 @@ import org.drools.runtime.rule.FactHandle;
  */
 public abstract class AbstractClusterMonitor implements Runnable {
 
+    private int tenantId;
     private String clusterId;
     private String serviceId;
     private ClusterStatus status;
@@ -71,10 +72,11 @@ public abstract class AbstractClusterMonitor implements Runnable {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    protected AbstractClusterMonitor(String clusterId, String serviceId,
+    protected AbstractClusterMonitor(int tenantId, String clusterId, String serviceId,
                                      AutoscalerRuleEvaluator autoscalerRuleEvaluator) {
 
         super();
+        this.tenantId = tenantId;
         this.clusterId = clusterId;
         this.serviceId = serviceId;
         this.autoscalerRuleEvaluator = autoscalerRuleEvaluator;
@@ -243,5 +245,9 @@ public abstract class AbstractClusterMonitor implements Runnable {
     public void setAutoscalerRuleEvaluator(
             AutoscalerRuleEvaluator autoscalerRuleEvaluator) {
         this.autoscalerRuleEvaluator = autoscalerRuleEvaluator;
+    }
+
+    public int getTenantId() {
+        return tenantId;
     }
 }

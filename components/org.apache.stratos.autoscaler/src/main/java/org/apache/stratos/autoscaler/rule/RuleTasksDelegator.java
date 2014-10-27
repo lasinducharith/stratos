@@ -78,7 +78,7 @@ public class RuleTasksDelegator {
         return autoscaleAlgorithm;
     }
     
-    public void delegateSpawn(PartitionContext partitionContext, String clusterId, String lbRefType, boolean isPrimary) {
+    public void delegateSpawn(int tenantId, PartitionContext partitionContext, String clusterId, String lbRefType, boolean isPrimary) {
     	
         try {
 
@@ -89,7 +89,7 @@ public class RuleTasksDelegator {
             String lbClusterId = getLbClusterId(lbRefType, partitionContext, lbHolder);
             MemberContext memberContext =
                                          CloudControllerClient.getInstance()
-                                                              .spawnAnInstance(partitionContext.getPartition(),
+                                                              .spawnAnInstance(tenantId, partitionContext.getPartition(),
                                                                       clusterId,
                                                                       lbClusterId, partitionContext.getNetworkPartitionId(),
                                                                       isPrimary,
@@ -185,29 +185,29 @@ public class RuleTasksDelegator {
         }
     }
 
-    public void terminateObsoleteInstance(String memberId) {
+    public void terminateObsoleteInstance(int tenantId, String memberId) {
         try {
-            CloudControllerClient.getInstance().terminate(memberId);
+            CloudControllerClient.getInstance().terminate(tenantId, memberId);
         } catch (Throwable e) {
             log.error("Cannot terminate instance", e);
         }
     }
 
-   	public void delegateTerminateAll(String clusterId) {
+   	public void delegateTerminateAll(int tenantId, String clusterId) {
            try {
 
-               CloudControllerClient.getInstance().terminateAllInstances(clusterId);
+               CloudControllerClient.getInstance().terminateAllInstances(tenantId, clusterId);
            } catch (Throwable e) {
                log.error("Cannot terminate instance", e);
            }
        }
 
-    public void delegateStartContainers(KubernetesClusterContext kubernetesClusterContext) {
+    public void delegateStartContainers(int tenantId, KubernetesClusterContext kubernetesClusterContext) {
         try {
             String kubernetesClusterId = kubernetesClusterContext.getKubernetesClusterID();
             String clusterId = kubernetesClusterContext.getClusterId();
             CloudControllerClient ccClient = CloudControllerClient.getInstance();
-            MemberContext[] memberContexts = ccClient.startContainers(kubernetesClusterId, clusterId);
+            MemberContext[] memberContexts = ccClient.startContainers(tenantId, kubernetesClusterId, clusterId);
             if (null != memberContexts) {
                 for (MemberContext memberContext : memberContexts) {
                     if (null != memberContext) {
@@ -234,13 +234,13 @@ public class RuleTasksDelegator {
         }
     }
 
-    public void delegateScaleUpContainers(KubernetesClusterContext kubernetesClusterContext,
+    public void delegateScaleUpContainers(int tenantId, KubernetesClusterContext kubernetesClusterContext,
                                          int newReplicasCount) {
         String clusterId = kubernetesClusterContext.getClusterId();
         try {
             CloudControllerClient ccClient = CloudControllerClient.getInstance();
             // getting newly created pods' member contexts
-            MemberContext[] memberContexts = ccClient.updateContainers(clusterId, newReplicasCount);
+            MemberContext[] memberContexts = ccClient.updateContainers(tenantId, clusterId, newReplicasCount);
             if (null != memberContexts) {
                 for (MemberContext memberContext : memberContexts) {
                     if (null != memberContext) {
@@ -267,13 +267,13 @@ public class RuleTasksDelegator {
         }
     }
     
-    public void delegateScaleDownContainers(KubernetesClusterContext kubernetesClusterContext, 
+    public void delegateScaleDownContainers(int tenantId, KubernetesClusterContext kubernetesClusterContext,
     										int newReplicasCount) {
     	String clusterId = kubernetesClusterContext.getClusterId();
     	try {
     		CloudControllerClient ccClient = CloudControllerClient.getInstance();
     		// getting terminated pods's member contexts
-    		MemberContext[] memberContexts = ccClient.updateContainers(clusterId, newReplicasCount);
+    		MemberContext[] memberContexts = ccClient.updateContainers(tenantId, clusterId, newReplicasCount);
     		if (null != memberContexts) {
 				for (MemberContext memberContext : memberContexts) {
 					if (null != memberContext) {
@@ -290,10 +290,10 @@ public class RuleTasksDelegator {
     	}
     }
     
-    public void delegateTerminateContainer(KubernetesClusterContext kubernetesClusterContext, String memberId) {
+    public void delegateTerminateContainer(int tenantId, KubernetesClusterContext kubernetesClusterContext, String memberId) {
     	try {
     		CloudControllerClient ccClient = CloudControllerClient.getInstance();
-    		ccClient.terminateContainer(memberId);
+    		ccClient.terminateContainer(tenantId, memberId);
     	} catch (TerminationException e) {
     		log.error("Cannot delete container ", e);
 		}

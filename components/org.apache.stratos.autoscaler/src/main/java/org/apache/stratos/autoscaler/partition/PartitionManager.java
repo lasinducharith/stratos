@@ -44,7 +44,7 @@ public class PartitionManager {
     private static final Log log = LogFactory.getLog(PartitionManager.class);
 
     // Partitions against partitionID
-    private static Map<String, Partition> partitions = new HashMap<String, Partition>();
+    private static Map<Integer, Map<String, Partition>> tenantIdToPartitions = new HashMap<Integer, Map<String, Partition>>();
 
     /*
      * Key - network partition id
@@ -65,18 +65,21 @@ public class PartitionManager {
     }
 
 
-    public boolean partitionExist(String partitionId) {
-        return partitions.containsKey(partitionId);
+    public boolean partitionExist(int tenantId, String partitionId) {
+        if(tenantIdToPartitions.get(tenantId)!=null) {
+            return tenantIdToPartitions.get(tenantId).containsKey(partitionId);
+        }
+            return false;
     }
 
     /*
      * Deploy a new partition to Auto Scaler.
      */
-    public boolean addNewPartition(Partition partition) throws InvalidPartitionException {
+    public boolean addNewPartition(int tenantId, Partition partition) throws InvalidPartitionException {
         if (StringUtils.isEmpty(partition.getId())) {
             throw new InvalidPartitionException("Partition id can not be empty");
         }
-        if (this.partitionExist(partition.getId())) {
+        if (this.partitionExist(tenantId, partition.getId())) {
             throw new InvalidPartitionException(String.format("Partition already exist in partition manager: [id] %s", partition.getId()));
         }
         if (null == partition.getProvider()) {
@@ -84,8 +87,8 @@ public class PartitionManager {
         }
         try {
             validatePartitionViaCloudController(partition);
-            RegistryManager.getInstance().persistPartition(partition);
-            addPartitionToInformationModel(partition);
+            RegistryManager.getInstance().persistPartition(tenantId, partition);
+            addPartitionToInformationModel(tenantId, partition);
             if (log.isInfoEnabled()) {
                 log.info(String.format("Partition is deployed successfully: [id] %s", partition.getId()));
             }
@@ -96,24 +99,44 @@ public class PartitionManager {
     }
 
 
-    public void addPartitionToInformationModel(Partition partition) {
-        partitions.put(partition.getId(), partition);
+    public void addPartitionToInformationModel(int tenantId, Partition partition) throws  InvalidPartitionException{
+        Map<String, Partition> partitionsListMap;
+
+        if (!tenantIdToPartitions.containsKey(tenantId)) {
+            partitionsListMap = new HashMap<String, Partition>();
+        } else {
+            partitionsListMap = tenantIdToPartitions.get(tenantId);
+        }
+
+        if (!partitionsListMap.containsKey(partition.getId())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Adding partition :" + partition.getId() + " for tenant :" + tenantId);
+            }
+            partitionsListMap.put(partition.getId(), partition);
+            tenantIdToPartitions.put(tenantId, partitionsListMap);
+        } else {
+            String errMsg = "Specified partition [" + partition.getId() + "] already exists for tenant [" + tenantId + "]";
+            log.error(errMsg);
+            throw new InvalidPartitionException(errMsg);
+        }
     }
 
     public NetworkPartitionLbHolder getNetworkPartitionLbHolder(String networkPartitionId) {
         return this.networkPartitionLbHolders.get(networkPartitionId);
     }
 
-    public Partition getPartitionById(String partitionId) {
-        if (partitionExist(partitionId))
-            return partitions.get(partitionId);
+    public Partition getPartitionById(int tenantId, String partitionId) {
+        if (partitionExist(tenantId, partitionId))
+            return tenantIdToPartitions.get(tenantId).get(partitionId);
         else
             return null;
     }
 
-    public Partition[] getAllPartitions() {
-        return partitions.values().toArray(new Partition[0]);
-
+    public Partition[] getAllPartitions(int tenantId) {
+        if(tenantIdToPartitions.containsKey(tenantId)) {
+            return tenantIdToPartitions.get(tenantId).values().toArray(new Partition[0]);
+        }
+            return null;
     }
 
     public boolean validatePartitionViaCloudController(Partition partition) throws PartitionValidationException {

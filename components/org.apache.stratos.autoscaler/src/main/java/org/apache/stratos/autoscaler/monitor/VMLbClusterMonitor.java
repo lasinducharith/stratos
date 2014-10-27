@@ -49,9 +49,9 @@ public class VMLbClusterMonitor extends VMClusterMonitor {
 
     private static final Log log = LogFactory.getLog(VMLbClusterMonitor.class);
 
-    public VMLbClusterMonitor(String clusterId, String serviceId, DeploymentPolicy deploymentPolicy,
+    public VMLbClusterMonitor(int tenantId, String clusterId, String serviceId, DeploymentPolicy deploymentPolicy,
                               AutoscalePolicy autoscalePolicy) {
-        super(clusterId, serviceId,
+        super(tenantId, clusterId, serviceId,
               new AutoscalerRuleEvaluator(
                       StratosConstants.VM_MIN_CHECK_DROOL_FILE,
                       StratosConstants.VM_SCALE_CHECK_DROOL_FILE),
@@ -90,6 +90,7 @@ public class VMLbClusterMonitor extends VMClusterMonitor {
                     .values()) {
 
                 if (partitionContext != null) {
+                    getMinCheckKnowledgeSession().setGlobal("tenantId", getTenantId());
                     getMinCheckKnowledgeSession().setGlobal("clusterId", getClusterId());
                     getMinCheckKnowledgeSession().setGlobal("isPrimary", false);
 
@@ -138,7 +139,7 @@ public class VMLbClusterMonitor extends VMClusterMonitor {
 
         String deploymentPolicy = clusterRemovedEvent.getDeploymentPolicy();
         String clusterId = clusterRemovedEvent.getClusterId();
-        DeploymentPolicy depPolicy = PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicy);
+        DeploymentPolicy depPolicy = PolicyManager.getInstance().getDeploymentPolicy(clusterRemovedEvent.getTenantId(), deploymentPolicy);
         if (depPolicy != null) {
             List<NetworkPartitionLbHolder> lbHolders = PartitionManager.getInstance()
                     .getNetworkPartitionLbHolders(depPolicy);

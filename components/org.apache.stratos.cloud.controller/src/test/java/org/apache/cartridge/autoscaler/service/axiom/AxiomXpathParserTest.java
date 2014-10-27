@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.stratos.cloud.controller.axiom.AxiomXpathParserUtil;
 import org.apache.stratos.cloud.controller.axiom.parser.CloudControllerConfigParser;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 
 import java.io.File;
@@ -47,18 +48,18 @@ public class AxiomXpathParserTest extends TestCase {
     public void testGetMatchingNodes(){
         List<OMNode> list = AxiomXpathParserUtil.getMatchingNodes("/cloudController/iaasProviders/iaasProvider/provider", docElt);
         assertEquals(1, list.size());
-        assertEquals(1, FasterLookUpDataHolder.getInstance().getIaasProviders().size());
+        assertEquals(1, CommonDataHolder.getInstance().getIaasProviders().size());
     }
     
     public void testDataPublisherConfig() {
-		assertEquals(true, FasterLookUpDataHolder.getInstance().getEnableBAMDataPublisher());
-		assertEquals("nirmal", FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamUsername());
-		assertEquals("nirmal", FasterLookUpDataHolder.getInstance().getDataPubConfig().getBamPassword());
+		assertEquals(true, CommonDataHolder.getInstance().getEnableBAMDataPublisher());
+		assertEquals("nirmal", CommonDataHolder.getInstance().getDataPubConfig().getBamUsername());
+		assertEquals("nirmal", CommonDataHolder.getInstance().getDataPubConfig().getBamPassword());
 	}
     
     public void testTopologySynchParser() {
-		assertNotNull(FasterLookUpDataHolder.getInstance().getTopologyConfig());
-		assertEquals("1 * * * * ? *", FasterLookUpDataHolder.getInstance().getTopologyConfig().getProperty("cron"));
+		assertNotNull(CommonDataHolder.getInstance().getTopologyConfig());
+		assertEquals("1 * * * * ? *", CommonDataHolder.getInstance().getTopologyConfig().getProperty("cron"));
 	}
 
 }

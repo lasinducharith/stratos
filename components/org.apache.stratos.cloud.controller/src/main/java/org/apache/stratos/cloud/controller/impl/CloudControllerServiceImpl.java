@@ -40,7 +40,9 @@ import org.apache.stratos.cloud.controller.persist.Deserializer;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.publisher.CartridgeInstanceDataPublisher;
 import org.apache.stratos.cloud.controller.registry.RegistryManager;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.topology.TopologyBuilder;
 import org.apache.stratos.cloud.controller.topology.TopologyManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
@@ -63,6 +65,7 @@ import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.rest.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -80,8 +83,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
 	private static final Log LOG = LogFactory
 			.getLog(CloudControllerServiceImpl.class);
-	private FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder
-			.getInstance();
+	private FasterLookupDataHolderManager fasterLookupDataHolderManager = FasterLookupDataHolderManager.getInstance();
 
 	public CloudControllerServiceImpl() {
 		// acquire serialized data from registry
@@ -90,43 +92,79 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
 	private void acquireData() {
 
-		Object obj = RegistryManager.getInstance().retrieve();
-		if (obj != null) {
-			try {
-				Object dataObj = Deserializer
-						.deserializeFromByteArray((byte[]) obj);
-				if (dataObj instanceof FasterLookUpDataHolder) {
-					FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
-					FasterLookUpDataHolder currentData = FasterLookUpDataHolder
-							.getInstance();
+        Object obj = RegistryManager.getInstance().retrieve(MultitenantConstants.SUPER_TENANT_ID);
+        if (obj != null) {
+            try {
+                Object dataObj = Deserializer
+                        .deserializeFromByteArray((byte[]) obj);
+                if (dataObj instanceof FasterLookUpDataHolder) {
+                    FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
+                    FasterLookUpDataHolder currentData = new FasterLookUpDataHolder();
 
-					// assign necessary data
-					currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
-					currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
-					currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
-					currentData.setCartridges(serializedObj.getCartridges());
-					currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
+                    // assign necessary data
+                    currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
+                    currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
+                    currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
+                    currentData.setCartridges(serializedObj.getCartridges());
+                    currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
+                    if (LOG.isDebugEnabled()) {
 
-					if(LOG.isDebugEnabled()) {
-					    
-					    LOG.debug("Cloud Controller Data is retrieved from registry.");
-					}
-				} else {
-				    if(LOG.isDebugEnabled()) {
-				        
-				        LOG.debug("Cloud Controller Data cannot be found in registry.");
-				    }
-				}
-			} catch (Exception e) {
+                        LOG.debug("Cloud Controller Data is retrieved from registry.");
+                    }
 
-				String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
-				LOG.warn(msg, e);
-			}
+                    fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(MultitenantConstants.SUPER_TENANT_ID, currentData);
 
-		}
+                } else {
+                    if (LOG.isDebugEnabled()) {
+
+                        LOG.debug("Cloud Controller Data cannot be found in registry.");
+                    }
+                }
+
+            } catch (Exception e) {
+
+                String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
+                LOG.warn(msg, e);
+            }
+        }
+
+//		Object obj = RegistryManager.getInstance().retrieve();
+//		if (obj != null) {
+//			try {
+//				Object dataObj = Deserializer
+//						.deserializeFromByteArray((byte[]) obj);
+//				if (dataObj instanceof FasterLookUpDataHolder) {
+//					FasterLookUpDataHolder serializedObj = (FasterLookUpDataHolder) dataObj;
+//					FasterLookUpDataHolder currentData = FasterLookUpDataHolder
+//							.getInstance();
+//
+//					// assign necessary data
+//					currentData.setClusterIdToContext(serializedObj.getClusterIdToContext());
+//					currentData.setMemberIdToContext(serializedObj.getMemberIdToContext());
+//					currentData.setClusterIdToMemberContext(serializedObj.getClusterIdToMemberContext());
+//					currentData.setCartridges(serializedObj.getCartridges());
+//					currentData.setKubClusterIdToKubClusterContext(serializedObj.getKubClusterIdToKubClusterContext());
+//
+//					if(LOG.isDebugEnabled()) {
+//
+//					    LOG.debug("Cloud Controller Data is retrieved from registry.");
+//					}
+//				} else {
+//				    if(LOG.isDebugEnabled()) {
+//
+//				        LOG.debug("Cloud Controller Data cannot be found in registry.");
+//				    }
+//				}
+//			} catch (Exception e) {
+//
+//				String msg = "Unable to acquire data from Registry. Hence, any historical data will not get reflected.";
+//				LOG.warn(msg, e);
+//			}
+//
+//		}
 	}
 
-    public void deployCartridgeDefinition(CartridgeConfig cartridgeConfig) throws InvalidCartridgeDefinitionException, 
+    public void deployCartridgeDefinition(int tenantId, CartridgeConfig cartridgeConfig) throws InvalidCartridgeDefinitionException,
     InvalidIaasProviderException {
         
         handleNullObject(cartridgeConfig, "Invalid Cartridge Definition: Definition is null.");
@@ -163,35 +201,37 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 				CloudControllerUtil.getIaas(iaasProvider);
 			}
 		}
-        
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         // TODO transaction begins
         String cartridgeType = cartridge.getType();
         if(dataHolder.getCartridge(cartridgeType) != null) {
         	Cartridge cartridgeToBeRemoved = dataHolder.getCartridge(cartridgeType);
         	// undeploy
             try {
-				undeployCartridgeDefinition(cartridgeToBeRemoved.getType());
+				undeployCartridgeDefinition(tenantId, cartridgeToBeRemoved.getType());
 			} catch (InvalidCartridgeTypeException e) {
 				//ignore
 			}
-            populateNewCartridge(cartridge, cartridgeToBeRemoved);
+            cartridge = populateNewCartridge(cartridge, cartridgeToBeRemoved);
         }
-        
+
         dataHolder.addCartridge(cartridge);
-        
-        // persist
-        persist();
+        // TODO : Transactions should introduced with a roll-back mechanism
+        //Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
+        // persist in registry
+        persist(tenantId, dataHolder);
 
         List<Cartridge> cartridgeList = new ArrayList<Cartridge>();
         cartridgeList.add(cartridge);
 
-        TopologyBuilder.handleServiceCreated(cartridgeList);
+        TopologyBuilder.handleServiceCreated(tenantId, cartridgeList);
         // transaction ends
         
         LOG.info("Successfully deployed the Cartridge definition: " + cartridgeType);
     }
 
-    private void populateNewCartridge(Cartridge cartridge,
+    private Cartridge populateNewCartridge(Cartridge cartridge,
 			Cartridge cartridgeToBeRemoved) {
     	
     	List<IaasProvider> newIaasProviders = cartridge.getIaases();
@@ -209,29 +249,33 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 							+ "[partition id] : "+partitionId+" [cartridge type] "+cartridge.getType() );
 				}
 				cartridge.addIaasProvider(partitionId, newIaasProviders.get(newIaasProviders.indexOf(oldIaasProvider)));
+                return cartridge;
 			}
 		}
-		
-	}
 
-	public void undeployCartridgeDefinition(String cartridgeType) throws InvalidCartridgeTypeException {
+        return cartridge;
+    }
+
+	public void undeployCartridgeDefinition(int tenantId, String cartridgeType) throws InvalidCartridgeTypeException {
 
         Cartridge cartridge = null;
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         if((cartridge = dataHolder.getCartridge(cartridgeType)) != null) {
             if (dataHolder.getCartridges().remove(cartridge)) {
             	// invalidate partition validation cache
-            	dataHolder.removeFromCartridgeTypeToPartitionIds(cartridgeType);
-            	
+                dataHolder.removeFromCartridgeTypeToPartitionIds(cartridgeType);
+
             	if (LOG.isDebugEnabled()) {
             		LOG.debug("Partition cache invalidated for cartridge "+cartridgeType);
             	}
-            	
-                persist();
+                // TODO : Transactions should introduced with a roll-back mechanism
+                fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
+                persist(tenantId, dataHolder);
                 
                 // sends the service removed event
                 List<Cartridge> cartridgeList = new ArrayList<Cartridge>();
                 cartridgeList.add(cartridge);
-                TopologyBuilder.handleServiceRemoved(cartridgeList);
+                TopologyBuilder.handleServiceRemoved(tenantId, cartridgeList);
                 
                 if(LOG.isInfoEnabled()) {
                     LOG.info("Successfully undeployed the Cartridge definition: " + cartridgeType);
@@ -245,7 +289,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
     }
     
     @Override
-    public MemberContext startInstance(MemberContext memberContext) throws
+    public MemberContext startInstance(int tenantId, MemberContext memberContext) throws
         UnregisteredCartridgeException, InvalidIaasProviderException {
 
     	if(LOG.isDebugEnabled()) {
@@ -267,6 +311,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                                  memberContext);
 
         String partitionId = partition.getId();
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
 
         handleNullObject(ctxt, "Instance start-up failed. Invalid cluster id. " + memberContext);
@@ -345,16 +390,21 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                 }
                 
             }
-
+            List<Volume> volumes = new ArrayList<Volume>();
+            Volume[] volumesArray;
             if(ctxt.isVolumeRequired()) {
                 if (ctxt.getVolumes() != null) {
                     for (Volume volume : ctxt.getVolumes()) {
 
                         if (volume.getId() == null) {
                             // create a new volume
-                            createVolumeAndSetInClusterContext(volume, iaasProvider);
+                            volume = createVolumeAndSetInClusterContext(volume, iaasProvider);
                         }
+                        volumes.add(volume);
                     }
+                    volumesArray = new Volume[volumes.size()];
+                    volumesArray = volumes.toArray(volumesArray);
+                    ctxt.setVolumes(volumesArray);
                 }
             }
 
@@ -380,7 +430,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             if (LOG.isDebugEnabled()) {
             	LOG.debug("Cloud Controller is starting the instance start up thread.");
 			}
-            exec.execute(new JcloudsInstanceCreator(memberContext, iaasProvider, cartridgeType));
+            exec.execute(new JcloudsInstanceCreator(tenantId, memberContext, iaasProvider, cartridgeType));
 
             LOG.info("Instance is successfully starting up. "+memberContext.toString());
 
@@ -394,7 +444,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
     }
 
-	private void createVolumeAndSetInClusterContext(Volume volume,
+	private Volume createVolumeAndSetInClusterContext(Volume volume,
 			IaasProvider iaasProvider) {
 		// iaas cannot be null at this state #startInstance method
 		Iaas iaas = iaasProvider.getIaas();
@@ -412,6 +462,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         }
         
 		volume.setIaasType(iaasProvider.getType());
+        return volume;
 	}
 
 
@@ -451,10 +502,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
     /**
 	 * Persist data in registry.
 	 */
-	private void persist() {
+	private void persist(int tenantId, FasterLookUpDataHolder dataHolder) {
 		try {
-			RegistryManager.getInstance().persist(
-					dataHolder);
+			RegistryManager.getInstance().persist(tenantId,
+                    dataHolder);
 		} catch (RegistryException e) {
 
 			String msg = "Failed to persist the Cloud Controller data in registry. Further, transaction roll back also failed.";
@@ -469,7 +520,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
     }
 
     @Override
-    public void terminateInstance(String memberId) throws InvalidMemberException, InvalidCartridgeTypeException 
+    public void terminateInstance(int tenantId, String memberId) throws InvalidMemberException, InvalidCartridgeTypeException
     {
 
         if(memberId == null) {
@@ -478,7 +529,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             throw new IllegalArgumentException(msg);
         }
         
-        MemberContext ctxt = dataHolder.getMemberContextOfMemberId(memberId);
+        MemberContext ctxt = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getMemberContextOfMemberId(memberId);
         
         if(ctxt == null) {
             String msg = "Termination failed. Invalid Member Id: "+memberId;
@@ -487,15 +538,17 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         }
         
         ThreadExecutor exec = ThreadExecutor.getInstance();
-        exec.execute(new InstanceTerminator(ctxt));
+        exec.execute(new InstanceTerminator(tenantId, ctxt));
 
 	}
     
     private class InstanceTerminator implements Runnable {
 
         private MemberContext ctxt;
+        private int tenantId;
 
-        public InstanceTerminator(MemberContext ctxt) {
+        public InstanceTerminator(int tenantId, MemberContext ctxt) {
+            this.tenantId = tenantId;
             this.ctxt = ctxt;
         }
 
@@ -510,7 +563,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
             try {
                 // these will never be null, since we do not add null values for these.
-                Cartridge cartridge = dataHolder.getCartridge(cartridgeType);
+                Cartridge cartridge = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getCartridge(cartridgeType);
 
                 LOG.info("Starting to terminate an instance with member id : " + memberId +
                          " in partition id: " + partitionId + " of cluster id: " + clusterId +
@@ -538,10 +591,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                 IaasProvider iaasProvider = cartridge.getIaasProviderOfPartition(partitionId);
 
                 // terminate it!
-                terminate(iaasProvider, nodeId, ctxt);
+                terminate(tenantId, iaasProvider, nodeId, ctxt);
 
                 // log information
-                logTermination(ctxt);
+                logTermination(tenantId, ctxt);
 
             } catch (Exception e) {
                 String msg =
@@ -558,9 +611,11 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         private MemberContext memberContext;
         private IaasProvider iaasProvider;
         private String cartridgeType;
+        private int tenantId;
 
-        public JcloudsInstanceCreator(MemberContext memberContext, IaasProvider iaasProvider, 
+        public JcloudsInstanceCreator(int tenantId, MemberContext memberContext, IaasProvider iaasProvider,
         		String cartridgeType) {
+            this.tenantId = tenantId;
             this.memberContext = memberContext;
             this.iaasProvider = iaasProvider;
             this.cartridgeType = cartridgeType;
@@ -569,9 +624,9 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         @Override
         public void run() {
 
-
             String clusterId = memberContext.getClusterId();
             Partition partition = memberContext.getPartition();
+            FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
             ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
             Iaas iaas = iaasProvider.getIaas();
             String publicIp = null;
@@ -682,7 +737,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	       	                				     " - terminating node:"  + memberContext.toString();
 	    	                        LOG.error(msg);
 	    	                		// terminate instance
-	    	                        terminate(iaasProvider, 
+	    	                        terminate(tenantId, iaasProvider,
 	    	                    			node.getId(), memberContext);
 	    	                        throw new CloudControllerException(msg);
 	    	                	}
@@ -691,7 +746,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
   	                				     " - terminating node:"  + memberContext.toString();
                     			LOG.error(msg);
                     			// terminate instance
-                    			terminate(iaasProvider, 
+                    			terminate(tenantId, iaasProvider,
 	                    			node.getId(), memberContext);
                     			throw new CloudControllerException(msg);
                     		}
@@ -735,20 +790,21 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                     }
 
                     dataHolder.addMemberContext(memberContext);
-
+                    // Update in-memory model
+                    fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
                     // persist in registry
-                    persist();
+                    persist(tenantId, dataHolder);
 
 
                     // trigger topology
-                    TopologyBuilder.handleMemberSpawned(cartridgeType, clusterId, 
+                    TopologyBuilder.handleMemberSpawned(tenantId, cartridgeType, clusterId,
                     		partition.getId(), ip, publicIp, memberContext);
                     
                     String memberID = memberContext.getMemberId();
 
                     // update the topology with the newly spawned member
                     // publish data
-                    CartridgeInstanceDataPublisher.publish(memberID,
+                    CartridgeInstanceDataPublisher.publish(tenantId, memberID,
                                                         memberContext.getPartition().getId(),
                                                         memberContext.getNetworkPartitionId(),
                                                         memberContext.getClusterId(),
@@ -779,7 +835,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
     }
 
 	@Override
-	public void terminateAllInstances(String clusterId) throws InvalidClusterException {
+	public void terminateAllInstances(int tenantId, String clusterId) throws InvalidClusterException {
 
 		LOG.info("Starting to terminate all instances of cluster : "
 				+ clusterId);
@@ -790,7 +846,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 		    throw new IllegalArgumentException(msg);
 		}
 		
-		List<MemberContext> ctxts = dataHolder.getMemberContextsOfClusterId(clusterId);
+		List<MemberContext> ctxts = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getMemberContextsOfClusterId(clusterId);
 		
 		if(ctxts == null) {
 		    String msg = "Instance termination failed. No members found for cluster id: "+clusterId;
@@ -800,7 +856,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 		
 		ThreadExecutor exec = ThreadExecutor.getInstance();
 		for (MemberContext memberContext : ctxts) {
-            exec.execute(new InstanceTerminator(memberContext));
+            exec.execute(new InstanceTerminator(tenantId, memberContext));
         }
 
 	}
@@ -813,7 +869,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
      * @param nodeId
      * @return will return the IaaSProvider
      */
-	private IaasProvider terminate(IaasProvider iaasProvider, 
+	private IaasProvider terminate(int tenantId, IaasProvider iaasProvider,
 			String nodeId, MemberContext ctxt) {
 	    Iaas iaas = iaasProvider.getIaas();
 	    if (iaas == null) {
@@ -831,7 +887,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	    }
 	    
 	    //detach volumes if any
-	    detachVolume(iaasProvider, ctxt);
+	    detachVolume(tenantId, iaasProvider, ctxt);
 	    
 		// destroy the node
 		iaasProvider.getComputeService().destroyNode(nodeId);
@@ -845,9 +901,9 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 		return iaasProvider;
 	}
 
-	private void detachVolume(IaasProvider iaasProvider, MemberContext ctxt) {
+	private void detachVolume(int tenantId, IaasProvider iaasProvider, MemberContext ctxt) {
 		String clusterId = ctxt.getClusterId();
-		ClusterContext clusterCtxt = dataHolder.getClusterContext(clusterId);
+		ClusterContext clusterCtxt = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getClusterContext(clusterId);
 		if (clusterCtxt.getVolumes() != null) {
 			for (Volume volume : clusterCtxt.getVolumes()) {
 				try {
@@ -866,7 +922,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 		}
 	}
 
-	private void logTermination(MemberContext memberContext) {
+	private void logTermination(int tenantId, MemberContext memberContext) {
 
 	    if (memberContext == null) {
 	        return;
@@ -875,12 +931,12 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	    String partitionId = memberContext.getPartition() == null ? null : memberContext.getPartition().getId();
 	    
         //updating the topology
-        TopologyBuilder.handleMemberTerminated(memberContext.getCartridgeType(), 
+        TopologyBuilder.handleMemberTerminated(tenantId, memberContext.getCartridgeType(),
         		memberContext.getClusterId(), memberContext.getNetworkPartitionId(), 
         		partitionId, memberContext.getMemberId());
 
         //publishing data
-        CartridgeInstanceDataPublisher.publish(memberContext.getMemberId(),
+        CartridgeInstanceDataPublisher.publish(tenantId, memberContext.getMemberId(),
                                                         partitionId,
                                                         memberContext.getNetworkPartitionId(),
                                                         memberContext.getClusterId(),
@@ -889,15 +945,17 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                                                         null);
 
         // update data holders
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         dataHolder.removeMemberContext(memberContext.getMemberId(), memberContext.getClusterId());
-        
+        // Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
 		// persist
-		persist();
+		persist(tenantId, dataHolder);
 
 	}
 
 	@Override
-	public boolean registerService(Registrant registrant)
+	public boolean registerService(int tenantId, Registrant registrant)
 			throws UnregisteredCartridgeException {
 
 	    String cartridgeType = registrant.getCartridgeType();
@@ -913,6 +971,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	    }
 	    
         Cartridge cartridge = null;
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         if ((cartridge = dataHolder.getCartridge(cartridgeType)) == null) {
 
             String msg = "Registration of cluster: "+clusterId+
@@ -929,10 +988,11 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 				payload, hostName, props, isLb, registrant.getPersistence());
 
 
-		dataHolder.addClusterContext(ctxt);
-	    TopologyBuilder.handleClusterCreated(registrant, isLb);
-	    
-	    persist();
+        dataHolder.addClusterContext(ctxt);
+	    TopologyBuilder.handleClusterCreated(tenantId, registrant, isLb);
+        // Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
+	    persist(tenantId, dataHolder);
 	    
 	    LOG.info("Successfully registered: "+registrant);
 	    
@@ -1010,9 +1070,9 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
 
     @Override
-	public String[] getRegisteredCartridges() {
+	public String[] getRegisteredCartridges(int tenantId) {
 		// get the list of cartridges registered
-		List<Cartridge> cartridges = dataHolder
+		List<Cartridge> cartridges = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId)
 				.getCartridges();
 
 		if (cartridges == null) {
@@ -1031,9 +1091,9 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
 
 	@Override
-	public CartridgeInfo getCartridgeInfo(String cartridgeType)
+	public CartridgeInfo getCartridgeInfo(int tenantId, String cartridgeType)
 			throws UnregisteredCartridgeException {
-		Cartridge cartridge = dataHolder
+		Cartridge cartridge = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId)
 				.getCartridge(cartridgeType);
 
 		if (cartridge != null) {
@@ -1049,9 +1109,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
 
     @Override
-	public void unregisterService(String clusterId) throws UnregisteredClusterException {
+	public void unregisterService(final int tenantId, String clusterId) throws UnregisteredClusterException {
         final String clusterId_ = clusterId;
-        
+        final int tId = tenantId;
+        final FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         ClusterContext ctxt = dataHolder.getClusterContext(clusterId_);
 
         if (ctxt == null) {
@@ -1073,11 +1134,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         
         // if it's a kubernetes cluster
         if (StratosConstants.KUBERNETES_DEPLOYER_TYPE.equals(cartridge.getDeployerType())) {
-        	unregisterDockerService(clusterId_);
+        	unregisterDockerService(tenantId, clusterId_);
         	
         } else {
-        
-	        TopologyBuilder.handleClusterMaintenanceMode(dataHolder.getClusterContext(clusterId_));
+	        TopologyBuilder.handleClusterMaintenanceMode(tenantId, dataHolder.getClusterContext(clusterId_));
 	
 	        Runnable terminateInTimeout = new Runnable() {
 	            @Override
@@ -1087,7 +1147,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	                     String msg = "Unregistration of service cluster failed. Cluster not found: " + clusterId_;
 	                     LOG.error(msg);
 	                 }
-	                 Collection<Member> members = TopologyManager.getTopology().
+	                 Collection<Member> members = TopologyManager.getTopology(tenantId).
 	                         getService(ctxt.getCartridgeType()).getCluster(clusterId_).getMembers();
 	                 //finding the responding members from the existing members in the topology.
 	                int sizeOfRespondingMembers = 0;
@@ -1109,7 +1169,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	                     for (Member member : members) {
 	
 	                         try {
-	                            terminateInstance(member.getMemberId());
+	                            terminateInstance(tId, member.getMemberId());
 	                        } catch (Exception e) {
 	                            // we are not gonna stop the execution due to errors.
 	                            LOG.warn("Instance termination failed of member [id] " + member.getMemberId(), e);
@@ -1125,7 +1185,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	                     String msg = "Unregistration of service cluster failed. Cluster not found: " + clusterId_;
 	                     LOG.error(msg);
 	                 }
-	                 Collection<Member> members = TopologyManager.getTopology().
+	                 Collection<Member> members = TopologyManager.getTopology(tenantId).
 	                         getService(ctxt.getCartridgeType()).getCluster(clusterId_).getMembers();
 	                 // TODO why end time is needed?
 	                 // long endTime = System.currentTimeMillis() + ctxt.getTimeoutInMillis() * members.size();
@@ -1137,7 +1197,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	
 	                 LOG.info("Unregistration of service cluster: " + clusterId_);
 	                 deleteVolumes(ctxt);
-	                 onClusterRemoval(clusterId_);
+	                 onClusterRemoval(tId, clusterId_);
 	             }
 	
 	            private void deleteVolumes(ClusterContext ctxt) {
@@ -1176,26 +1236,27 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
     
     @Override
-	public void unregisterDockerService(String clusterId)
+	public void unregisterDockerService(int tenantId, String clusterId)
 			throws UnregisteredClusterException {
 
     	// terminate all kubernetes units
     	try {
-			terminateAllContainers(clusterId);
+			terminateAllContainers(tenantId, clusterId);
 		} catch (InvalidClusterException e) {
 			String msg = "Docker instance termination fails for cluster: "+clusterId;
 			LOG.error(msg, e);
 			throw new UnregisteredClusterException(msg, e);
 		}
     	// send cluster removal notifications and update the state
-		onClusterRemoval(clusterId);
+		onClusterRemoval(tenantId, clusterId);
 	}
 
 
     @Override
-    public boolean validateDeploymentPolicy(String cartridgeType, Partition[] partitions) 
+    public boolean validateDeploymentPolicy(int tenantId, String cartridgeType, Partition[] partitions)
             throws InvalidPartitionException, InvalidCartridgeTypeException {
 
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
     	Map<String, List<String>> validatedCache = dataHolder.getCartridgeTypeToPartitionIds();
     	List<String> validatedPartitions = new ArrayList<String>();
     	
@@ -1235,8 +1296,8 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 			
 			Callable<IaasProvider> worker = new PartitionValidatorCallable(
 					partition, cartridge);
-			Future<IaasProvider> job = FasterLookUpDataHolder.getInstance()
-					.getExecutor().submit(worker);
+            FasterLookUpDataHolder fldh = new FasterLookUpDataHolder();
+			Future<IaasProvider> job = fldh.getExecutor().submit(worker);
 			jobList.put(partition.getId(), job);
 		}
         
@@ -1252,7 +1313,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             	partitionToIaasProviders.put(partitionId, job.get());
             	
             	// add to cache
-            	this.dataHolder.addToCartridgeTypeToPartitionIdMap(cartridgeType, partitionId);
+            	dataHolder.addToCartridgeTypeToPartitionIdMap(cartridgeType, partitionId);
             	
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("Partition "+partitionId+" added to the cache against cartridge type: "+cartridgeType);
@@ -1265,9 +1326,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
         // if and only if the deployment policy valid
         cartridge.addIaasProviders(partitionToIaasProviders);
-        
+        // Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
         // persist data
-        persist();
+        persist(tenantId, dataHolder);
         
         LOG.info("All partitions "+CloudControllerUtil.getPartitionIds(partitions)+
         		" were validated successfully, against the Cartridge: "+cartridgeType);
@@ -1275,19 +1337,22 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         return true;
     }
     
-    private void onClusterRemoval(final String clusterId) {
+    private void onClusterRemoval(int tenantId, final String clusterId) {
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
 		ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
-		TopologyBuilder.handleClusterRemoved(ctxt);
+		TopologyBuilder.handleClusterRemoved(tenantId, ctxt);
 		dataHolder.removeClusterContext(clusterId);
 		dataHolder.removeMemberContextsOfCluster(clusterId);
-		persist();
+        // Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
+		persist(tenantId, dataHolder);
 	}
 
     @Override
     public boolean validatePartition(Partition partition) throws InvalidPartitionException {
     	//FIXME add logs
         String provider = partition.getProvider();
-        IaasProvider iaasProvider = dataHolder.getIaasProvider(provider);
+        IaasProvider iaasProvider = CommonDataHolder.getInstance().getIaasProvider(provider);
 
         if (iaasProvider == null) {
             String msg =
@@ -1321,13 +1386,13 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         return true;
     }
 
-    public ClusterContext getClusterContext (String clusterId) {
+    public ClusterContext getClusterContext (int tenantId, String clusterId) {
 
-        return dataHolder.getClusterContext(clusterId);
+        return fasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getClusterContext(clusterId);
     }
 
 	@Override
-	public MemberContext[] startContainers(ContainerClusterContext containerClusterContext)
+	public MemberContext[] startContainers(int tenantId, ContainerClusterContext containerClusterContext)
 			throws UnregisteredCartridgeException {
 		
 		if(LOG.isDebugEnabled()) {
@@ -1344,7 +1409,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         if(LOG.isDebugEnabled()) {
         	LOG.debug("Received an instance spawn request : " + containerClusterContext.toString());
         }
-
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
 
         if (ctxt == null) {
@@ -1371,12 +1436,12 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             String kubernetesMasterIp = validateProperty(StratosConstants.KUBERNETES_MASTER_IP, containerClusterContext);
             String kubernetesPortRange = validateProperty(StratosConstants.KUBERNETES_PORT_RANGE, containerClusterContext);
 			
-			KubernetesClusterContext kubClusterContext = getKubernetesClusterContext(kubernetesClusterId, kubernetesMasterIp, kubernetesPortRange);
+			KubernetesClusterContext kubClusterContext = getKubernetesClusterContext(tenantId, kubernetesClusterId, kubernetesMasterIp, kubernetesPortRange);
 			
 			KubernetesApiClient kubApi = kubClusterContext.getKubApi();
 			
 			// first let's create a replication controller.
-			ContainerClusterContextToReplicationController controllerFunction = new ContainerClusterContextToReplicationController();
+			ContainerClusterContextToReplicationController controllerFunction = new ContainerClusterContextToReplicationController(dataHolder);
 			ReplicationController controller = controllerFunction.apply(containerClusterContext);
 			
 			if (LOG.isDebugEnabled()) {
@@ -1392,7 +1457,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 			}
 			
 			// secondly let's create a kubernetes service proxy to load balance these containers
-			ContainerClusterContextToKubernetesService serviceFunction = new ContainerClusterContextToKubernetesService();
+			ContainerClusterContextToKubernetesService serviceFunction = new ContainerClusterContextToKubernetesService(dataHolder);
 			Service service = serviceFunction.apply(containerClusterContext);
 			
 			if (LOG.isDebugEnabled()) {
@@ -1404,7 +1469,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 			
 			// set host port and update
 			ctxt.addProperty(StratosConstants.ALLOCATED_SERVICE_HOST_PORT, service.getPort());
-			dataHolder.addClusterContext(ctxt);
+            dataHolder.addClusterContext(ctxt);
 			
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Cloud Controller successfully started the service "
@@ -1435,7 +1500,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug(String.format("Pods are not created for cluster : %s, hence deleting the service", clusterId));
 				}
-				terminateAllContainers(clusterId);
+				terminateAllContainers(tenantId, clusterId);
 				return new MemberContext[0];
 			}
 			
@@ -1456,7 +1521,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                 context.setProperties(CloudControllerUtil.addProperty(context
                         .getProperties(), StratosConstants.ALLOCATED_SERVICE_HOST_PORT,
                         String.valueOf(service.getPort())));
-                
+
                 dataHolder.addMemberContext(context);
                 
                 // wait till Pod status turns to running and send member spawned.
@@ -1464,13 +1529,14 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Cloud Controller is starting the instance start up thread.");
                 }
-                dataHolder.addScheduledFutureJob(context.getMemberId(), exec.schedule(new PodActivationWatcher(pod.getId(), context, kubApi), 5000));
+                dataHolder.addScheduledFutureJob(context.getMemberId(), exec.schedule(new PodActivationWatcher(tenantId, pod.getId(), context, kubApi), 5000));
                 
                 memberContexts.add(context);
             }
-			
+            // Update in-memory model
+            fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
 			// persist in registry
-			persist();
+			persist(tenantId, dataHolder);
 
             LOG.info("Kubernetes entities are successfully starting up. "+memberContexts);
 
@@ -1512,22 +1578,22 @@ public class CloudControllerServiceImpl implements CloudControllerService {
         
     }
 
-    private KubernetesClusterContext getKubernetesClusterContext(
+    private KubernetesClusterContext getKubernetesClusterContext(int tenantId,
 			String kubernetesClusterId, String kubernetesMasterIp,
 			String kubernetesPortRange) {
-		
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
 		KubernetesClusterContext origCtxt = dataHolder.getKubernetesClusterContext(kubernetesClusterId);
 		KubernetesClusterContext newCtxt = new KubernetesClusterContext(kubernetesClusterId, kubernetesPortRange, kubernetesMasterIp);
 		
 		if (origCtxt == null) {
-			dataHolder.addKubernetesClusterContext(newCtxt);
+            dataHolder.addKubernetesClusterContext(newCtxt);
 			return newCtxt;
 		}
 		
 		if (!origCtxt.equals(newCtxt)) {
 			// if for some reason master IP etc. have changed
 			newCtxt.setAvailableHostPorts(origCtxt.getAvailableHostPorts());
-			dataHolder.addKubernetesClusterContext(newCtxt);
+            dataHolder.addKubernetesClusterContext(newCtxt);
 			return newCtxt;
 		}  else {
 			return origCtxt;
@@ -1535,9 +1601,9 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
 
 	@Override
-	public MemberContext[] terminateAllContainers(String clusterId)
+	public MemberContext[] terminateAllContainers(int tenantId, String clusterId)
 			throws InvalidClusterException {
-		
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
 		ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
 
         if (ctxt == null) {
@@ -1627,23 +1693,24 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 		List<MemberContext> membersToBeRemoved = dataHolder.getMemberContextsOfClusterId(clusterId);
 		
 		for (MemberContext memberContext : membersToBeRemoved) {
-            logTermination(memberContext);
+            logTermination(tenantId, memberContext);
         }
-		
+        // Update in-memory model
+        fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
 		// persist
-		persist();
+		persist(tenantId, dataHolder);
 		
 		return membersToBeRemoved.toArray(new MemberContext[0]);
 	}
 
 	@Override
-	public MemberContext[] updateContainers(String clusterId, int replicas)
+	public MemberContext[] updateContainers(int tenantId, String clusterId, int replicas)
 			throws UnregisteredCartridgeException {
 		
 	    if(LOG.isDebugEnabled()) {
             LOG.debug("CloudControllerServiceImpl:updateContainers for cluster : "+clusterId);
         }
-
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         ClusterContext ctxt = dataHolder.getClusterContext(clusterId);
 
         if (ctxt == null) {
@@ -1743,7 +1810,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Cloud Controller is starting the instance start up thread.");
                     }
-                    dataHolder.addScheduledFutureJob(context.getMemberId(), exec.schedule(new PodActivationWatcher(pod.getId(), context, kubApi), 5000));
+                    dataHolder.addScheduledFutureJob(context.getMemberId(), exec.schedule(new PodActivationWatcher(tenantId, pod.getId(), context, kubApi), 5000));
                     
                     memberContexts.add(context);
                     
@@ -1761,15 +1828,16 @@ public class CloudControllerServiceImpl implements CloudControllerService {
                 for (Pod pod : difference) {
                     if (pod != null) {
                         MemberContext context = dataHolder.getMemberContextOfMemberId(pod.getId());
-                        logTermination(context);
+                        logTermination(tenantId, context);
                         memberContexts.add(context);
                     }
                 }
             }
-            
-            
+
+            // Update in-memory model
+            fasterLookupDataHolderManager.addFasterLookupDataHolderToMemoryModel(tenantId, dataHolder);
             // persist in registry
-            persist();
+            persist(tenantId, dataHolder);
 
             LOG.info("Kubernetes entities are successfully starting up. "+memberContexts);
 
@@ -1783,10 +1851,10 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 	}
 
     @Override
-    public MemberContext terminateContainer(String memberId) throws MemberTerminationFailedException {
+    public MemberContext terminateContainer(int tenantId, String memberId) throws MemberTerminationFailedException {
 
         handleNullObject(memberId, "Failed to terminate member. Invalid Member id. [Member id] " + memberId);
-
+        FasterLookUpDataHolder dataHolder = fasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
         MemberContext memberContext = dataHolder.getMemberContextOfMemberId(memberId);
 
         handleNullObject(memberContext, "Failed to terminate member. Member id not found. [Member id] " + memberId);
@@ -1818,7 +1886,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             
             MemberContext memberToBeRemoved = dataHolder.getMemberContextOfMemberId(memberId);
             
-            logTermination(memberToBeRemoved);
+            logTermination(tenantId, memberToBeRemoved);
             
             return memberToBeRemoved;
             
@@ -1835,6 +1903,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
             throw new IllegalArgumentException(errorMsg);
         }
     }
+
 
 }
 

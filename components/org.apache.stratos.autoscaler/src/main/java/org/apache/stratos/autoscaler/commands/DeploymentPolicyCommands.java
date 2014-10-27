@@ -35,16 +35,17 @@ public class DeploymentPolicyCommands implements CommandProvider{
  
     public void _listDeploymentPolicies (CommandInterpreter ci){
     	String policyId = ci.nextArgument();
+        int tenantId = Integer.parseInt(ci.nextArgument());
     	
     	PolicyManager pm = PolicyManager.getInstance();
     	
     	if(StringUtils.isBlank(policyId)){
-    		DeploymentPolicy[] depPolicyArr = pm.getDeploymentPolicyList();
+    		DeploymentPolicy[] depPolicyArr = pm.getDeploymentPolicyList(tenantId);
         	for(DeploymentPolicy depPoolicy : depPolicyArr){
         		ci.println(depPoolicy.toString());
         	}
     	}else{
-    		DeploymentPolicy asPolicy = pm.getDeploymentPolicy(policyId);
+    		DeploymentPolicy asPolicy = pm.getDeploymentPolicy(tenantId, policyId);
     		if(asPolicy != null){
     			ci.println(asPolicy);
     		}

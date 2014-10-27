@@ -36,6 +36,8 @@ import org.apache.stratos.common.kubernetes.KubernetesGroup;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +58,7 @@ public class AutoscalerServerComponent {
     AutoscalerTopologyEventReceiver asTopologyReceiver;
 //    TopicSubscriber healthStatTopicSubscriber;
     AutoscalerHealthStatEventReceiver autoscalerHealthStatEventReceiver;
+    private static final int SUPER_TENANT_ID = MultitenantConstants.SUPER_TENANT_ID;
 
     protected void activate(ComponentContext componentContext) throws Exception {
         try {
@@ -84,11 +87,11 @@ public class AutoscalerServerComponent {
             }
 
             // Adding the registry stored partitions to the information model
-            List<Partition> partitions = RegistryManager.getInstance().retrievePartitions();
+            List<Partition> partitions = RegistryManager.getInstance().retrievePartitions(SUPER_TENANT_ID);
             Iterator<Partition> partitionIterator = partitions.iterator();
             while (partitionIterator.hasNext()) {
                 Partition partition = partitionIterator.next();
-                PartitionManager.getInstance().addPartitionToInformationModel(partition);
+                PartitionManager.getInstance().addPartitionToInformationModel(SUPER_TENANT_ID, partition);
             }
             
             // Adding the network partitions stored in registry to the information model
@@ -99,26 +102,26 @@ public class AutoscalerServerComponent {
                 PartitionManager.getInstance().addNetworkPartitionLbHolder(nwPartition);
             }
             
-            List<AutoscalePolicy> asPolicies = RegistryManager.getInstance().retrieveASPolicies();
+            List<AutoscalePolicy> asPolicies = RegistryManager.getInstance().retrieveASPolicies(SUPER_TENANT_ID);
             Iterator<AutoscalePolicy> asPolicyIterator = asPolicies.iterator();
             while (asPolicyIterator.hasNext()) {
                 AutoscalePolicy asPolicy = asPolicyIterator.next();
-                PolicyManager.getInstance().addASPolicyToInformationModel(asPolicy);
+                PolicyManager.getInstance().addASPolicyToInformationModel(SUPER_TENANT_ID, asPolicy);
             }
 
-            List<DeploymentPolicy> depPolicies = RegistryManager.getInstance().retrieveDeploymentPolicies();
+            List<DeploymentPolicy> depPolicies = RegistryManager.getInstance().retrieveDeploymentPolicies(SUPER_TENANT_ID);
             Iterator<DeploymentPolicy> depPolicyIterator = depPolicies.iterator();
             while (depPolicyIterator.hasNext()) {
                 DeploymentPolicy depPolicy = depPolicyIterator.next();
-                PolicyManager.getInstance().addDeploymentPolicyToInformationModel(depPolicy);
+                PolicyManager.getInstance().addDeploymentPolicyToInformationModel(SUPER_TENANT_ID, depPolicy);
             }
 
             // Adding KubernetesGroups stored in registry to the information model
-            List<KubernetesGroup> kubernetesGroupList = RegistryManager.getInstance().retrieveKubernetesGroups();
+            List<KubernetesGroup> kubernetesGroupList = RegistryManager.getInstance().retrieveKubernetesGroups(SUPER_TENANT_ID);
             Iterator<KubernetesGroup> kubernetesGroupIterator = kubernetesGroupList.iterator();
             while (kubernetesGroupIterator.hasNext()) {
                 KubernetesGroup kubernetesGroup = kubernetesGroupIterator.next();
-                KubernetesManager.getInstance().addNewKubernetesGroup(kubernetesGroup);
+                KubernetesManager.getInstance().addNewKubernetesGroup(SUPER_TENANT_ID, kubernetesGroup);
             }
 
             if (log.isInfoEnabled()) {

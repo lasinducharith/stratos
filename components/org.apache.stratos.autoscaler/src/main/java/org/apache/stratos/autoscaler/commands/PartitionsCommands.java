@@ -35,16 +35,17 @@ public class PartitionsCommands implements CommandProvider{
  
     public void _listPartitions (CommandInterpreter ci){
     	String partitionId = ci.nextArgument();
+        int tenantId = Integer.parseInt(ci.nextArgument());
     	
     	PartitionManager pm = PartitionManager.getInstance();
     	
     	if(StringUtils.isBlank(partitionId)){
-    		Partition[] partitionArr = pm.getAllPartitions();
+    		Partition[] partitionArr = pm.getAllPartitions(tenantId);
         	for(Partition partition : partitionArr){
         		ci.println(partition.toString());
         	}
     	}else{
-    		Partition partition = pm.getPartitionById(partitionId);
+    		Partition partition = pm.getPartitionById(tenantId, partitionId);
     		if(partition != null){	
     			ci.println(partition);
     		}

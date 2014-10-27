@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.pojo.MemberContext;
 import org.apache.stratos.cloud.controller.registry.RegistryManager;
 import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.topology.TopologyBuilder;
 import org.apache.stratos.kubernetes.client.KubernetesApiClient;
 import org.apache.stratos.kubernetes.client.model.Pod;
@@ -38,8 +39,10 @@ public class PodActivationWatcher implements Runnable {
     private String podId;
     private MemberContext ctxt;
     private KubernetesApiClient kubApi;
+    private int tenantId;
     
-    public PodActivationWatcher(String podId, MemberContext ctxt, KubernetesApiClient kubApi) {
+    public PodActivationWatcher(int tenantId, String podId, MemberContext ctxt, KubernetesApiClient kubApi) {
+        this.tenantId = tenantId;
         this.podId = podId;
         this.ctxt = ctxt;
         this.kubApi = kubApi;
@@ -48,7 +51,7 @@ public class PodActivationWatcher implements Runnable {
     @Override
     public void run() {
         try {
-            FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+            FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
             Pod pod = kubApi.getPod(podId);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("PodActivationWatcher running : "+pod.getCurrentState().getStatus());
@@ -59,10 +62,10 @@ public class PodActivationWatcher implements Runnable {
                 ctxt.setPrivateIpAddress(hostIP);
                 dataHolder.addMemberContext(ctxt);
                 // trigger topology
-                TopologyBuilder.handleMemberSpawned(ctxt.getCartridgeType(), ctxt.getClusterId(), 
+                TopologyBuilder.handleMemberSpawned(tenantId, ctxt.getCartridgeType(), ctxt.getClusterId(),
                         null, hostIP, hostIP, ctxt);
                 
-                RegistryManager.getInstance().persist(dataHolder);
+                RegistryManager.getInstance().persist(tenantId, dataHolder);
                 
             }
             

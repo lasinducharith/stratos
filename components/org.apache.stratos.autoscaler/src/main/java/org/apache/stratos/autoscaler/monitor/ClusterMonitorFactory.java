@@ -63,22 +63,22 @@ public class ClusterMonitorFactory {
      * @throws PolicyValidationException    when deployment policy is not valid
      * @throws PartitionValidationException when partition is not valid
      */
-    public static AbstractClusterMonitor getMonitor(Cluster cluster)
+    public static AbstractClusterMonitor getMonitor(int tenantId, Cluster cluster)
             throws PolicyValidationException, PartitionValidationException {
 
         AbstractClusterMonitor clusterMonitor;
         if (cluster.isKubernetesCluster()) {
-            clusterMonitor = getDockerServiceClusterMonitor(cluster);
+            clusterMonitor = getDockerServiceClusterMonitor(tenantId, cluster);
         } else if (cluster.isLbCluster()) {
-            clusterMonitor = getVMLbClusterMonitor(cluster);
+            clusterMonitor = getVMLbClusterMonitor(tenantId, cluster);
         } else {
-            clusterMonitor = getVMServiceClusterMonitor(cluster);
+            clusterMonitor = getVMServiceClusterMonitor(tenantId, cluster);
         }
 
         return clusterMonitor;
     }
 
-    private static VMServiceClusterMonitor getVMServiceClusterMonitor(Cluster cluster)
+    private static VMServiceClusterMonitor getVMServiceClusterMonitor(int tenantId, Cluster cluster)
             throws PolicyValidationException, PartitionValidationException {
         // FIXME fix the following code to correctly update
         // AutoscalerContext context = AutoscalerContext.getInstance();
@@ -96,10 +96,10 @@ public class ClusterMonitorFactory {
 
         AutoscalePolicy policy =
                 PolicyManager.getInstance()
-                        .getAutoscalePolicy(autoscalePolicyName);
+                        .getAutoscalePolicy(tenantId, autoscalePolicyName);
         DeploymentPolicy deploymentPolicy =
                 PolicyManager.getInstance()
-                        .getDeploymentPolicy(deploymentPolicyName);
+                        .getDeploymentPolicy(tenantId, deploymentPolicyName);
 
         if (deploymentPolicy == null) {
             String msg = "Deployment Policy is null. Policy name: " + deploymentPolicyName;
@@ -116,10 +116,10 @@ public class ClusterMonitorFactory {
             throw new PolicyValidationException(msg);
         }
 
-        CloudControllerClient.getInstance().validateDeploymentPolicy(cluster.getServiceName(), deploymentPolicy);
+        CloudControllerClient.getInstance().validateDeploymentPolicy(tenantId, cluster.getServiceName(), deploymentPolicy);
 
         VMServiceClusterMonitor clusterMonitor =
-                new VMServiceClusterMonitor(cluster.getClusterId(),
+                new VMServiceClusterMonitor(tenantId, cluster.getClusterId(),
                                             cluster.getServiceName(),
                                             deploymentPolicy, policy);
         clusterMonitor.setStatus(ClusterStatus.Created);
@@ -211,7 +211,7 @@ public class ClusterMonitorFactory {
     }
 
 
-    private static VMLbClusterMonitor getVMLbClusterMonitor(Cluster cluster)
+    private static VMLbClusterMonitor getVMLbClusterMonitor(int tenantId, Cluster cluster)
             throws PolicyValidationException, PartitionValidationException {
         // FIXME fix the following code to correctly update
         // AutoscalerContext context = AutoscalerContext.getInstance();
@@ -229,10 +229,10 @@ public class ClusterMonitorFactory {
 
         AutoscalePolicy policy =
                 PolicyManager.getInstance()
-                        .getAutoscalePolicy(autoscalePolicyName);
+                        .getAutoscalePolicy(tenantId, autoscalePolicyName);
         DeploymentPolicy deploymentPolicy =
                 PolicyManager.getInstance()
-                        .getDeploymentPolicy(deploymentPolicyName);
+                        .getDeploymentPolicy(tenantId, deploymentPolicyName);
 
         if (deploymentPolicy == null) {
             String msg = "Deployment Policy is null. Policy name: " + deploymentPolicyName;
@@ -242,7 +242,7 @@ public class ClusterMonitorFactory {
 
         String clusterId = cluster.getClusterId();
         VMLbClusterMonitor clusterMonitor =
-                new VMLbClusterMonitor(clusterId,
+                new VMLbClusterMonitor(tenantId, clusterId,
                                        cluster.getServiceName(),
                                        deploymentPolicy, policy);
         clusterMonitor.setStatus(ClusterStatus.Created);
@@ -332,7 +332,7 @@ public class ClusterMonitorFactory {
      * @param cluster - the cluster which needs to be monitored
      * @return - the cluster monitor
      */
-    private static KubernetesServiceClusterMonitor getDockerServiceClusterMonitor(Cluster cluster)
+    private static KubernetesServiceClusterMonitor getDockerServiceClusterMonitor(int tenantId, Cluster cluster)
             throws PolicyValidationException {
 
         if (null == cluster) {
@@ -344,7 +344,7 @@ public class ClusterMonitorFactory {
             log.debug("Autoscaler policy name: " + autoscalePolicyName);
         }
 
-        AutoscalePolicy policy = PolicyManager.getInstance().getAutoscalePolicy(autoscalePolicyName);
+        AutoscalePolicy policy = PolicyManager.getInstance().getAutoscalePolicy(tenantId, autoscalePolicyName);
         
         if (policy == null) {
             String msg = "Autoscale Policy is null. Policy name: " + autoscalePolicyName;
@@ -369,7 +369,7 @@ public class ClusterMonitorFactory {
             kubernetesClusterCtxt.setMaxReplicas(maxReplicas);
         }
 
-        KubernetesServiceClusterMonitor dockerClusterMonitor = new KubernetesServiceClusterMonitor(
+        KubernetesServiceClusterMonitor dockerClusterMonitor = new KubernetesServiceClusterMonitor(tenantId,
                 kubernetesClusterCtxt,
                 cluster.getClusterId(),
                 cluster.getServiceName(),

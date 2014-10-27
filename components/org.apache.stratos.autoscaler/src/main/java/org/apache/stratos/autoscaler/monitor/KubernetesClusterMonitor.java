@@ -63,12 +63,12 @@ public abstract class KubernetesClusterMonitor extends AbstractClusterMonitor {
     private KubernetesClusterContext kubernetesClusterCtxt;
     protected AutoscalePolicy autoscalePolicy;
 
-    protected KubernetesClusterMonitor(String clusterId, String serviceId,
+    protected KubernetesClusterMonitor(int tenantId, String clusterId, String serviceId,
                                        KubernetesClusterContext kubernetesClusterContext,
                                        AutoscalerRuleEvaluator autoscalerRuleEvaluator,
                                        AutoscalePolicy autoscalePolicy) {
 
-        super(clusterId, serviceId, autoscalerRuleEvaluator);
+        super(tenantId, clusterId, serviceId, autoscalerRuleEvaluator);
         this.kubernetesClusterCtxt = kubernetesClusterContext;
         this.autoscalePolicy = autoscalePolicy;
     }
@@ -358,7 +358,8 @@ public abstract class KubernetesClusterMonitor extends AbstractClusterMonitor {
     public void handleMemberFaultEvent(MemberFaultEvent memberFaultEvent) {
     	// kill the container
         String memberId = memberFaultEvent.getMemberId();
-        Member member = getMemberByMemberId(memberId);
+        int tenantId = memberFaultEvent.getTenantId();
+        Member member = getMemberByMemberId(tenantId, memberId);
         if (null == member) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Member not found in the Topology: [member] %s", memberId));
@@ -383,7 +384,7 @@ public abstract class KubernetesClusterMonitor extends AbstractClusterMonitor {
         // terminate the faulty member
         CloudControllerClient ccClient = CloudControllerClient.getInstance();
         try {
-            ccClient.terminateContainer(memberId);
+            ccClient.terminateContainer(memberFaultEvent.getTenantId(), memberId);
             // remove from active member list
             getKubernetesClusterCtxt().removeActiveMemberById(memberId);
             if (log.isInfoEnabled()) {
@@ -495,10 +496,10 @@ public abstract class KubernetesClusterMonitor extends AbstractClusterMonitor {
         this.autoscalePolicy = autoscalePolicy;
     }
     
-    private Member getMemberByMemberId(String memberId) {
+    private Member getMemberByMemberId(int tenantId, String memberId) {
         try {
             TopologyManager.acquireReadLock();
-            for (Service service : TopologyManager.getTopology().getServices()) {
+            for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
                 for (Cluster cluster : service.getClusters()) {
                     if (cluster.memberExists(memberId)) {
                         return cluster.getMember(memberId);

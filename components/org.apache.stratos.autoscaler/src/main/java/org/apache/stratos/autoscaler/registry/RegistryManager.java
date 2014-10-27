@@ -106,8 +106,9 @@ public class RegistryManager {
         }
     }
 
-    public void persistPartition(Partition partition) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE + "/" + partition.getId();
+    public void persistPartition(int tenantId, Partition partition) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + partition.getId();
         persist(partition, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Partition written to registry: [id] %s [provider] %s [min] %d [max] %d",
@@ -124,8 +125,9 @@ public class RegistryManager {
         }
     }
 
-    public void persistAutoscalerPolicy(AutoscalePolicy autoscalePolicy) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE + "/" + autoscalePolicy.getId();
+    public void persistAutoscalerPolicy(int tenantId, AutoscalePolicy autoscalePolicy) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + autoscalePolicy.getId();
         persist(autoscalePolicy, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Autoscaler policy written to registry: [id] %s [name] %s [description] %s",
@@ -133,8 +135,9 @@ public class RegistryManager {
         }
     }
 
-    public void persistDeploymentPolicy(DeploymentPolicy deploymentPolicy) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE + "/" + deploymentPolicy.getId();
+    public void persistDeploymentPolicy(int tenantId, DeploymentPolicy deploymentPolicy) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + deploymentPolicy.getId();
         persist(deploymentPolicy, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(deploymentPolicy.toString());
@@ -157,10 +160,11 @@ public class RegistryManager {
         }
     }
 
-    public List<Partition> retrievePartitions() {
+    public List<Partition> retrievePartitions(int tenantId) {
         List<Partition> partitionList = new ArrayList<Partition>();
         RegistryManager registryManager = RegistryManager.getInstance();
-        String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE);
+        String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
+                AutoScalerConstants.PARTITION_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
 
         if (partitionsResourceList != null) {
             Partition partition;
@@ -223,10 +227,11 @@ public class RegistryManager {
         return nwPartitionLbHolderList;
     }
 
-    public List<AutoscalePolicy> retrieveASPolicies() {
+    public List<AutoscalePolicy> retrieveASPolicies(int tenantId) {
         List<AutoscalePolicy> asPolicyList = new ArrayList<AutoscalePolicy>();
         RegistryManager registryManager = RegistryManager.getInstance();
-        String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE);
+        String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
+                AutoScalerConstants.AS_POLICY_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
 
         if (partitionsResourceList != null) {
             AutoscalePolicy asPolicy;
@@ -255,10 +260,11 @@ public class RegistryManager {
         return asPolicyList;
     }
 
-    public List<DeploymentPolicy> retrieveDeploymentPolicies() {
+    public List<DeploymentPolicy> retrieveDeploymentPolicies(int tenantId) {
         List<DeploymentPolicy> depPolicyList = new ArrayList<DeploymentPolicy>();
         RegistryManager registryManager = RegistryManager.getInstance();
-        String[] depPolicyResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE);
+        String[] depPolicyResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
+                AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE + AutoScalerConstants.TENANT_RESOURCE +  "/" + tenantId);
 
         if (depPolicyResourceList != null) {
             DeploymentPolicy depPolicy;
@@ -286,8 +292,9 @@ public class RegistryManager {
         return depPolicyList;
     }
 
-    public void removeAutoscalerPolicy(AutoscalePolicy autoscalePolicy) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE + "/" + autoscalePolicy.getId();
+    public void removeAutoscalerPolicy(int tenantId, AutoscalePolicy autoscalePolicy) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + autoscalePolicy.getId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Autoscaler policy deleted from registry: [id] %s [name] %s [description] %s",
@@ -296,8 +303,9 @@ public class RegistryManager {
 
     }
 
-    public void removeDeploymentPolicy(DeploymentPolicy depPolicy) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE;
+    public void removeDeploymentPolicy(int tenantId, DeploymentPolicy depPolicy) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + depPolicy.getId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Deployment policy deleted from registry: [id] %s",
@@ -334,19 +342,20 @@ public class RegistryManager {
 
     }
 
-    public void persistKubernetesGroup(KubernetesGroup kubernetesGroup) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE
-                + "/" + kubernetesGroup.getGroupId();
+    public void persistKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroup) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE +
+                        AutoScalerConstants.TENANT_RESOURCE + "/" + kubernetesGroup.getGroupId();
         persist(kubernetesGroup, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("KubernetesGroup written to registry: [id] %s ", kubernetesGroup.getGroupId()));
         }
     }
 
-    public List<KubernetesGroup> retrieveKubernetesGroups() {
+    public List<KubernetesGroup> retrieveKubernetesGroups(int tenantId) {
         List<KubernetesGroup> kubernetesGroupList = new ArrayList<KubernetesGroup>();
         RegistryManager registryManager = RegistryManager.getInstance();
-        String[] kubernetesGroupResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE);
+        String[] kubernetesGroupResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
+                AutoScalerConstants.KUBERNETES_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
 
         if (kubernetesGroupResourceList != null) {
             KubernetesGroup kubernetesGroup;
@@ -374,8 +383,9 @@ public class RegistryManager {
         return kubernetesGroupList;
     }
 
-    public void removeKubernetesGroup(KubernetesGroup kubernetesGroup) {
-        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE + "/" + kubernetesGroup.getGroupId();
+    public void removeKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroup) {
+        String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE +
+                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + kubernetesGroup.getGroupId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Kubernetes group deleted from registry: [id] %s", kubernetesGroup.getGroupId()));

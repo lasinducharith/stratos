@@ -36,16 +36,17 @@ public class ASPolicyCommands implements CommandProvider{
  
     public void _listASPolicies (CommandInterpreter ci){
     	String policyId = ci.nextArgument();
-    	
+        int tenantId = Integer.parseInt(ci.nextArgument());
+
     	PolicyManager pm = PolicyManager.getInstance();
     	
     	if(StringUtils.isBlank(policyId)){
-    		AutoscalePolicy[] aspolicyArr = pm.getAutoscalePolicyList();
+    		AutoscalePolicy[] aspolicyArr = pm.getAutoscalePolicyList(tenantId);
         	for(AutoscalePolicy asPoolicy : aspolicyArr){
         		ci.println(asPoolicy.toString());
         	}
     	}else{
-    		AutoscalePolicy asPolicy = pm.getAutoscalePolicy(policyId);
+    		AutoscalePolicy asPolicy = pm.getAutoscalePolicy(tenantId, policyId);
     		if(asPolicy != null){
     			ci.println(asPolicy);
     		}

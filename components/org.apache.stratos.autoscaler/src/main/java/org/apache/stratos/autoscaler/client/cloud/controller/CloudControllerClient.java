@@ -90,13 +90,13 @@ public class CloudControllerClient {
      * This will validate the given partitions against the given cartridge type.
      */
     
-    public synchronized boolean validateDeploymentPolicy(String cartridgeType, DeploymentPolicy deploymentPolicy) throws PartitionValidationException{
+    public synchronized boolean validateDeploymentPolicy(int tenantId, String cartridgeType, DeploymentPolicy deploymentPolicy) throws PartitionValidationException{
         try {
             if(log.isInfoEnabled()) {
                 log.info(String.format("Validating partitions of policy via cloud controller: [id] %s", deploymentPolicy.getId()));
             }
             long startTime = System.currentTimeMillis();
-            boolean result = stub.validateDeploymentPolicy(cartridgeType, deploymentPolicy.getAllPartitions());
+            boolean result = stub.validateDeploymentPolicy(tenantId, cartridgeType, deploymentPolicy.getAllPartitions());
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
                 log.debug(String.format("Service call validateDeploymentPolicy() returned in %dms", (endTime - startTime)));
@@ -141,7 +141,7 @@ public class CloudControllerClient {
 
     }
 
-    public synchronized MemberContext spawnAnInstance(Partition partition,
+    public synchronized MemberContext spawnAnInstance(int tenantId, Partition partition,
     		String clusterId, String lbClusterId, String networkPartitionId, boolean isPrimary, int minMemberCount) throws SpawningException {
         try {
             if(log.isInfoEnabled()) {
@@ -170,7 +170,7 @@ public class CloudControllerClient {
             
             
             long startTime = System.currentTimeMillis();
-            MemberContext memberContext = stub.startInstance(member);
+            MemberContext memberContext = stub.startInstance(tenantId, member);
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
                 log.debug(String.format("Service call startInstance() returned in %dms", (endTime - startTime)));
@@ -190,13 +190,13 @@ public class CloudControllerClient {
 		}
     }
     
-    public synchronized void terminateAllInstances(String clusterId) throws TerminationException {
+    public synchronized void terminateAllInstances(int tenantId, String clusterId) throws TerminationException {
         try {
             if(log.isInfoEnabled()) {
                 log.info(String.format("Terminating all instances of cluster via cloud controller: [cluster] %s", clusterId));
             }
             long startTime = System.currentTimeMillis();
-            stub.terminateAllInstances(clusterId);
+            stub.terminateAllInstances(tenantId, clusterId);
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
                 log.debug(String.format("Service call terminateAllInstances() returned in %dms", (endTime - startTime)));
@@ -213,13 +213,13 @@ public class CloudControllerClient {
         }
     }
 
-    public synchronized void terminate(String memberId) throws TerminationException {
+    public synchronized void terminate(int tenantId, String memberId) throws TerminationException {
         try {
             if(log.isInfoEnabled()) {
                 log.info(String.format("Terminating instance via cloud controller: [member] %s", memberId));
             }
             long startTime = System.currentTimeMillis();
-            stub.terminateInstance(memberId);
+            stub.terminateInstance(tenantId, memberId);
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
                 log.debug(String.format("Service call terminateInstance() returned in %dms", (endTime - startTime)));
@@ -245,13 +245,13 @@ public class CloudControllerClient {
      * @return
      * @throws SpawningException
      */
-    public synchronized MemberContext[] startContainers(String kubernetesClusterId, String clusterId) throws SpawningException {
+    public synchronized MemberContext[] startContainers(int tenantId, String kubernetesClusterId, String clusterId) throws SpawningException {
         try {
         	
         	KubernetesManager kubernetesManager = KubernetesManager.getInstance();
-        	KubernetesMaster kubernetesMaster = kubernetesManager.getKubernetesMasterInGroup(kubernetesClusterId);
+        	KubernetesMaster kubernetesMaster = kubernetesManager.getKubernetesMasterInGroup(tenantId, kubernetesClusterId);
         	String kubernetesMasterIP = kubernetesMaster.getHostIpAddress();
-        	KubernetesGroup kubernetesGroup = kubernetesManager.getKubernetesGroup(kubernetesClusterId);
+        	KubernetesGroup kubernetesGroup = kubernetesManager.getKubernetesGroup(tenantId, kubernetesClusterId);
     		int lower = kubernetesGroup.getPortRange().getLower();
     		int upper = kubernetesGroup.getPortRange().getUpper();
     		String portRange = Integer.toString(lower) + "-" + Integer.toString(upper);
@@ -269,7 +269,7 @@ public class CloudControllerClient {
             memberContextProps.addProperties(kubernetesClusterPortRangeProps);
             context.setProperties(memberContextProps);
             long startTime = System.currentTimeMillis();
-            MemberContext[] memberContexts = stub.startContainers(context);
+            MemberContext[] memberContexts = stub.startContainers(tenantId, context);
             
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
@@ -289,13 +289,13 @@ public class CloudControllerClient {
         }
     }
     
-    public synchronized void terminateAllContainers(String clusterId) throws TerminationException {
+    public synchronized void terminateAllContainers(int tenantId, String clusterId) throws TerminationException {
         try {
             if(log.isInfoEnabled()) {
                 log.info(String.format("Terminating containers via cloud controller: [cluster] %s", clusterId));
             }
             long startTime = System.currentTimeMillis();
-            stub.terminateAllContainers(clusterId);
+            stub.terminateAllContainers(tenantId, clusterId);
             if(log.isDebugEnabled()) {
                 long endTime = System.currentTimeMillis();
                 log.debug(String.format("Service call terminateContainer() returned in %dms", (endTime - startTime)));
@@ -311,12 +311,12 @@ public class CloudControllerClient {
 		} 
     }
 
-    public synchronized MemberContext[] updateContainers(String clusterId, int replicas)
+    public synchronized MemberContext[] updateContainers(int tenantId, String clusterId, int replicas)
     		throws SpawningException {
         try {
             log.info(String.format("Updating kubernetes replication controller via cloud controller: " +
                                    "[cluster] %s [replicas] %s", clusterId, replicas));
-            MemberContext[] memberContexts = stub.updateContainers(clusterId, replicas);
+            MemberContext[] memberContexts = stub.updateContainers(tenantId, clusterId, replicas);
             return memberContexts;
         } catch (CloudControllerServiceUnregisteredCartridgeExceptionException e) {
             String msg = "Error while updating kubernetes controller, cartridge not found for [cluster] " + clusterId;
@@ -330,9 +330,9 @@ public class CloudControllerClient {
         } 
     }
     
-    public synchronized void terminateContainer(String memberId) throws TerminationException{
+    public synchronized void terminateContainer(int tenantId, String memberId) throws TerminationException{
     	try {
-			stub.terminateContainer(memberId);
+			stub.terminateContainer(tenantId, memberId);
 		} catch (RemoteException e) {
             String msg = "Error while updating kubernetes controller, cannot communicate with " +
                     "cloud controller service";

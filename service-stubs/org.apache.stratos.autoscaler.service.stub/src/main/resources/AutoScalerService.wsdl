@@ -140,6 +140,7 @@
             <xs:element name="updateKubernetesMaster">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesMaster" nillable="true" type="ax25:KubernetesMaster"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -168,6 +169,7 @@
             <xs:element name="updateKubernetesHost">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesHost" nillable="true" type="ax25:KubernetesHost"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -197,6 +199,7 @@
             <xs:element name="removeKubernetesHost">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="hostId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -218,6 +221,7 @@
             <xs:element name="removeKubernetesGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="groupId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -232,6 +236,7 @@
             <xs:element name="getValidDeploymentPoliciesforCartridge">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="cartridgeType" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -246,6 +251,7 @@
             <xs:element name="getServiceLBClusterId">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="serviceType" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="deploymentPolicyName" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -261,6 +267,7 @@
             <xs:element name="getPartitionsOfGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="groupId" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -276,6 +283,7 @@
             <xs:element name="getPartitionsOfDeploymentPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -290,6 +298,7 @@
             <xs:element name="getPartitionGroups">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -304,6 +313,7 @@
             <xs:element name="getPartition">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="partitionId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -318,6 +328,7 @@
             <xs:element name="getMasterForKubernetesGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesGroupId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -332,6 +343,7 @@
             <xs:element name="getKubernetesGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesGroupId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -346,6 +358,7 @@
             <xs:element name="getHostsForKubernetesGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesGroupId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -360,6 +373,7 @@
             <xs:element name="getDeploymentPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -374,6 +388,7 @@
             <xs:element name="getDefaultLBClusterId">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyName" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -388,6 +403,7 @@
             <xs:element name="getAutoscalingPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="autoscalingPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -401,7 +417,9 @@
             </xs:element>
             <xs:element name="getAllKubernetesGroups">
                 <xs:complexType>
-                    <xs:sequence/>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
+                    </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getAllKubernetesGroupsResponse">
@@ -413,7 +431,9 @@
             </xs:element>
             <xs:element name="getAllDeploymentPolicies">
                 <xs:complexType>
-                    <xs:sequence/>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
+                    </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getAllDeploymentPoliciesResponse">
@@ -425,7 +445,9 @@
             </xs:element>
             <xs:element name="getAllAvailablePartitions">
                 <xs:complexType>
-                    <xs:sequence/>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
+                    </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getAllAvailablePartitionsResponse">
@@ -437,7 +459,9 @@
             </xs:element>
             <xs:element name="getAllAutoScalingPolicy">
                 <xs:complexType>
-                    <xs:sequence/>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
+                    </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getAllAutoScalingPolicyResponse">
@@ -450,6 +474,7 @@
             <xs:element name="checkServiceLBExistenceAgainstPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="serviceName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -472,6 +497,7 @@
             <xs:element name="checkLBExistenceAgainstPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="lbClusterId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -480,6 +506,7 @@
             <xs:element name="checkDefaultLBExistenceAgainstPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -494,6 +521,7 @@
             <xs:element name="checkClusterLBExistenceAgainstPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="clusterId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="deploymentPolicyId" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -516,6 +544,7 @@
             <xs:element name="addPartition">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="partition" nillable="true" type="ax217:Partition"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -530,6 +559,7 @@
             <xs:element name="addKubernetesHost">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="groupId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="kubernetesHost" nillable="true" type="ax25:KubernetesHost"/>
                     </xs:sequence>
@@ -552,6 +582,7 @@
             <xs:element name="addKubernetesGroup">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="kubernetesGroup" nillable="true" type="ax25:KubernetesGroup"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -573,6 +604,7 @@
             <xs:element name="addDeploymentPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="depPolicy" nillable="true" type="ax29:DeploymentPolicy"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -587,6 +619,7 @@
             <xs:element name="addAutoScalingPolicy">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
                         <xs:element minOccurs="0" name="aspolicy" nillable="true" type="ax219:AutoscalePolicy"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -1928,22 +1961,22 @@
     </wsdl:binding>
     <wsdl:service name="AutoScalerService">
         <wsdl:port name="AutoScalerServiceHttpSoap11Endpoint" binding="ns:AutoScalerServiceSoap11Binding">
-            <soap:address location="http://172.17.8.1:9763/services/AutoScalerService.AutoScalerServiceHttpSoap11Endpoint/"/>
+            <soap:address location="http://172.16.2.82:9763/services/AutoScalerService.AutoScalerServiceHttpSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="AutoScalerServiceHttpsSoap11Endpoint" binding="ns:AutoScalerServiceSoap11Binding">
-            <soap:address location="https://172.17.8.1:9443/services/AutoScalerService.AutoScalerServiceHttpsSoap11Endpoint/"/>
+            <soap:address location="https://172.16.2.82:9443/services/AutoScalerService.AutoScalerServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="AutoScalerServiceHttpsSoap12Endpoint" binding="ns:AutoScalerServiceSoap12Binding">
-            <soap12:address location="https://172.17.8.1:9443/services/AutoScalerService.AutoScalerServiceHttpsSoap12Endpoint/"/>
+            <soap12:address location="https://172.16.2.82:9443/services/AutoScalerService.AutoScalerServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="AutoScalerServiceHttpSoap12Endpoint" binding="ns:AutoScalerServiceSoap12Binding">
-            <soap12:address location="http://172.17.8.1:9763/services/AutoScalerService.AutoScalerServiceHttpSoap12Endpoint/"/>
+            <soap12:address location="http://172.16.2.82:9763/services/AutoScalerService.AutoScalerServiceHttpSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="AutoScalerServiceHttpEndpoint" binding="ns:AutoScalerServiceHttpBinding">
-            <http:address location="http://172.17.8.1:9763/services/AutoScalerService.AutoScalerServiceHttpEndpoint/"/>
+            <http:address location="http://172.16.2.82:9763/services/AutoScalerService.AutoScalerServiceHttpEndpoint/"/>
         </wsdl:port>
         <wsdl:port name="AutoScalerServiceHttpsEndpoint" binding="ns:AutoScalerServiceHttpBinding">
-            <http:address location="https://172.17.8.1:9443/services/AutoScalerService.AutoScalerServiceHttpsEndpoint/"/>
+            <http:address location="https://172.16.2.82:9443/services/AutoScalerService.AutoScalerServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

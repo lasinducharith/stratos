@@ -49,26 +49,26 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
     PartitionManager partitionManager = PartitionManager.getInstance();
     KubernetesManager kubernetesManager = KubernetesManager.getInstance();
 
-    public Partition[] getAllAvailablePartitions() {
-        return partitionManager.getAllPartitions();
+    public Partition[] getAllAvailablePartitions(int tenantId) {
+        return partitionManager.getAllPartitions(tenantId);
     }
 
-    public DeploymentPolicy[] getAllDeploymentPolicies() {
-        return PolicyManager.getInstance().getDeploymentPolicyList();
+    public DeploymentPolicy[] getAllDeploymentPolicies(int tenantId) {
+        return PolicyManager.getInstance().getDeploymentPolicyList(tenantId);
     }
 
-    public AutoscalePolicy[] getAllAutoScalingPolicy() {
-        return PolicyManager.getInstance().getAutoscalePolicyList();
+    public AutoscalePolicy[] getAllAutoScalingPolicy(int tenantId) {
+        return PolicyManager.getInstance().getAutoscalePolicyList(tenantId);
     }
 
     @Override
-    public DeploymentPolicy[] getValidDeploymentPoliciesforCartridge(String cartridgeType) {
+    public DeploymentPolicy[] getValidDeploymentPoliciesforCartridge(int tenantId, String cartridgeType) {
         ArrayList<DeploymentPolicy> validPolicies = new ArrayList<DeploymentPolicy>();
 
-        for (DeploymentPolicy deploymentPolicy : this.getAllDeploymentPolicies()) {
+        for (DeploymentPolicy deploymentPolicy : this.getAllDeploymentPolicies(tenantId)) {
             try {
                 // call CC API
-                CloudControllerClient.getInstance().validateDeploymentPolicy(cartridgeType, deploymentPolicy);
+                CloudControllerClient.getInstance().validateDeploymentPolicy(tenantId, cartridgeType, deploymentPolicy);
                 // if this deployment policy is valid for this cartridge, add it.
                 validPolicies.add(deploymentPolicy);
             } catch (PartitionValidationException ignoredException) {
@@ -83,42 +83,42 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
     }
 
     @Override
-    public boolean addPartition(Partition partition) throws InvalidPartitionException {
-        return partitionManager.addNewPartition(partition);
+    public boolean addPartition(int tenantId, Partition partition) throws InvalidPartitionException {
+        return partitionManager.addNewPartition(tenantId, partition);
     }
 
     @Override
-    public boolean addDeploymentPolicy(DeploymentPolicy depPolicy) throws InvalidPolicyException {
-        return PolicyManager.getInstance().deployDeploymentPolicy(depPolicy);
+    public boolean addDeploymentPolicy(int tenantId, DeploymentPolicy depPolicy) throws InvalidPolicyException {
+        return PolicyManager.getInstance().deployDeploymentPolicy(tenantId, depPolicy);
     }
 
     @Override
-    public boolean addAutoScalingPolicy(AutoscalePolicy aspolicy) throws InvalidPolicyException {
-        return PolicyManager.getInstance().deployAutoscalePolicy(aspolicy);
+    public boolean addAutoScalingPolicy(int tenantId, AutoscalePolicy aspolicy) throws InvalidPolicyException {
+        return PolicyManager.getInstance().deployAutoscalePolicy(tenantId, aspolicy);
     }
 
     @Override
-    public Partition getPartition(String partitionId) {
-        return partitionManager.getPartitionById(partitionId);
+    public Partition getPartition(int tenantId, String partitionId) {
+        return partitionManager.getPartitionById(tenantId, partitionId);
     }
 
     @Override
-    public DeploymentPolicy getDeploymentPolicy(String deploymentPolicyId) {
-        return PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId);
+    public DeploymentPolicy getDeploymentPolicy(int tenantId, String deploymentPolicyId) {
+        return PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId);
     }
 
     @Override
-    public AutoscalePolicy getAutoscalingPolicy(String autoscalingPolicyId) {
-        return PolicyManager.getInstance().getAutoscalePolicy(autoscalingPolicyId);
+    public AutoscalePolicy getAutoscalingPolicy(int tenantId, String autoscalingPolicyId) {
+        return PolicyManager.getInstance().getAutoscalePolicy(tenantId, autoscalingPolicyId);
     }
 
     @Override
-    public PartitionGroup[] getPartitionGroups(String deploymentPolicyId) {
-        return PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId).getPartitionGroups();
+    public PartitionGroup[] getPartitionGroups(int tenantId, String deploymentPolicyId) {
+        return PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId).getPartitionGroups();
     }
 
-    public Partition[] getPartitionsOfDeploymentPolicy(String deploymentPolicyId) {
-        DeploymentPolicy depPol = this.getDeploymentPolicy(deploymentPolicyId);
+    public Partition[] getPartitionsOfDeploymentPolicy(int tenantId, String deploymentPolicyId) {
+        DeploymentPolicy depPol = this.getDeploymentPolicy(tenantId, deploymentPolicyId);
         if (null == depPol) {
             return null;
         }
@@ -127,62 +127,62 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
     }
 
     @Override
-    public KubernetesGroup[] getAllKubernetesGroups() {
-        return kubernetesManager.getKubernetesGroups();
+    public KubernetesGroup[] getAllKubernetesGroups(int tenantId) {
+        return kubernetesManager.getKubernetesGroups(tenantId);
     }
 
     @Override
-    public KubernetesGroup getKubernetesGroup(String kubernetesGroupId) throws NonExistingKubernetesGroupException {
-        return kubernetesManager.getKubernetesGroup(kubernetesGroupId);
+    public KubernetesGroup getKubernetesGroup(int tenantId, String kubernetesGroupId) throws NonExistingKubernetesGroupException {
+        return kubernetesManager.getKubernetesGroup(tenantId, kubernetesGroupId);
     }
 
     @Override
-    public KubernetesMaster getMasterForKubernetesGroup(String kubernetesGroupId) throws NonExistingKubernetesGroupException {
-        return kubernetesManager.getKubernetesMasterInGroup(kubernetesGroupId);
+    public KubernetesMaster getMasterForKubernetesGroup(int tenantId, String kubernetesGroupId) throws NonExistingKubernetesGroupException {
+        return kubernetesManager.getKubernetesMasterInGroup(tenantId, kubernetesGroupId);
     }
 
     @Override
-    public KubernetesHost[] getHostsForKubernetesGroup(String kubernetesGroupId) throws NonExistingKubernetesGroupException {
-        return kubernetesManager.getKubernetesHostsInGroup(kubernetesGroupId);
+    public KubernetesHost[] getHostsForKubernetesGroup(int tenantId, String kubernetesGroupId) throws NonExistingKubernetesGroupException {
+        return kubernetesManager.getKubernetesHostsInGroup(tenantId, kubernetesGroupId);
     }
 
 
     @Override
-    public boolean addKubernetesGroup(KubernetesGroup kubernetesGroup) throws InvalidKubernetesGroupException {
-        return kubernetesManager.addNewKubernetesGroup(kubernetesGroup);
+    public boolean addKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroup) throws InvalidKubernetesGroupException {
+        return kubernetesManager.addNewKubernetesGroup(tenantId, kubernetesGroup);
     }
 
     @Override
-    public boolean addKubernetesHost(String groupId, KubernetesHost kubernetesHost) throws
+    public boolean addKubernetesHost(int tenantId, String groupId, KubernetesHost kubernetesHost) throws
             InvalidKubernetesHostException, NonExistingKubernetesGroupException {
-        return kubernetesManager.addNewKubernetesHost(groupId, kubernetesHost);
+        return kubernetesManager.addNewKubernetesHost(tenantId, groupId, kubernetesHost);
     }
 
     @Override
-    public boolean removeKubernetesGroup(String groupId) throws NonExistingKubernetesGroupException {
-        return kubernetesManager.removeKubernetesGroup(groupId);
+    public boolean removeKubernetesGroup(int tenantId, String groupId) throws NonExistingKubernetesGroupException {
+        return kubernetesManager.removeKubernetesGroup(tenantId, groupId);
     }
 
     @Override
-    public boolean removeKubernetesHost(String hostId) throws NonExistingKubernetesHostException {
-        return kubernetesManager.removeKubernetesHost(hostId);
+    public boolean removeKubernetesHost(int tenantId, String hostId) throws NonExistingKubernetesHostException {
+        return kubernetesManager.removeKubernetesHost(tenantId, hostId);
     }
 
     @Override
-    public boolean updateKubernetesMaster(KubernetesMaster kubernetesMaster)
+    public boolean updateKubernetesMaster(int tenantId, KubernetesMaster kubernetesMaster)
             throws InvalidKubernetesMasterException, NonExistingKubernetesMasterException {
-        return kubernetesManager.updateKubernetesMaster(kubernetesMaster);
+        return kubernetesManager.updateKubernetesMaster(tenantId, kubernetesMaster);
     }
 
     @Override
-    public boolean updateKubernetesHost(KubernetesHost kubernetesHost) throws
+    public boolean updateKubernetesHost(int tenantId, KubernetesHost kubernetesHost) throws
             InvalidKubernetesHostException, NonExistingKubernetesHostException {
-        return kubernetesManager.updateKubernetesHost(kubernetesHost);
+        return kubernetesManager.updateKubernetesHost(tenantId, kubernetesHost);
     }
 
     @Override
-    public Partition[] getPartitionsOfGroup(String deploymentPolicyId, String groupId) {
-        DeploymentPolicy depPol = this.getDeploymentPolicy(deploymentPolicyId);
+    public Partition[] getPartitionsOfGroup(int tenantId, String deploymentPolicyId, String groupId) {
+        DeploymentPolicy depPol = this.getDeploymentPolicy(tenantId, deploymentPolicyId);
         if (null == depPol) {
             return null;
         }
@@ -196,10 +196,10 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
         return group.getPartitions();
     }
 
-    public void checkLBExistenceAgainstPolicy(String lbClusterId, String deploymentPolicyId) throws NonExistingLBException {
+    public void checkLBExistenceAgainstPolicy(int tenantId, String lbClusterId, String deploymentPolicyId) throws NonExistingLBException {
 
         boolean exist = false;
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 
@@ -217,9 +217,9 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
         }
     }
 
-    public boolean checkDefaultLBExistenceAgainstPolicy(String deploymentPolicyId) {
+    public boolean checkDefaultLBExistenceAgainstPolicy(int tenantId, String deploymentPolicyId) {
 
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 
@@ -239,11 +239,11 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
 
     }
 
-    public String getDefaultLBClusterId(String deploymentPolicyName) {
+    public String getDefaultLBClusterId(int tenantId, String deploymentPolicyName) {
         if (log.isDebugEnabled()) {
             log.debug("Default LB Cluster Id for Deployment Policy [" + deploymentPolicyName + "] ");
         }
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyName).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyName).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 
@@ -262,9 +262,9 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
         return null;
     }
 
-    public boolean checkServiceLBExistenceAgainstPolicy(String serviceName, String deploymentPolicyId) {
+    public boolean checkServiceLBExistenceAgainstPolicy(int tenantId, String serviceName, String deploymentPolicyId) {
 
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 
@@ -284,9 +284,9 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
 
     }
 
-    public String getServiceLBClusterId(String serviceType, String deploymentPolicyName) {
+    public String getServiceLBClusterId(int tenantId, String serviceType, String deploymentPolicyName) {
 
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyName).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyName).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 
@@ -305,9 +305,9 @@ public class AutoScalerServiceImpl implements AutoScalerServiceInterface {
         return null;
     }
 
-    public boolean checkClusterLBExistenceAgainstPolicy(String clusterId, String deploymentPolicyId) {
+    public boolean checkClusterLBExistenceAgainstPolicy(int tenantId, String clusterId, String deploymentPolicyId) {
 
-        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(deploymentPolicyId).getPartitionGroups()) {
+        for (PartitionGroup partitionGroup : PolicyManager.getInstance().getDeploymentPolicy(tenantId, deploymentPolicyId).getPartitionGroups()) {
 
             NetworkPartitionLbHolder nwPartitionLbHolder = partitionManager.getNetworkPartitionLbHolder(partitionGroup.getId());
 

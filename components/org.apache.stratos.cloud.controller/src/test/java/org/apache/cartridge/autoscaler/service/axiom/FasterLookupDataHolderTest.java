@@ -35,7 +35,7 @@ public class FasterLookupDataHolderTest extends TestCase {
     public final void testMemberContextOperations() throws Exception {
     	
     	
-    	FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    	FasterLookUpDataHolder dataHolder = new FasterLookUpDataHolder();
     	Thread t1 = new Thread(new MemberAdder(dataHolder));
     	t1.start();
     	t1.join();

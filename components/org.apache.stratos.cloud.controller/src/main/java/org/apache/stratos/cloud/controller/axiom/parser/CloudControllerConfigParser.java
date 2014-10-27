@@ -31,7 +31,7 @@ import org.apache.stratos.cloud.controller.exception.MalformedConfigurationFileE
 import org.apache.stratos.cloud.controller.pojo.DataPublisherConfig;
 import org.apache.stratos.cloud.controller.pojo.IaasProvider;
 import org.apache.stratos.cloud.controller.pojo.TopologyConfig;
-import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
 
 /**
@@ -61,10 +61,10 @@ public class CloudControllerConfigParser {
 
 
     private static void extractIaasProviders(OMElement elt, List<OMNode> nodeList) {
-        List<IaasProvider> iaasProviders = FasterLookUpDataHolder.getInstance().getIaasProviders();
+        List<IaasProvider> iaasProviders =  CommonDataHolder.getInstance().getIaasProviders();
 
         if (iaasProviders == null) {
-            FasterLookUpDataHolder.getInstance()
+            CommonDataHolder.getInstance()
                     .setIaasProviders((iaasProviders = new ArrayList<IaasProvider>()));
         }
 
@@ -86,7 +86,7 @@ public class CloudControllerConfigParser {
             return;
         }
 
-        FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+        CommonDataHolder dataHolder = CommonDataHolder.getInstance();
         // get enable attribute
         boolean isEnable =
                 Boolean.parseBoolean(element.getAttributeValue(new QName(
@@ -179,7 +179,7 @@ public class CloudControllerConfigParser {
                 Boolean.parseBoolean(element.getAttributeValue(new QName(
                         CloudControllerConstants.ENABLE_ATTR)));
 
-        FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+        CommonDataHolder dataHolder = CommonDataHolder.getInstance();
 
         dataHolder.setEnableTopologySync(isEnable);
         if (!isEnable) {

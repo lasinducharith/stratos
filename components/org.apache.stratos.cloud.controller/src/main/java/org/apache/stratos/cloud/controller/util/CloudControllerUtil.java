@@ -29,7 +29,7 @@ import org.apache.stratos.cloud.controller.jcloud.ComputeServiceBuilderUtil;
 import org.apache.stratos.cloud.controller.persist.Deserializer;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.registry.RegistryManager;
-import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.stratos.messaging.domain.topology.Topology;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.HashMap;
 
 
 public class CloudControllerUtil {
@@ -87,7 +88,7 @@ public class CloudControllerUtil {
         // populate LB config
         cartridge.setLbConfig(config.getLbConfig());
 
-        List<IaasProvider> iaases = FasterLookUpDataHolder.getInstance().getIaasProviders();
+        List<IaasProvider> iaases = CommonDataHolder.getInstance().getIaasProviders();
 
         // populate IaaSes
         IaasConfig[] iaasConfigs = config.getIaasConfigs();
@@ -346,9 +347,9 @@ public class CloudControllerUtil {
         return javaProps;
     }
     
-    public static void persistTopology(Topology topology) {
+    public static void persistTopology(int tenantId, Topology topology) {
       try {
-          RegistryManager.getInstance().persistTopology(topology);
+          RegistryManager.getInstance().persistTopology(tenantId, topology);
       } catch (RegistryException e) {
 
           String msg = "Failed to persist the Topology in registry. ";
@@ -356,8 +357,8 @@ public class CloudControllerUtil {
       }
     }
     
-    public static Topology retrieveTopology() {    	
-          Object obj = RegistryManager.getInstance().retrieveTopology();
+    public static Topology retrieveTopology(int tenantId) {
+          Object obj = RegistryManager.getInstance().retrieveTopology(tenantId);
           if (obj != null) {
               try {
                   Object dataObj = Deserializer
@@ -374,6 +375,27 @@ public class CloudControllerUtil {
           }
           
           return null;
+    }
+
+    public static Map<Integer, Topology> retrieveCompleteTopology() {
+        Map<Integer, Object> completeTopology  = RegistryManager.getInstance().retrieveCompleteTopology();
+        Map<Integer, Topology> completeTopologyMap = new HashMap<Integer, Topology>();
+        for(int tId : completeTopology.keySet()) {
+            Object obj = completeTopology.get(tId);
+            if (obj != null) {
+                try {
+                    Object dataObj = Deserializer
+                            .deserializeFromByteArray((byte[]) obj);
+                    if (dataObj instanceof Topology) {
+                        completeTopologyMap.put(tId, (Topology) dataObj);
+                    }
+                } catch (Exception e) {
+                    String msg = "Unable to retrieve data from Registry. Hence, any historical data will not get reflected.";
+                    log.warn(msg, e);
+                }
+            }
+        }
+        return completeTopologyMap;
     }
 
 	

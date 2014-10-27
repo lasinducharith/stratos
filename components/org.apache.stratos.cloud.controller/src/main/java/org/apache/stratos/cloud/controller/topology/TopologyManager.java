@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.messaging.domain.topology.Topology;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -35,7 +37,7 @@ public class TopologyManager {
     private static volatile ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private static volatile ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     private static volatile ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
-    private static volatile Topology topology;
+    private static volatile Map<Integer, Topology> tIdToTopologyMap = new HashMap<Integer, Topology>();
 
     private TopologyManager() {
     }
@@ -68,19 +70,21 @@ public class TopologyManager {
         writeLock.unlock();
     }
 
-    public static Topology getTopology() {
+    public static Topology getTopology(int tenantId) {
+        Topology topology = getTenantTopology(tenantId);
         if (topology == null) {
-            synchronized (TopologyManager.class) {
+            synchronized (Topology.class) {
                 if (topology == null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Trying to retrieve topology from registry");
                     }
-                    topology = CloudControllerUtil.retrieveTopology();
+                    topology = CloudControllerUtil.retrieveTopology(tenantId);
                     if (topology == null) {
                         if (log.isDebugEnabled()) {
                             log.debug("Topology not found in registry, creating new");
                         }
                         topology = new Topology();
+                        updateTenantTopology(tenantId, topology);
                     }
                     if (log.isDebugEnabled()) {
                         log.debug("Topology initialized");
@@ -95,15 +99,15 @@ public class TopologyManager {
      * Update in-memory topology and persist it in registry.
      * @param topology_
      */
-    public static void updateTopology(Topology topology_) {
+    public static void updateTopology(int tenantId, Topology topology_) {
         synchronized (TopologyManager.class) {
             if (log.isDebugEnabled()) {
                 log.debug("Updating topology");
             }
-            topology = topology_;
-            CloudControllerUtil.persistTopology(topology);
+            updateTenantTopology(tenantId, topology_);
+            CloudControllerUtil.persistTopology(tenantId, topology_);
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Topology updated: %s", toJson(topology)));
+                log.debug(String.format("Topology updated: %s", toJson(topology_)));
             }
         }
 
@@ -112,6 +116,43 @@ public class TopologyManager {
     private static String toJson(Object object) {
         Gson gson = new Gson();
         return gson.toJson(object);
+    }
+
+    private static Topology getTenantTopology(int tenantId) {
+        if (tIdToTopologyMap.containsKey(tenantId)) {
+            return tIdToTopologyMap.get(tenantId);
+
+        }
+        return null;
+    }
+
+    private static void updateTenantTopology(int tenantId, Topology topology){
+        if(tIdToTopologyMap.containsKey(tenantId)){
+            tIdToTopologyMap.put(tenantId, topology);
+        }
+    }
+
+    public static Map<Integer,Topology> getCompleteTopology(){
+        if (tIdToTopologyMap == null) {
+            synchronized (TopologyManager.class) {
+                if (tIdToTopologyMap == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Trying to retrieve complete topology from registry");
+                    }
+                    tIdToTopologyMap = CloudControllerUtil.retrieveCompleteTopology();
+                    if (tIdToTopologyMap == null) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Complete Topology not found in registry, creating new");
+                        }
+                        tIdToTopologyMap = new HashMap<Integer, Topology>();
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("Topology initialized");
+                    }
+                }
+            }
+        }
+        return tIdToTopologyMap;
     }
 }
 

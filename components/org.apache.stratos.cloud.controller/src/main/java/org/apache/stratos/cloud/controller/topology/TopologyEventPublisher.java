@@ -58,10 +58,10 @@ public class TopologyEventPublisher {
 	private static final Log log = LogFactory
 			.getLog(TopologyEventPublisher.class);
 
-	public static void sendServiceCreateEvent(List<Cartridge> cartridgeList) {
+	public static void sendServiceCreateEvent(int tenantId, List<Cartridge> cartridgeList) {
 		ServiceCreatedEvent serviceCreatedEvent;
 		for (Cartridge cartridge : cartridgeList) {
-			serviceCreatedEvent = new ServiceCreatedEvent(cartridge.getType(),
+			serviceCreatedEvent = new ServiceCreatedEvent(tenantId, cartridge.getType(),
 					(cartridge.isMultiTenant() ? ServiceType.MultiTenant
 							: ServiceType.SingleTenant));
 
@@ -84,10 +84,10 @@ public class TopologyEventPublisher {
 		}
 	}
 
-	public static void sendServiceRemovedEvent(List<Cartridge> cartridgeList) {
+	public static void sendServiceRemovedEvent(int tenantId, List<Cartridge> cartridgeList) {
 		ServiceRemovedEvent serviceRemovedEvent;
 		for (Cartridge cartridge : cartridgeList) {
-			serviceRemovedEvent = new ServiceRemovedEvent(cartridge.getType());
+			serviceRemovedEvent = new ServiceRemovedEvent(tenantId, cartridge.getType());
 			if (log.isInfoEnabled()) {
 				log.info(String.format(
 						"Publishing service removed event: [service] %s",
@@ -97,9 +97,9 @@ public class TopologyEventPublisher {
 		}
 	}
 
-	public static void sendClusterCreatedEvent(String serviceName,
+	public static void sendClusterCreatedEvent(int tenantId, String serviceName,
 			String clusterId, Cluster cluster) {
-		ClusterCreatedEvent clusterCreatedEvent = new ClusterCreatedEvent(
+		ClusterCreatedEvent clusterCreatedEvent = new ClusterCreatedEvent(tenantId,
 				serviceName, clusterId, cluster);
 
 		if (log.isInfoEnabled()) {
@@ -109,10 +109,10 @@ public class TopologyEventPublisher {
 
 	}
 
-	public static void sendClusterRemovedEvent(ClusterContext ctxt,
+	public static void sendClusterRemovedEvent(int tenantId, ClusterContext ctxt,
 			String deploymentPolicy) {
 
-		ClusterRemovedEvent clusterRemovedEvent = new ClusterRemovedEvent(
+		ClusterRemovedEvent clusterRemovedEvent = new ClusterRemovedEvent(tenantId,
 				ctxt.getCartridgeType(), ctxt.getClusterId(), deploymentPolicy,
 				ctxt.isLbCluster());
 
@@ -125,9 +125,9 @@ public class TopologyEventPublisher {
 
 	}
 
-	public static void sendClusterMaintenanceModeEvent(ClusterContext ctxt) {
+	public static void sendClusterMaintenanceModeEvent(int tenantId, ClusterContext ctxt) {
 
-		ClusterMaintenanceModeEvent clusterMaintenanceModeEvent = new ClusterMaintenanceModeEvent(
+		ClusterMaintenanceModeEvent clusterMaintenanceModeEvent = new ClusterMaintenanceModeEvent(tenantId,
 				ctxt.getCartridgeType(), ctxt.getClusterId());
 		clusterMaintenanceModeEvent.setStatus(ClusterStatus.In_Maintenance);
 		if (log.isInfoEnabled()) {
@@ -140,11 +140,11 @@ public class TopologyEventPublisher {
 
 	}
 
-	public static void sendInstanceSpawnedEvent(String serviceName,
+	public static void sendInstanceSpawnedEvent(int tenantId, String serviceName,
 			String clusterId, String networkPartitionId, String partitionId,
 			String memberId, String lbClusterId, String publicIp,
 			String privateIp, MemberContext context) {
-		InstanceSpawnedEvent instanceSpawnedEvent = new InstanceSpawnedEvent(
+		InstanceSpawnedEvent instanceSpawnedEvent = new InstanceSpawnedEvent(tenantId,
 				serviceName, clusterId, networkPartitionId, partitionId,
 				memberId);
 		instanceSpawnedEvent.setLbClusterId(lbClusterId);
@@ -161,9 +161,9 @@ public class TopologyEventPublisher {
 		publishEvent(instanceSpawnedEvent);
 	}
 
-	public static void sendMemberStartedEvent(
+	public static void sendMemberStartedEvent(int tenantId,
 			InstanceStartedEvent instanceStartedEvent) {
-		MemberStartedEvent memberStartedEventTopology = new MemberStartedEvent(
+		MemberStartedEvent memberStartedEventTopology = new MemberStartedEvent(tenantId,
 				instanceStartedEvent.getServiceName(),
 				instanceStartedEvent.getClusterId(),
 				instanceStartedEvent.getNetworkPartitionId(),
@@ -224,10 +224,10 @@ public class TopologyEventPublisher {
 		publishEvent(memberMaintenanceModeEvent);
 	}
 
-	public static void sendMemberTerminatedEvent(String serviceName,
+	public static void sendMemberTerminatedEvent(int tenantId, String serviceName,
 			String clusterId, String networkPartitionId, String partitionId,
 			String memberId, Properties properties) {
-		MemberTerminatedEvent memberTerminatedEvent = new MemberTerminatedEvent(
+		MemberTerminatedEvent memberTerminatedEvent = new MemberTerminatedEvent(tenantId,
 				serviceName, clusterId, networkPartitionId, partitionId,
 				memberId);
 		memberTerminatedEvent.setProperties(properties);
@@ -240,8 +240,8 @@ public class TopologyEventPublisher {
 		publishEvent(memberTerminatedEvent);
 	}
 
-	public static void sendCompleteTopologyEvent(Topology topology) {
-		CompleteTopologyEvent completeTopologyEvent = new CompleteTopologyEvent(
+	public static void sendCompleteTopologyEvent(int tenantId, Topology topology) {
+		CompleteTopologyEvent completeTopologyEvent = new CompleteTopologyEvent(tenantId,
 				topology);
 
 		if (log.isDebugEnabled()) {

@@ -256,6 +256,7 @@ public final class CloudControllerConstants {
 	 * Persistence
 	 */
 	public static final String CLOUD_CONTROLLER_RESOURCE = "/cloud.controller";
+    public static final String TENANT_RESOURCE = "/tenant";
 	public static final String DATA_RESOURCE = "/data";
 	public static final String TOPOLOGY_RESOURCE = "/topology";
 	public static final String AVAILABILITY_ZONE = "availabilityZone";

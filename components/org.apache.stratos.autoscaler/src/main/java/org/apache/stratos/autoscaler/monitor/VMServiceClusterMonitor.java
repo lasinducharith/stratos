@@ -50,10 +50,10 @@ public class VMServiceClusterMonitor extends VMClusterMonitor {
     private String lbReferenceType;
     private boolean hasPrimary;
 
-    public VMServiceClusterMonitor(String clusterId, String serviceId,
+    public VMServiceClusterMonitor(int tenantId, String clusterId, String serviceId,
                                    DeploymentPolicy deploymentPolicy,
                                    AutoscalePolicy autoscalePolicy) {
-        super(clusterId, serviceId,
+        super(tenantId, clusterId, serviceId,
               new AutoscalerRuleEvaluator(StratosConstants.VM_MIN_CHECK_DROOL_FILE,
                                           StratosConstants.VM_SCALE_CHECK_DROOL_FILE),
               deploymentPolicy, autoscalePolicy,
@@ -113,6 +113,7 @@ public class VMServiceClusterMonitor extends VMClusterMonitor {
                     }
                 }
                 primaryMemberListInNetworkPartition.addAll(primaryMemberListInPartition);
+                getMinCheckKnowledgeSession().setGlobal("tenantId", getTenantId());
                 getMinCheckKnowledgeSession().setGlobal("clusterId", getClusterId());
                 getMinCheckKnowledgeSession().setGlobal("lbRef", lbReferenceType);
                 getMinCheckKnowledgeSession().setGlobal("isPrimary", hasPrimary);

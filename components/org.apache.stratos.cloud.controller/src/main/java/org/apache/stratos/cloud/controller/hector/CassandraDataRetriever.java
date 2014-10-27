@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.stratos.cloud.controller.exception.CloudControllerException;
-import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
+import org.apache.stratos.cloud.controller.runtime.CommonDataHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.cloud.controller.util.CloudControllerConstants;
@@ -50,7 +50,7 @@ import me.prettyprint.hector.api.query.QueryResult;
 public class CassandraDataRetriever {
 
     private static final Log log = LogFactory.getLog(CassandraDataRetriever.class);
-    private static FasterLookUpDataHolder dataHolder = FasterLookUpDataHolder.getInstance();
+    private static CommonDataHolder dataHolder = CommonDataHolder.getInstance();
     private final static StringSerializer se = StringSerializer.get();
     private static Cluster cluster;
     private static Keyspace keyspace;
