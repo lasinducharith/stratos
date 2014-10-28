@@ -45,11 +45,11 @@ public class LoadBalancerContextUtil {
      *
      * @param cluster
      */
-    public static void addClusterAgainstHostNames(Cluster cluster) {
+    public static void addClusterAgainstHostNames(int tenantId, Cluster cluster) {
         if (cluster == null)
             return;
 
-        Service service = TopologyManager.getTopology().getService(cluster.getServiceName());
+        Service service = TopologyManager.getTopology(tenantId).getService(cluster.getServiceName());
         if (service == null) {
             throw new RuntimeException(String.format("Service not found: [cluster] %s", cluster.getClusterId()));
         }
@@ -76,13 +76,13 @@ public class LoadBalancerContextUtil {
      *
      * @param clusterId
      */
-    public static void removeClusterAgainstHostNames(String clusterId) {
+    public static void removeClusterAgainstHostNames(int tenantId, String clusterId) {
         Cluster cluster = LoadBalancerContext.getInstance().getClusterIdClusterMap().getCluster(clusterId);
         if (cluster == null) {
             return;
         }
 
-        Service service = TopologyManager.getTopology().getService(cluster.getServiceName());
+        Service service = TopologyManager.getTopology(tenantId).getService(cluster.getServiceName());
         if (service == null) {
             throw new RuntimeException(String.format("Service not found: [cluster] %s", cluster.getClusterId()));
         }
@@ -114,7 +114,7 @@ public class LoadBalancerContextUtil {
         try {
             TopologyManager.acquireReadLock();
 
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));
@@ -148,7 +148,7 @@ public class LoadBalancerContextUtil {
         try {
             TopologyManager.acquireReadLock();
 
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));
@@ -179,10 +179,10 @@ public class LoadBalancerContextUtil {
      * @param clusterIds
      * @param domainName
      */
-    public static void addClustersAgainstDomain(String serviceName, Set<String> clusterIds, String domainName) {
+    public static void addClustersAgainstDomain(int tenantId, String serviceName, Set<String> clusterIds, String domainName) {
         try {
             TopologyManager.acquireReadLock();
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));
@@ -212,11 +212,11 @@ public class LoadBalancerContextUtil {
      * @param clusterIds
      * @param domainName
      */
-    public static void removeClustersAgainstDomain(String serviceName, Set<String> clusterIds, String domainName) {
+    public static void removeClustersAgainstDomain(int tenantId, String serviceName, Set<String> clusterIds, String domainName) {
         try {
             TopologyManager.acquireReadLock();
 
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));
@@ -250,7 +250,7 @@ public class LoadBalancerContextUtil {
      */
     @SuppressWarnings("unused")
 	private static Cluster findCluster(String serviceName, int tenantId) {
-        Service service = TopologyManager.getTopology().getService(serviceName);
+        Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
         if (service == null) {
             throw new RuntimeException(String.format("Service not found: %s", serviceName));
         }
@@ -341,7 +341,7 @@ public class LoadBalancerContextUtil {
             TenantManager.acquireReadLock();
             TopologyManager.acquireReadLock();
 
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));
@@ -447,7 +447,7 @@ public class LoadBalancerContextUtil {
             TenantManager.acquireReadLock();
             TopologyManager.acquireReadLock();
 
-            Service service = TopologyManager.getTopology().getService(serviceName);
+            Service service = TopologyManager.getTopology(tenantId).getService(serviceName);
             if (service == null) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Service not found in topology: [service] %s", serviceName));

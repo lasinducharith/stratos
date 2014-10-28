@@ -28,6 +28,7 @@ import org.apache.stratos.messaging.event.instance.notifier.ArtifactUpdatedEvent
 import org.apache.stratos.messaging.event.instance.notifier.InstanceCleanupClusterEvent;
 import org.apache.stratos.messaging.event.instance.notifier.InstanceCleanupMemberEvent;
 import org.apache.stratos.messaging.util.Util;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * Creating the relevant instance notification event and publish it to the
@@ -74,7 +75,7 @@ public class InstanceNotificationPublisher {
 	 */
 	public void sendInstanceCleanupEventForMember(String memberId) {
 		log.info(String.format("Publishing Instance Cleanup Event: [member] %s", memberId));
-		publish(new InstanceCleanupMemberEvent(-1234, memberId)); //TODO remove hard-coded tenantId
+		publish(new InstanceCleanupMemberEvent(MultitenantConstants.SUPER_TENANT_ID, memberId)); //TODO remove hard-coded tenantId
 	}
 
 	public void sendInstanceCleanupEventForCluster(int tenantId, String clusterId) {

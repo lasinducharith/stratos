@@ -26,6 +26,7 @@ import org.apache.stratos.load.balancer.common.statistics.LoadBalancerStatistics
 import org.apache.stratos.load.balancer.common.statistics.publisher.WSO2CEPInFlightRequestPublisher;
 import org.apache.stratos.messaging.domain.topology.Cluster;
 import org.apache.stratos.messaging.domain.topology.Service;
+import org.apache.stratos.messaging.domain.topology.Topology;
 import org.apache.stratos.messaging.message.receiver.topology.TopologyManager;
 
 /**
@@ -74,23 +75,24 @@ public class LoadBalancerStatisticsNotifier implements Runnable {
                     try {
                         TopologyManager.acquireReadLock();
                         int requestCount;
-                        for (Service service : TopologyManager.getTopology().getServices()) {
-                            for (Cluster cluster : service.getClusters()) {
-                                if (!cluster.isLbCluster()) {
-                                    // Publish in-flight request count of load balancer's network partition
-                                    requestCount = statsReader.getInFlightRequestCount(cluster.getClusterId());
-                                    inFlightRequestPublisher.publish(cluster.getClusterId(), networkPartitionId, requestCount);
-                                    if (log.isDebugEnabled()) {
-                                        log.debug(String.format("In-flight request count published to cep: [cluster-id] %s [network-partition] %s [value] %d",
-                                                cluster.getClusterId(), networkPartitionId, requestCount));
+                        for (Topology topology: TopologyManager.getCompleteTopology().values()){
+                            for (Service service : topology.getServices()) {
+                                for (Cluster cluster : service.getClusters()) {
+                                    if (!cluster.isLbCluster()) {
+                                        // Publish in-flight request count of load balancer's network partition
+                                        requestCount = statsReader.getInFlightRequestCount(cluster.getClusterId());
+                                        inFlightRequestPublisher.publish(cluster.getClusterId(), networkPartitionId, requestCount);
+                                        if (log.isDebugEnabled()) {
+                                            log.debug(String.format("In-flight request count published to cep: [cluster-id] %s [network-partition] %s [value] %d",
+                                                    cluster.getClusterId(), networkPartitionId, requestCount));
+                                        }
+                                    } else {
+                                        // Load balancer cluster found in topology; we do not need to publish request counts for them.
                                     }
                                 }
-                                else {
-                                    // Load balancer cluster found in topology; we do not need to publish request counts for them.
-                                }
-                            }
 
-                        }
+                            }
+                    }
                     } finally {
                         TopologyManager.releaseReadLock();
                     }

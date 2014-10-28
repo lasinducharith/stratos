@@ -65,14 +65,16 @@ public class RegistryManager {
     private RegistryManager() {
         try {
 
-            if (!registryService.resourceExists(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE)) {
-                registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE,
+            if (!registryService.resourceExists(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                                CloudControllerConstants.TENANT_RESOURCE)) {
+                registryService.put(CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE +
+                                CloudControllerConstants.TENANT_RESOURCE,
                         registryService.newCollection());
             }
         } catch (RegistryException e) {
             String msg =
                     "Failed to create the registry resource " +
-                            CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE;
+                            CloudControllerConstants.CLOUD_CONTROLLER_RESOURCE + CloudControllerConstants.TENANT_RESOURCE;
             log.error(msg, e);
             throw new CloudControllerException(msg, e);
         }

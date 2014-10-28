@@ -99,4 +99,8 @@ public class TopologyManager {
         }
         return null;
     }
+
+    public static Map<Integer, Topology> getCompleteTopology(){
+        return tIdToTopologyMap;
+    }
 }

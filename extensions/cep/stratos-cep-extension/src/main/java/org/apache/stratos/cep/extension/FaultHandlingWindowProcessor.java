@@ -175,31 +175,68 @@ public class FaultHandlingWindowProcessor extends WindowProcessor implements Run
         if (StringUtils.isEmpty(memberId)){
             return null;
         }
-        if (TopologyManager.getTopology().isInitialized()){
-        	try {
-                TopologyManager.acquireReadLock();
-                if (TopologyManager.getTopology().getServices() == null){
-                    return null;
-                }
-                // TODO make this efficient by adding APIs to messaging component
-                for (Service service : TopologyManager.getTopology().getServices()) {
-                    if (service.getClusters() != null) {
-                        for (Cluster cluster : service.getClusters()) {
-                            if (cluster.getMembers() != null) {
-                                for (Member member : cluster.getMembers()){
-                                    if (memberId.equals(member.getMemberId())){
-                                        return member;
+        for(int tenantId : TopologyManager.getCompleteTopology().keySet()) {
+            if (TopologyManager.getTopology(tenantId).isInitialized()) {
+                try {
+                    TopologyManager.acquireReadLock();
+                    if (TopologyManager.getTopology(tenantId).getServices() == null) {
+                        return null;
+                    }
+                    // TODO make this efficient by adding APIs to messaging component
+                    for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
+                        if (service.getClusters() != null) {
+                            for (Cluster cluster : service.getClusters()) {
+                                if (cluster.getMembers() != null) {
+                                    for (Member member : cluster.getMembers()) {
+                                        if (memberId.equals(member.getMemberId())) {
+                                            return member;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    log.error("Error while reading topology" + e);
+                } finally {
+                    TopologyManager.releaseReadLock();
                 }
-        	} catch (Exception e) {
-        		log.error("Error while reading topology" + e);
-        	} finally {
-        		TopologyManager.releaseReadLock();
-        	}
+            }
+        }
+        return null;
+    }
+
+    private Integer getTenantFromMemberId(String memberId){
+        if (StringUtils.isEmpty(memberId)){
+            return null;
+        }
+        for(int tenantId : TopologyManager.getCompleteTopology().keySet()) {
+            if (TopologyManager.getTopology(tenantId).isInitialized()) {
+                try {
+                    TopologyManager.acquireReadLock();
+                    if (TopologyManager.getTopology(tenantId).getServices() == null) {
+                        return null;
+                    }
+                    // TODO make this efficient by adding APIs to messaging component
+                    for (Service service : TopologyManager.getTopology(tenantId).getServices()) {
+                        if (service.getClusters() != null) {
+                            for (Cluster cluster : service.getClusters()) {
+                                if (cluster.getMembers() != null) {
+                                    for (Member member : cluster.getMembers()) {
+                                        if (memberId.equals(member.getMemberId())) {
+                                            return tenantId;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Error while reading topology" + e);
+                } finally {
+                    TopologyManager.releaseReadLock();
+                }
+            }
         }
         return null;
     }
@@ -213,7 +250,7 @@ public class FaultHandlingWindowProcessor extends WindowProcessor implements Run
         }
         log.info("Publishing member fault event for [member-id] " + memberId);
 
-        MemberFaultEvent memberFaultEvent = new MemberFaultEvent(member.getClusterId(), member.getMemberId(),
+        MemberFaultEvent memberFaultEvent = new MemberFaultEvent(getTenantFromMemberId(memberId), member.getClusterId(), member.getMemberId(),
                 member.getPartitionId(), 0);
         memberFaultEventMessageMap.put("message", memberFaultEvent);
         healthStatPublisher.publish(MemberFaultEventMap, true);

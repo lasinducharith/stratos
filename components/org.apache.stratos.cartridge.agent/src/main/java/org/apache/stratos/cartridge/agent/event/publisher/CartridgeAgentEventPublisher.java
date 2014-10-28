@@ -49,7 +49,7 @@ public class CartridgeAgentEventPublisher {
 			if (log.isInfoEnabled()) {
 				log.info("Publishing instance started event");
 			}
-			InstanceStartedEvent event = new InstanceStartedEvent(
+			InstanceStartedEvent event = new InstanceStartedEvent(CartridgeAgentConfiguration.getInstance().getTenantId(),
 					CartridgeAgentConfiguration.getInstance().getServiceName(),
 					CartridgeAgentConfiguration.getInstance().getClusterId(),
 					CartridgeAgentConfiguration.getInstance().getNetworkPartitionId(),
@@ -76,7 +76,7 @@ public class CartridgeAgentEventPublisher {
 			if (log.isInfoEnabled()) {
 				log.info("Publishing instance activated event");
 			}
-			InstanceActivatedEvent event = new InstanceActivatedEvent(
+			InstanceActivatedEvent event = new InstanceActivatedEvent(CartridgeAgentConfiguration.getInstance().getTenantId(),
 					CartridgeAgentConfiguration.getInstance().getServiceName(),
 					CartridgeAgentConfiguration.getInstance().getClusterId(),
 					CartridgeAgentConfiguration.getInstance().getNetworkPartitionId(),
@@ -113,7 +113,7 @@ public class CartridgeAgentEventPublisher {
 			if (log.isInfoEnabled()) {
 				log.info("Publishing instance activated event");
 			}
-			InstanceReadyToShutdownEvent event = new InstanceReadyToShutdownEvent(
+			InstanceReadyToShutdownEvent event = new InstanceReadyToShutdownEvent(CartridgeAgentConfiguration.getInstance().getTenantId(),
 					CartridgeAgentConfiguration.getInstance().getServiceName(),
 					CartridgeAgentConfiguration.getInstance().getClusterId(),
 					CartridgeAgentConfiguration.getInstance().getNetworkPartitionId(),
@@ -139,7 +139,7 @@ public class CartridgeAgentEventPublisher {
 			if (log.isInfoEnabled()) {
 				log.info("Publishing instance maintenance mode event");
 			}
-			InstanceMaintenanceModeEvent event = new InstanceMaintenanceModeEvent(
+			InstanceMaintenanceModeEvent event = new InstanceMaintenanceModeEvent(CartridgeAgentConfiguration.getInstance().getTenantId(),
 					CartridgeAgentConfiguration.getInstance().getServiceName(),
 					CartridgeAgentConfiguration.getInstance().getClusterId(),
 					CartridgeAgentConfiguration.getInstance().getNetworkPartitionId(),

@@ -41,6 +41,7 @@ import org.apache.stratos.messaging.util.Util;
 import org.apache.stratos.tenant.mgt.util.TenantMgtUtil;
 import org.wso2.carbon.ntask.core.Task;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * Tenant synchronizer task for publishing complete tenant event periodically
@@ -114,7 +115,7 @@ public class TenantSynzhronizerTask implements Task {
 				}
 				tenants.add(tenant);
 			}
-			CompleteTenantEvent event = new CompleteTenantEvent(-1234, tenants);//TODO: Remove hard-coded tenantId
+			CompleteTenantEvent event = new CompleteTenantEvent(MultitenantConstants.SUPER_TENANT_ID, tenants);//TODO: Remove hard-coded tenantId
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
 			eventPublisher.publish(event);

@@ -44,6 +44,11 @@ public class ServiceLevelLoadBalancerCategory extends LoadBalancerCategory {
     private static Log log = LogFactory.getLog(ServiceLevelLoadBalancerCategory.class);
 
     private boolean serviceLbExists;
+    private int tenantId;
+
+    public ServiceLevelLoadBalancerCategory(int tenantId) {
+        this.tenantId = tenantId;
+    }
 
     public PayloadData create (String alias, Cluster cluster, Subscriber subscriber, Repository repository, CartridgeInfo cartridgeInfo,
                                String subscriptionKey, Map<String, String> customPayloadEntries) throws ADCException, AlreadySubscribedException {
@@ -111,7 +116,7 @@ public class ServiceLevelLoadBalancerCategory extends LoadBalancerCategory {
               //  log.info("Payload: " + payloadData.getCompletePayloadData().toString());
            // }
 
-            super.register(-1234, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence);//TODO : Remove hard-coded tenantId
+            super.register(tenantId, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence);//TODO : Remove hard-coded tenantId
         }else {
             log.info("Service LB already exists for cartridge type: " + getLoadBalancedServiceType() + ", deployment policy: " + getDeploymentPolicyName());
         }

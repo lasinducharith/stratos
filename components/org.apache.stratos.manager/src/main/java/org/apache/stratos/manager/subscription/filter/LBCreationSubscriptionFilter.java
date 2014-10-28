@@ -155,10 +155,10 @@ public class LBCreationSubscriptionFilter implements SubscriptionFilter {
             loadBalancerCategory = new ExistingLoadBalancerCategory();
 
         } else if (lbDataContext.getLbCategory().equals(Constants.DEFAULT_LOAD_BALANCER)) {
-            loadBalancerCategory = new DefaultLoadBalancerCategory();
+            loadBalancerCategory = new DefaultLoadBalancerCategory(subscriptionData.getTenantId());
 
         } else if (lbDataContext.getLbCategory().equals(Constants.SERVICE_AWARE_LOAD_BALANCER)) {
-            loadBalancerCategory = new ServiceLevelLoadBalancerCategory();
+            loadBalancerCategory = new ServiceLevelLoadBalancerCategory(subscriptionData.getTenantId());
         }
 
         if (loadBalancerCategory == null) {

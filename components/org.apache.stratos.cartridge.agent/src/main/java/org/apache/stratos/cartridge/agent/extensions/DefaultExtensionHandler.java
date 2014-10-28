@@ -245,7 +245,8 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
 
-        Topology topology = TopologyManager.getTopology();
+        int tenantId = memberActivatedEvent.getTenantId();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberActivatedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberActivatedEvent.getClusterId());
         String lbClusterId = cluster.getMember(memberActivatedEvent.getMemberId()).getLbClusterId();
@@ -299,7 +300,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                 	log.debug(" hasWKIpChanged " + hasWKIpChanged);
                 }
                 int minCount = Integer.parseInt(CartridgeAgentConfiguration.getInstance().getMinCount());                
-                boolean isWKMemberGroupReady = isWKMemberGroupReady(env, minCount);
+                boolean isWKMemberGroupReady = isWKMemberGroupReady(tenantId, env, minCount);
                 if(log.isDebugEnabled()) {
                 	log.debug("minCount " + minCount);
                 	log.debug("isWKMemberGroupReady " + isWKMemberGroupReady);
@@ -410,7 +411,8 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
 
-        Topology topology = TopologyManager.getTopology();
+        int tenantId = memberTerminatedEvent.getTenantId();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberTerminatedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberTerminatedEvent.getClusterId());
         Member terminatedMember = cluster.getMember(memberTerminatedEvent.getMemberId());
@@ -468,8 +470,9 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             return;
         }
 
+        int tenantId = memberSuspendedEvent.getTenantId();
         String clusterId = memberSuspendedEvent.getClusterId();
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberSuspendedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberSuspendedEvent.getClusterId());
         Member suspendedMember = cluster.getMember(memberSuspendedEvent.getMemberId());
@@ -524,8 +527,9 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             }
             return;
         }
+        int tenantId = memberStartedEvent.getTenantId();
         String clusterId = memberStartedEvent.getClusterId();
-        Topology topology = TopologyManager.getTopology();
+        Topology topology = TopologyManager.getTopology(tenantId);
         Service service = topology.getService(memberStartedEvent.getServiceName());
         Cluster cluster = service.getCluster(memberStartedEvent.getClusterId());
         Member startedMember = cluster.getMember(memberStartedEvent.getMemberId());
@@ -560,8 +564,8 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         }
     }
 
-    private boolean isWKMemberGroupReady(Map<String, String> envParameters, int minCount) {
-        Topology topology = TopologyManager.getTopology();
+    private boolean isWKMemberGroupReady(int tenantId, Map<String, String> envParameters, int minCount) {
+        Topology topology = TopologyManager.getTopology(tenantId);
         if (topology == null || !topology.isInitialized()) {
             return false;
         }
@@ -631,7 +635,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                         log.info("Deployment pattern for the node: " + CartridgeAgentConfiguration.getInstance().getDeployment());
                         envParameters.put("DEPLOYMENT", CartridgeAgentConfiguration.getInstance().getDeployment());
                         // check if WKA members of Manager Worker separated deployment is ready
-                        return isManagerWorkerWKAGroupReady(envParameters);
+                        return isManagerWorkerWKAGroupReady(tenantId, envParameters);
                     }
                 }
 
@@ -649,7 +653,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                     log.info("Deployment pattern for the node: " + CartridgeAgentConfiguration.getInstance().getDeployment());
                     envParameters.put("DEPLOYMENT", CartridgeAgentConfiguration.getInstance().getDeployment());
                     // check if WKA members of Manager Worker separated deployment is ready
-                    return isManagerWorkerWKAGroupReady(envParameters);
+                    return isManagerWorkerWKAGroupReady(tenantId, envParameters);
                 }
             }
 
@@ -688,7 +692,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
     }
 
     // generic worker manager separated clustering logic
-    private boolean isManagerWorkerWKAGroupReady (Map<String, String> envParameters) {
+    private boolean isManagerWorkerWKAGroupReady (int tenantId, Map<String, String> envParameters) {
 
         // for this, we need both manager cluster service name and worker cluster service name
         String managerServiceName =  CartridgeAgentConfiguration.getInstance().getManagerServiceName();
@@ -710,8 +714,8 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         TopologyManager.acquireReadLock();
 
         try {
-            Service managerService = TopologyManager.getTopology().getService(managerServiceName);
-            Service workerService = TopologyManager.getTopology().getService(workerServiceName);
+            Service managerService = TopologyManager.getTopology(tenantId).getService(managerServiceName);
+            Service workerService = TopologyManager.getTopology(tenantId).getService(workerServiceName);
 
             if (managerService == null) {
                 log.warn("Service [ "+managerServiceName+" ] is not found");
@@ -867,7 +871,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         return minInstanceCount;
     }
 
-    private void waitForWKMembers(Map<String, String> envParameters) {
+    private void waitForWKMembers(int tenantId, Map<String, String> envParameters) {
         int minCount = Integer.parseInt(CartridgeAgentConfiguration.getInstance().getMinCount());
         boolean isWKMemberGroupReady = false;
         while (!isWKMemberGroupReady) {
@@ -880,7 +884,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
             }
 
             TopologyManager.acquireReadLock();
-            isWKMemberGroupReady = isWKMemberGroupReady(envParameters, minCount);
+            isWKMemberGroupReady = isWKMemberGroupReady(tenantId, envParameters, minCount);
             TopologyManager.releaseReadLock();
         }
     }
@@ -893,6 +897,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
         if (log.isInfoEnabled()) {
             log.info("[start server extension] complete topology event received");
         }
+        int tenantId = CartridgeAgentConfiguration.getInstance().getTenantId();
         String serviceNameInPayload = CartridgeAgentConfiguration.getInstance().getServiceName();
         String clusterIdInPayload = CartridgeAgentConfiguration.getInstance().getClusterId();
         String memberIdInPayload = CartridgeAgentConfiguration.getInstance().getMemberId();
@@ -907,7 +912,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                 }
                 return;
             }
-            Topology topology = TopologyManager.getTopology();
+            Topology topology = TopologyManager.getTopology(tenantId);
             Service service = topology.getService(serviceNameInPayload);
             Cluster cluster = service.getCluster(clusterIdInPayload);
 
@@ -925,7 +930,7 @@ public class DefaultExtensionHandler implements ExtensionHandler {
                     env.put("STRATOS_PRIMARY", "false");
                 }
                 TopologyManager.releaseReadLock();
-                waitForWKMembers(env);
+                waitForWKMembers(tenantId, env);
                 if (log.isInfoEnabled()) {
                     log.info(String.format("All well known members have started! Resuming start server extension..."));
                 }

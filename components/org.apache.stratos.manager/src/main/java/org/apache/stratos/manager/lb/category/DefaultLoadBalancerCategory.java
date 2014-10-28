@@ -41,6 +41,11 @@ import java.util.Map;
 public class DefaultLoadBalancerCategory extends LoadBalancerCategory {
 
     private boolean defaultLBExists;
+    private int tenantId;
+
+    public DefaultLoadBalancerCategory(int tenantId) {
+        this.tenantId = tenantId;
+    }
 
     private static Log log = LogFactory.getLog(DefaultLoadBalancerCategory.class);
     
@@ -100,7 +105,7 @@ public class DefaultLoadBalancerCategory extends LoadBalancerCategory {
         	if(payloadData != null) {
         		log.info("Payload: " + payloadData.getCompletePayloadData().toString());
         	}
-            super.register(-1234, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence); //TODO : Remove hard-coded tenantId
+            super.register(tenantId, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence); //TODO : Remove hard-coded tenantId
         }else {
             log.info("Default LB already exists for deployment policy: " + getDeploymentPolicyName());
         }
