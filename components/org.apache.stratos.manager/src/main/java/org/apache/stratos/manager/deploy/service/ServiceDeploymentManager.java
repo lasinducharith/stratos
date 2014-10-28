@@ -72,7 +72,7 @@ public class ServiceDeploymentManager {
         //get deployed Cartridge Definition information
         CartridgeInfo cartridgeInfo;
         try {
-            cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(type);
+            cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(tenantId, type);
 
         } catch (CloudControllerServiceUnregisteredCartridgeExceptionException e) {
             String message = type + " is not a valid cartridgeSubscription type. Please try again with a valid cartridgeSubscription type.";
@@ -316,7 +316,7 @@ public class ServiceDeploymentManager {
             lbDataCtxt = CartridgeSubscriptionUtils.getLoadBalancerDataContext(-1234, type, deploymentPolicyName, lbConfig);
 
             // deploy LB service cluster
-            deployLBCluster(type, lbDataCtxt, tenantRange);
+            deployLBCluster(tenantId, type, lbDataCtxt, tenantRange);
         }
 
         Service service = new MultiTenantService(type, autoscalingPolicyName, deploymentPolicyName, tenantId, cartridgeInfo, tenantRange, isPublic);
@@ -333,7 +333,7 @@ public class ServiceDeploymentManager {
         service.create();
 
         //deploy the service
-        service.deploy(serviceClusterProperties);
+        service.deploy(tenantId, serviceClusterProperties);
 
         // persist
         persist(service);
@@ -341,7 +341,7 @@ public class ServiceDeploymentManager {
         return service;
     }
 
-    private void deployLBCluster (String loadBalancedService, LBDataContext lbDataCtxt, String tenantRange) throws ADCException, UnregisteredCartridgeException {
+    private void deployLBCluster (int tenantId, String loadBalancedService, LBDataContext lbDataCtxt, String tenantRange) throws ADCException, UnregisteredCartridgeException {
 
         if (lbDataCtxt.getLbCategory() == null || lbDataCtxt.getLbCategory().equals(Constants.NO_LOAD_BALANCER)) {
             // no load balancer required
@@ -395,7 +395,7 @@ public class ServiceDeploymentManager {
         }
 
         // delpoy
-        lbService.deploy(lbProperties);
+        lbService.deploy(tenantId, lbProperties);
 
         // persist
         persist(lbService);
@@ -439,7 +439,7 @@ public class ServiceDeploymentManager {
         }
     }
 
-    public void undeployService (String type) throws ADCException, ServiceDoesNotExistException {
+    public void undeployService (int tenantId, String type) throws ADCException, ServiceDoesNotExistException {
 
         DataInsertionAndRetrievalManager dataInsertionAndRetrievalManager = new DataInsertionAndRetrievalManager();
 
@@ -476,7 +476,7 @@ public class ServiceDeploymentManager {
 
         // if service is found, undeploy
         try {
-            service.undeploy();
+            service.undeploy(tenantId);
 
         } catch (NotSubscribedException e) {
             String errorMsg = "Undeploying Service Cluster failed for " + type;

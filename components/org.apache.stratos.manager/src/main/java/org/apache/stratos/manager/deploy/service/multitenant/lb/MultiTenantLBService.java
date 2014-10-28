@@ -40,10 +40,10 @@ public class MultiTenantLBService extends Service {
     }
 
     @Override
-    public void deploy(Properties properties) throws ADCException, UnregisteredCartridgeException {
+    public void deploy(int tenantId, Properties properties) throws ADCException, UnregisteredCartridgeException {
 
         //register the service
-        loadBalancerCategory.register(getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(), getDeploymentPolicyName(),
+        loadBalancerCategory.register(tenantId, getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(), getDeploymentPolicyName(),
                 properties, null);
     }
 }

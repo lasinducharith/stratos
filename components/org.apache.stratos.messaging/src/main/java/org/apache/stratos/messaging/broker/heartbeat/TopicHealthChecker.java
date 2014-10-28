@@ -24,6 +24,7 @@ import org.apache.stratos.messaging.broker.publish.EventPublisherPool;
 import org.apache.stratos.messaging.event.ping.PingEvent;
 import org.apache.stratos.messaging.util.Constants;
 import org.apache.stratos.messaging.util.Util;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * This health checker runs forever, and is responsible for checking the
@@ -58,7 +59,7 @@ public class TopicHealthChecker implements Runnable {
 				Thread.sleep(Util.getAveragePingInterval());
 
 				// A ping event is published to detect a session timeout
-				EventPublisherPool.getPublisher(Constants.PING_TOPIC).publish(new PingEvent(-1234), //TODO Remove hard-coded tenantId
+				EventPublisherPool.getPublisher(Constants.PING_TOPIC).publish(new PingEvent(MultitenantConstants.SUPER_TENANT_ID), //TODO Remove hard-coded tenantId
 				                                                              false);
 			} catch (Exception e) {
 				// Implies connection is not established

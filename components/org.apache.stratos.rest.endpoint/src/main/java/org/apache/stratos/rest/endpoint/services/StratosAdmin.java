@@ -136,7 +136,7 @@ public class StratosAdmin extends AbstractAdmin {
             throws RestAPIException {
 
         ServiceUtils.deployCartridge(cartridgeDefinitionBean, getConfigContext(), getUsername(),
-                getTenantDomain());
+                getTenantId());
         URI url = uriInfo.getAbsolutePathBuilder().path(cartridgeDefinitionBean.type).build();
         return Response.created(url).build();
 
@@ -149,7 +149,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/cartridgeDefinition")
     public Response unDeployCartridgeDefinition(@PathParam("cartridgeType") String cartridgeType) throws RestAPIException {
 
-        ServiceUtils.undeployCartridge(cartridgeType);
+        ServiceUtils.undeployCartridge(getTenantId(), cartridgeType);
         return Response.noContent().build();
     }
 
@@ -161,7 +161,7 @@ public class StratosAdmin extends AbstractAdmin {
     public Response deployPartition(Partition partition)
             throws RestAPIException {
 
-        ServiceUtils.deployPartition(partition);
+        ServiceUtils.deployPartition(getTenantId(), partition);
         URI url = uriInfo.getAbsolutePathBuilder().path(partition.id).build();
         return Response.created(url).build();
     }
@@ -174,7 +174,7 @@ public class StratosAdmin extends AbstractAdmin {
     public Response deployAutoscalingPolicyDefintion(AutoscalePolicy autoscalePolicy)
             throws RestAPIException {
 
-        ServiceUtils.deployAutoscalingPolicy(autoscalePolicy);
+        ServiceUtils.deployAutoscalingPolicy(getTenantId(), autoscalePolicy);
         URI url = uriInfo.getAbsolutePathBuilder().path(autoscalePolicy.getId()).build();
         return Response.created(url).build();
     }
@@ -187,7 +187,7 @@ public class StratosAdmin extends AbstractAdmin {
     public Response deployDeploymentPolicyDefinition(DeploymentPolicy deploymentPolicy)
             throws RestAPIException {
 
-        ServiceUtils.deployDeploymentPolicy(deploymentPolicy);
+        ServiceUtils.deployDeploymentPolicy(getTenantId(), deploymentPolicy);
         URI url = uriInfo.getAbsolutePathBuilder().path(deploymentPolicy.id).build();
         return Response.created(url).build();
     }
@@ -198,7 +198,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Consumes("application/json")
     @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartitions() throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getAvailablePartitions()).build();
+        return Response.ok().entity(ServiceUtils.getAvailablePartitions(getTenantId())).build();
     }
 
     @GET
@@ -207,7 +207,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Consumes("application/json")
     @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartition(@PathParam("partitionId") String partitionId) throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getPartition(partitionId)).build();
+        return Response.ok().entity(ServiceUtils.getPartition(getTenantId(), partitionId)).build();
     }
 
     @GET
@@ -217,7 +217,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartitionGroups(@PathParam("deploymentPolicyId") String deploymentPolicyId)
             throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getPartitionGroups(deploymentPolicyId)).build();
+        return Response.ok().entity(ServiceUtils.getPartitionGroups(getTenantId(), deploymentPolicyId)).build();
     }
 
     @GET
@@ -227,7 +227,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/partition")
     public Response getPartitions(@PathParam("deploymentPolicyId") String deploymentPolicyId,
                                   @PathParam("partitionGroupId") String partitionGroupId) throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getPartitionsOfGroup(deploymentPolicyId, partitionGroupId)).build();
+        return Response.ok().entity(ServiceUtils.getPartitionsOfGroup(getTenantId(), deploymentPolicyId, partitionGroupId)).build();
     }
 
     @GET
@@ -238,7 +238,7 @@ public class StratosAdmin extends AbstractAdmin {
     public Response getPartitionsOfPolicy(@PathParam("deploymentPolicyId") String deploymentPolicyId)
             throws RestAPIException {
 
-        return Response.ok().entity(ServiceUtils.getPartitionsOfDeploymentPolicy(deploymentPolicyId)).build();
+        return Response.ok().entity(ServiceUtils.getPartitionsOfDeploymentPolicy(getTenantId(), deploymentPolicyId)).build();
     }
 
     @GET
@@ -247,7 +247,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Consumes("application/json")
     @AuthorizationAction("/permission/admin/manage/view/autoscalingPolicy")
     public Response getAutoscalePolicies() throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getAutoScalePolicies()).build();
+        return Response.ok().entity(ServiceUtils.getAutoScalePolicies(getTenantId())).build();
     }
 
     @GET
@@ -257,7 +257,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/autoscalingPolicy")
     public Response getAutoscalePolicies(@PathParam("autoscalePolicyId") String autoscalePolicyId)
             throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getAutoScalePolicy(autoscalePolicyId)).build();
+        return Response.ok().entity(ServiceUtils.getAutoScalePolicy(getTenantId(), autoscalePolicyId)).build();
     }
 
     @GET
@@ -266,7 +266,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Consumes("application/json")
     @AuthorizationAction("/permission/admin/manage/view/deploymentPolicy")
     public Response getDeploymentPolicies() throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getDeploymentPolicies()).build();
+        return Response.ok().entity(ServiceUtils.getDeploymentPolicies(getTenantId())).build();
     }
 
     @GET
@@ -276,7 +276,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/deploymentPolicy")
     public Response getDeploymentPolicies(@PathParam("deploymentPolicyId") String deploymentPolicyId)
             throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getDeploymentPolicy(deploymentPolicyId)).build();
+        return Response.ok().entity(ServiceUtils.getDeploymentPolicy(getTenantId(), deploymentPolicyId)).build();
     }
 
     @GET
@@ -286,7 +286,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/deploymentPolicy")
     public Response getValidDeploymentPolicies(@PathParam("cartridgeType") String cartridgeType)
             throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getDeploymentPolicies(cartridgeType)).build();
+        return Response.ok().entity(ServiceUtils.getDeploymentPolicies(getTenantId(), cartridgeType)).build();
     }
 
     @GET
@@ -1014,7 +1014,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/service")
     public Response unDeployService(@PathParam("serviceType") String serviceType) throws RestAPIException {
         try {
-            ServiceUtils.undeployService(serviceType);
+            ServiceUtils.undeployService(getTenantId(), serviceType);
         } catch (ServiceDoesNotExistException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -1272,7 +1272,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/kubernetes")
     public Response deployKubernetesGroup(KubernetesGroup kubernetesGroup) throws RestAPIException {
 
-        ServiceUtils.deployKubernetesGroup(kubernetesGroup);
+        ServiceUtils.deployKubernetesGroup(getTenantId(), kubernetesGroup);
         URI url = uriInfo.getAbsolutePathBuilder().path(kubernetesGroup.getGroupId()).build();
         return Response.created(url).build();
     }
@@ -1285,7 +1285,7 @@ public class StratosAdmin extends AbstractAdmin {
     public Response deployKubernetesHost(@PathParam("kubernetesGroupId") String kubernetesGroupId, KubernetesHost kubernetesHost)
             throws RestAPIException {
 
-        ServiceUtils.deployKubernetesHost(kubernetesGroupId, kubernetesHost);
+        ServiceUtils.deployKubernetesHost(getTenantId(), kubernetesGroupId, kubernetesHost);
         URI url = uriInfo.getAbsolutePathBuilder().path(kubernetesHost.getHostId()).build();
         return Response.created(url).build();
     }
@@ -1297,7 +1297,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/kubernetes")
     public Response updateKubernetesMaster(KubernetesMaster kubernetesMaster) throws RestAPIException {
         try {
-            ServiceUtils.updateKubernetesMaster(kubernetesMaster);
+            ServiceUtils.updateKubernetesMaster(getTenantId(), kubernetesMaster);
             URI url = uriInfo.getAbsolutePathBuilder().path(kubernetesMaster.getHostId()).build();
             return Response.created(url).build();
         } catch (RestAPIException e) {
@@ -1312,7 +1312,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/kubernetes")
     public Response updateKubernetesHost(KubernetesHost kubernetesHost) throws RestAPIException {
         try {
-            ServiceUtils.updateKubernetesHost(kubernetesHost);
+            ServiceUtils.updateKubernetesHost(getTenantId(), kubernetesHost);
             URI url = uriInfo.getAbsolutePathBuilder().path(kubernetesHost.getHostId()).build();
             return Response.created(url).build();
         } catch (RestAPIException e) {
@@ -1326,7 +1326,7 @@ public class StratosAdmin extends AbstractAdmin {
     @Consumes("application/json")
     @AuthorizationAction("/permission/admin/manage/view/kubernetes")
     public Response getKubernetesGroups() throws RestAPIException {
-        return Response.ok().entity(ServiceUtils.getAvailableKubernetesGroups()).build();
+        return Response.ok().entity(ServiceUtils.getAvailableKubernetesGroups(getTenantId())).build();
     }
 
 
@@ -1337,7 +1337,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/kubernetes")
     public Response getKubernetesGroup(@PathParam("kubernetesGroupId") String kubernetesGroupId) throws RestAPIException {
         try {
-            return Response.ok().entity(ServiceUtils.getKubernetesGroup(kubernetesGroupId)).build();
+            return Response.ok().entity(ServiceUtils.getKubernetesGroup(getTenantId(), kubernetesGroupId)).build();
         } catch (RestAPIException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -1350,7 +1350,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/kubernetes")
     public Response getKubernetesHosts(@PathParam("kubernetesGroupId") String kubernetesGroupId) throws RestAPIException {
         try {
-            return Response.ok().entity(ServiceUtils.getKubernetesHosts(kubernetesGroupId)).build();
+            return Response.ok().entity(ServiceUtils.getKubernetesHosts(getTenantId(), kubernetesGroupId)).build();
         } catch (RestAPIException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -1363,7 +1363,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/view/kubernetes")
     public Response getKubernetesMaster(@PathParam("kubernetesGroupId") String kubernetesGroupId) throws RestAPIException {
         try {
-            return Response.ok().entity(ServiceUtils.getKubernetesMaster(kubernetesGroupId)).build();
+            return Response.ok().entity(ServiceUtils.getKubernetesMaster(getTenantId(), kubernetesGroupId)).build();
         } catch (RestAPIException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -1376,7 +1376,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/kubernetes")
     public Response unDeployKubernetesGroup(@PathParam("kubernetesGroupId") String kubernetesGroupId) throws RestAPIException {
         try {
-            ServiceUtils.undeployKubernetesGroup(kubernetesGroupId);
+            ServiceUtils.undeployKubernetesGroup(getTenantId(), kubernetesGroupId);
         } catch (RestAPIException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -1390,7 +1390,7 @@ public class StratosAdmin extends AbstractAdmin {
     @AuthorizationAction("/permission/admin/manage/add/kubernetes")
     public Response unDeployKubernetesHost(@PathParam("kubernetesHostId") String kubernetesHostId) throws RestAPIException {
         try {
-            ServiceUtils.undeployKubernetesHost(kubernetesHostId);
+            ServiceUtils.undeployKubernetesHost(getTenantId(), kubernetesHostId);
         } catch (RestAPIException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

@@ -23,15 +23,15 @@ import org.apache.stratos.manager.exception.ADCException;
 
 public abstract class CartridgeDeployer {
 
-	public final void deploy(CartridgeConfig cartridgeConfig) throws ADCException {
+	public final void deploy(int tenantId, CartridgeConfig cartridgeConfig) throws ADCException {
 		preDeployment();
-		deployCartridge(cartridgeConfig);
+		deployCartridge(tenantId, cartridgeConfig);
 		postDeployment();
 	}
 	
 	protected abstract void preDeployment();
 	
-	protected abstract void deployCartridge(CartridgeConfig cartridgeConfig) throws ADCException;
+	protected abstract void deployCartridge(int tenantId, CartridgeConfig cartridgeConfig) throws ADCException;
 			
 	protected abstract void postDeployment();
 	

@@ -48,6 +48,7 @@ import org.apache.stratos.autoscaler.policy.model.MemoryConsumption
 global org.apache.stratos.autoscaler.rule.RuleLog log;
 global org.apache.stratos.autoscaler.rule.RuleTasksDelegator $delegator;
 global org.apache.stratos.autoscaler.policy.model.AutoscalePolicy autoscalePolicy;
+global java.lang.Integer tenantId;
 global java.lang.String clusterId;
 global java.lang.String lbRef;
 global java.lang.Boolean rifReset;
@@ -121,7 +122,7 @@ dialect "mvel"
             if(partition != null){
                 log.info("[scale-up] Partition available, hence trying to spawn an instance to scale up!" );
                 log.debug("[scale-up] " + " [partition] " + partition.getId() + " [cluster] " + clusterId );
-                $delegator.delegateSpawn($networkPartitionContext.getPartitionCtxt(partition.getId()), clusterId, lbRef, isPrimary);
+                $delegator.delegateSpawn(tenantId, $networkPartitionContext.getPartitionCtxt(partition.getId()), clusterId, lbRef, isPrimary);
             }
         } else if(scaleDown){
 

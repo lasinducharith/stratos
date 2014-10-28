@@ -37,7 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class TopologyManager {
     private static final Log log = LogFactory.getLog(TopologyManager.class);
 
-    private static volatile Map<Integer, Topology> tIdToTopologyMap = new HashMap<Integer, Topology>();
+    private static volatile Map<Integer, Topology> tIdToTopologyMap;
     private static volatile ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private static volatile ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     private static volatile ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
@@ -76,6 +76,7 @@ public class TopologyManager {
             synchronized (TopologyManager.class){
                 if (topology == null) {
                     topology = new Topology();
+                    tIdToTopologyMap.put(tenantId, topology);
                     if(log.isDebugEnabled()) {
                         log.debug("Topology object created");
                     }
@@ -85,10 +86,16 @@ public class TopologyManager {
         return topology;
     }
 
-    private static Topology getTenantTopology(int tenantId){
-        if(tIdToTopologyMap.containsKey(tenantId)){
-            return tIdToTopologyMap.get(tenantId);
+    private static Topology getTenantTopology(int tenantId) {
+        if (tIdToTopologyMap!=null) {
+            if (tIdToTopologyMap.containsKey(tenantId)) {
+                return tIdToTopologyMap.get(tenantId);
 
+            }
+        }
+        else
+        {
+            tIdToTopologyMap = new HashMap<Integer, Topology>();
         }
         return null;
     }

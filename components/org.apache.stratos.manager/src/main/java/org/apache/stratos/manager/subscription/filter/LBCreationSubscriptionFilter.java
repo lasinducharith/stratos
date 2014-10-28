@@ -118,7 +118,7 @@ public class LBCreationSubscriptionFilter implements SubscriptionFilter {
 					if (log.isDebugEnabled()) {
 						log.debug(" Registering LB Cartridge subscription ");
 					}
-					CartridgeSubscriptionManager.registerCartridgeSubscription(
+					CartridgeSubscriptionManager.registerCartridgeSubscription(subscriptionData.getTenantId(),
 							lbCartridgeSubscription,
 							lbCartridgeSubscriptionProperties,
 							subscriptionData.getPersistence());

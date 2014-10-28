@@ -35,8 +35,8 @@ public class InstanceCleanupNotificationService extends AbstractAdmin {
         new InstanceNotificationPublisher().sendInstanceCleanupEventForMember(memberId);
     }
 
-    public void sendInstanceCleanupNotificationForCluster(String clusterId) {
+    public void sendInstanceCleanupNotificationForCluster(int tenantId, String clusterId) {
         //sending the notification event to the cluster
-        new InstanceNotificationPublisher().sendInstanceCleanupEventForCluster(clusterId);
+        new InstanceNotificationPublisher().sendInstanceCleanupEventForCluster(tenantId, clusterId);
     }
 }

@@ -126,14 +126,14 @@ public abstract class CartridgeMgtBehaviour implements Serializable {
         return payloadData;
     }
 
-    public void register(CartridgeInfo cartridgeInfo, Cluster cluster, PayloadData payloadData, String autoscalePolicyName, String deploymentPolicyName, Properties properties, Persistence persistence) throws ADCException, UnregisteredCartridgeException {
+    public void register(int tenantId, CartridgeInfo cartridgeInfo, Cluster cluster, PayloadData payloadData, String autoscalePolicyName, String deploymentPolicyName, Properties properties, Persistence persistence) throws ADCException, UnregisteredCartridgeException {
     	if(payloadData != null) {
         log.info("Payload: " + payloadData.getCompletePayloadData().toString());
     	}else {
     		log.info("Payload is null");
     	}
 
-        ApplicationManagementUtil.registerService(cartridgeInfo.getType(),
+        ApplicationManagementUtil.registerService(tenantId, cartridgeInfo.getType(),
                 cluster.getClusterDomain(),
                 cluster.getClusterSubDomain(),
                 payloadData.getCompletePayloadData(),
@@ -145,17 +145,17 @@ public abstract class CartridgeMgtBehaviour implements Serializable {
                 persistence);
     }
 
-    public void remove(String clusterId, String alias) throws ADCException, NotSubscribedException {
+    public void remove(int tenantId, String clusterId, String alias) throws ADCException, NotSubscribedException {
 
         //sending instance cleanup notification for the cluster, so that members in the cluster would aware of the termination
         // and perform the house keeping task.
 
-        new InstanceCleanupNotificationService().sendInstanceCleanupNotificationForCluster(clusterId);
+        new InstanceCleanupNotificationService().sendInstanceCleanupNotificationForCluster(tenantId, clusterId);
 
         log.info("Instance Cleanup Notification sent to Cluster:  " + clusterId);
 
         try {
-            CloudControllerServiceClient.getServiceClient().unregisterService(clusterId);
+            CloudControllerServiceClient.getServiceClient().unregisterService(tenantId, clusterId);
 
         } catch (Exception e) {
             String errorMsg = "Error in unregistering service cluster with domain " + clusterId;

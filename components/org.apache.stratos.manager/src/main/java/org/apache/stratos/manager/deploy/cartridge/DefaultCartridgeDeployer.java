@@ -40,10 +40,10 @@ public class DefaultCartridgeDeployer extends CartridgeDeployer{
 	}
 
 	@Override
-	protected void deployCartridge(CartridgeConfig cartridgeConfig) throws ADCException {
+	protected void deployCartridge(int tenantId, CartridgeConfig cartridgeConfig) throws ADCException {
 		try {
 			CloudControllerServiceClient cloudControllerServiceClient = CloudControllerServiceClient.getServiceClient();
-			cloudControllerServiceClient.deployCartridgeDefinition(cartridgeConfig);
+			cloudControllerServiceClient.deployCartridgeDefinition(tenantId, cartridgeConfig);
 		} catch (Exception e) {
 			String msg = "Exception in deploying the cartridge. ";
 			log.error(msg + e.getMessage());

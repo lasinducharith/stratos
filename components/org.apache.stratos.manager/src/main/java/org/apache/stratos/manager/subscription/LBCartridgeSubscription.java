@@ -34,7 +34,8 @@ import org.apache.stratos.manager.utils.ApplicationManagementUtil;
 
 import java.util.Set;
 
-public class LBCartridgeSubscription extends CartridgeSubscription {
+public class
+        LBCartridgeSubscription extends CartridgeSubscription {
 
     private LoadBalancerCategory loadBalancerCategory;
     private static Log log = LogFactory.getLog(LBCartridgeSubscription.class);
@@ -75,12 +76,12 @@ public class LBCartridgeSubscription extends CartridgeSubscription {
 
     
     @Override
-    public CartridgeSubscriptionInfo registerSubscription(Properties properties, Persistence persistence) throws ADCException, UnregisteredCartridgeException {
+    public CartridgeSubscriptionInfo registerSubscription(int tenantId, Properties properties, Persistence persistence) throws ADCException, UnregisteredCartridgeException {
     	//if(!loadBalancerCategory.isLoadBalancedServiceMultiTenant()) {
     		//if(log.isDebugEnabled()) {
     		 //log.debug("Loadbalanced service is single tenant.");
     		//}
-    		getLoadBalancerCategory().register (getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
+    		getLoadBalancerCategory().register (tenantId, getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
     	                getDeploymentPolicyName(), properties, null);
     	//}
 
@@ -91,9 +92,9 @@ public class LBCartridgeSubscription extends CartridgeSubscription {
     }
 
     @Override
-    public void removeSubscription() throws ADCException, NotSubscribedException {
+    public void removeSubscription(int tenantId) throws ADCException, NotSubscribedException {
 
-        getLoadBalancerCategory().remove(getCluster().getClusterDomain(), getAlias());;
+        getLoadBalancerCategory().remove(tenantId, getCluster().getClusterDomain(), getAlias());;
     }
 
     public Repository manageRepository (String repoURL, String repoUserName, String repoUserPassword,

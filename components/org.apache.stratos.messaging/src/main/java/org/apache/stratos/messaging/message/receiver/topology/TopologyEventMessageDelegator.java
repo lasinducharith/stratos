@@ -68,7 +68,6 @@ class TopologyEventMessageDelegator implements Runnable {
 
                     // Retrieve the actual message
                     String json = message.getText();
-                    Event e = (Event) Util.jsonToObject(json, Event.class);
 
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Topology event message [%s] received from queue: %s", type, messageQueue.getClass()));
@@ -79,7 +78,7 @@ class TopologyEventMessageDelegator implements Runnable {
                         if (log.isDebugEnabled()) {
                             log.debug(String.format("Delegating topology event message: %s", type));
                         }
-                        processorChain.process(type, json, TopologyManager.getTopology(e.getTenantId()));
+                        processorChain.process(type, json, null);
                     } finally {
                         TopologyManager.releaseWriteLock();
                     }

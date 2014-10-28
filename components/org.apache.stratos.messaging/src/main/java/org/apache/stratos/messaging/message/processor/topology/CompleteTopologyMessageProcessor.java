@@ -29,6 +29,7 @@ import org.apache.stratos.messaging.message.filter.topology.TopologyClusterFilte
 import org.apache.stratos.messaging.message.filter.topology.TopologyMemberFilter;
 import org.apache.stratos.messaging.message.filter.topology.TopologyServiceFilter;
 import org.apache.stratos.messaging.message.processor.MessageProcessor;
+import org.apache.stratos.messaging.message.receiver.topology.TopologyManager;
 import org.apache.stratos.messaging.util.Util;
 
 import java.util.ArrayList;
@@ -46,11 +47,11 @@ public class CompleteTopologyMessageProcessor extends MessageProcessor {
 
     @Override
     public boolean process(String type, String message, Object object) {
-        Topology topology = (Topology) object;
 
         if (CompleteTopologyEvent.class.getName().equals(type)) {
         	// Parse complete message and build event
         	CompleteTopologyEvent event = (CompleteTopologyEvent) Util.jsonToObject(message, CompleteTopologyEvent.class);
+            Topology topology = TopologyManager.getTopology(event.getTenantId());
         	
             // if topology has not already initialized
 			if (!topology.isInitialized()) {
@@ -135,7 +136,7 @@ public class CompleteTopologyMessageProcessor extends MessageProcessor {
         } else {
             if (nextProcessor != null) {
                 // ask the next processor to take care of the message.
-                return nextProcessor.process(type, message, topology);
+                return nextProcessor.process(type, message, null);
             }
             return false;
         }

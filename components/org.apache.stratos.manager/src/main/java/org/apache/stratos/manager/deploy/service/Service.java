@@ -84,14 +84,14 @@ public abstract class Service extends CartridgeMgtBehaviour {
         return cartridgeDefinitionHostName;
     }
 
-    public void deploy (Properties properties) throws ADCException, UnregisteredCartridgeException {
+    public void deploy (int tenantId, Properties properties) throws ADCException, UnregisteredCartridgeException {
 
-        register(getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(), getDeploymentPolicyName(), properties, null);
+        register(tenantId, getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(), getDeploymentPolicyName(), properties, null);
     }
 
-    public void undeploy () throws ADCException, NotSubscribedException {
+    public void undeploy (int tenantId) throws ADCException, NotSubscribedException {
 
-        remove(cluster.getClusterDomain(), null);
+        remove(tenantId, cluster.getClusterDomain(), null);
     }
 
     public String getType() {

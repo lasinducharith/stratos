@@ -55,10 +55,10 @@ public class DataCartridgeSubscription extends CartridgeSubscription {
     }
 
     @Override
-    public CartridgeSubscriptionInfo registerSubscription(Properties properties, Persistence persistence) throws ADCException,
+    public CartridgeSubscriptionInfo registerSubscription(int tenantId, Properties properties, Persistence persistence) throws ADCException,
             UnregisteredCartridgeException {
 
-        getSubscriptionTenancyBehaviour().register (getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
+        getSubscriptionTenancyBehaviour().register (tenantId, getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
                 getDeploymentPolicyName(), properties, persistence);
 
         DataCartridge dataCartridge = new DataCartridge();

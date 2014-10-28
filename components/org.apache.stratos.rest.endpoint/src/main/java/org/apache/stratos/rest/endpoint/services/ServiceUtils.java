@@ -90,7 +90,7 @@ public class ServiceUtils {
     private static ServiceDeploymentManager serviceDeploymentManager = new ServiceDeploymentManager();
 
     static void deployCartridge(CartridgeDefinitionBean cartridgeDefinitionBean, ConfigurationContext ctxt,
-                                String userName, String tenantDomain) throws RestAPIException {
+                                String userName, int tenantId) throws RestAPIException {
 
 		log.info("Starting to deploy a Cartridge [type] "+ cartridgeDefinitionBean.type);
 		
@@ -99,7 +99,7 @@ public class ServiceUtils {
 			throw new RestAPIException("Populated CartridgeConfig instance is null, cartridge deployment aborted");
 		}
 		try {
-			CartridgeDeploymentManager.getDeploymentManager(cartridgeDefinitionBean.deployerType).deploy(cartridgeConfig);
+			CartridgeDeploymentManager.getDeploymentManager(cartridgeDefinitionBean.deployerType).deploy(tenantId, cartridgeConfig);
 		} catch (ADCException e) {	
 			throw new RestAPIException(e.getMessage());
 		}
@@ -126,12 +126,12 @@ public class ServiceUtils {
         return commonPolicies.toArray(new DeploymentPolicy[0]);
     }
 
-    static void undeployCartridge(String cartridgeType) throws RestAPIException {
+    static void undeployCartridge(int tenantId, String cartridgeType) throws RestAPIException {
 
         CloudControllerServiceClient cloudControllerServiceClient = getCloudControllerServiceClient();
         if (cloudControllerServiceClient != null) {
             try {
-                cloudControllerServiceClient.unDeployCartridgeDefinition(cartridgeType);
+                cloudControllerServiceClient.unDeployCartridgeDefinition(tenantId, cartridgeType);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -145,7 +145,7 @@ public class ServiceUtils {
     }
 
 
-    public static void deployPartition(Partition partitionBean) throws RestAPIException {
+    public static void deployPartition(int tenantId, Partition partitionBean) throws RestAPIException {
 
         //log.info("***** " + cartridgeDefinitionBean.toString() + " *****");
 
@@ -156,7 +156,7 @@ public class ServiceUtils {
                     PojoConverter.convertToCCPartitionPojo(partitionBean);
 
             try {
-                autoscalerServiceClient.deployPartition(partition);
+                autoscalerServiceClient.deployPartition(tenantId, partition);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -169,7 +169,7 @@ public class ServiceUtils {
         }
     }
 
-    public static void deployAutoscalingPolicy(AutoscalePolicy autoscalePolicyBean) throws RestAPIException {
+    public static void deployAutoscalingPolicy(int tenantId, AutoscalePolicy autoscalePolicyBean) throws RestAPIException {
 
         //log.info("***** " + cartridgeDefinitionBean.toString() + " *****");
 
@@ -181,7 +181,7 @@ public class ServiceUtils {
 
             try {
                 autoscalerServiceClient
-                        .deployAutoscalingPolicy(autoscalePolicy);
+                        .deployAutoscalingPolicy(tenantId, autoscalePolicy);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -195,7 +195,7 @@ public class ServiceUtils {
         }
     }
 
-    public static void deployDeploymentPolicy(
+    public static void deployDeploymentPolicy(int tenantId,
             org.apache.stratos.rest.endpoint.bean.autoscaler.policy.deployment.DeploymentPolicy deploymentPolicyBean)
             throws RestAPIException {
 
@@ -209,7 +209,7 @@ public class ServiceUtils {
 
             try {
                 autoscalerServiceClient
-                        .deployDeploymentPolicy(deploymentPolicy);
+                        .deployDeploymentPolicy(tenantId, deploymentPolicy);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -235,13 +235,13 @@ public class ServiceUtils {
         }
     }
 
-    public static Partition[] getAvailablePartitions() throws RestAPIException {
+    public static Partition[] getAvailablePartitions(int tenantId) throws RestAPIException {
     	
         org.apache.stratos.cloud.controller.stub.deployment.partition.Partition[] partitions = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                partitions = autoscalerServiceClient.getAvailablePartitions();
+                partitions = autoscalerServiceClient.getAvailablePartitions(tenantId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available partitions. Cause : " + e.getMessage();
@@ -253,7 +253,7 @@ public class ServiceUtils {
         return PojoConverter.populatePartitionPojos(partitions);
     }
 
-    public static Partition[] getPartitionsOfDeploymentPolicy(String deploymentPolicyId)
+    public static Partition[] getPartitionsOfDeploymentPolicy(int tenantId, String deploymentPolicyId)
             throws RestAPIException {
 
         org.apache.stratos.cloud.controller.stub.deployment.partition.Partition[] partitions = null;
@@ -261,7 +261,7 @@ public class ServiceUtils {
         if (autoscalerServiceClient != null) {
             try {
                 partitions =
-                        autoscalerServiceClient.getPartitionsOfDeploymentPolicy(deploymentPolicyId);
+                        autoscalerServiceClient.getPartitionsOfDeploymentPolicy(tenantId, deploymentPolicyId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available partitions for deployment policy id " +
@@ -275,14 +275,14 @@ public class ServiceUtils {
     }
 
     public static Partition[]
-    getPartitionsOfGroup(String deploymentPolicyId, String groupId) throws RestAPIException {
+    getPartitionsOfGroup(int tenantId, String deploymentPolicyId, String groupId) throws RestAPIException {
 
         org.apache.stratos.cloud.controller.stub.deployment.partition.Partition[] partitions = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
                 partitions =
-                        autoscalerServiceClient.getPartitionsOfGroup(deploymentPolicyId, groupId);
+                        autoscalerServiceClient.getPartitionsOfGroup(tenantId, deploymentPolicyId, groupId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available partitions for deployment policy id " + deploymentPolicyId +
@@ -295,13 +295,13 @@ public class ServiceUtils {
         return PojoConverter.populatePartitionPojos(partitions);
     }
 
-    public static Partition getPartition(String partitionId) throws RestAPIException {
+    public static Partition getPartition(int tenantId, String partitionId) throws RestAPIException {
 
         org.apache.stratos.cloud.controller.stub.deployment.partition.Partition partition = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                partition = autoscalerServiceClient.getPartition(partitionId);
+                partition = autoscalerServiceClient.getPartition(tenantId, partitionId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting partition for id " + partitionId + ". Cause: " + e.getMessage();
@@ -326,13 +326,13 @@ public class ServiceUtils {
         }
     }
 
-    public static AutoscalePolicy[] getAutoScalePolicies() throws RestAPIException {
+    public static AutoscalePolicy[] getAutoScalePolicies(int tenantId) throws RestAPIException {
 
         org.apache.stratos.autoscaler.stub.policy.model.AutoscalePolicy[] autoscalePolicies = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                autoscalePolicies = autoscalerServiceClient.getAutoScalePolicies();
+                autoscalePolicies = autoscalerServiceClient.getAutoScalePolicies(tenantId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available autoscaling policies. Cause : " + e.getMessage();
@@ -343,13 +343,13 @@ public class ServiceUtils {
         return PojoConverter.populateAutoscalePojos(autoscalePolicies);
     }
 
-    public static AutoscalePolicy getAutoScalePolicy(String autoscalePolicyId) throws RestAPIException {
+    public static AutoscalePolicy getAutoScalePolicy(int tenantId, String autoscalePolicyId) throws RestAPIException {
 
         org.apache.stratos.autoscaler.stub.policy.model.AutoscalePolicy autoscalePolicy = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                autoscalePolicy = autoscalerServiceClient.getAutoScalePolicy(autoscalePolicyId);
+                autoscalePolicy = autoscalerServiceClient.getAutoScalePolicy(tenantId, autoscalePolicyId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting information for autoscaling policy with id " +
@@ -363,13 +363,13 @@ public class ServiceUtils {
     }
 
     public static org.apache.stratos.rest.endpoint.bean.autoscaler.policy.deployment.DeploymentPolicy[]
-    getDeploymentPolicies() throws RestAPIException {
+    getDeploymentPolicies(int tenantId) throws RestAPIException {
 
         DeploymentPolicy[] deploymentPolicies = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                deploymentPolicies = autoscalerServiceClient.getDeploymentPolicies();
+                deploymentPolicies = autoscalerServiceClient.getDeploymentPolicies(tenantId);
             } catch (RemoteException e) {
                 String errorMsg = "Error getting available deployment policies. Cause : " + e.getMessage();
                 log.error(errorMsg, e);
@@ -382,13 +382,13 @@ public class ServiceUtils {
     }
 
     public static org.apache.stratos.rest.endpoint.bean.autoscaler.policy.deployment.DeploymentPolicy[]
-    getDeploymentPolicies(String cartridgeType) throws RestAPIException {
+    getDeploymentPolicies(int tenantId, String cartridgeType) throws RestAPIException {
 
         DeploymentPolicy[] deploymentPolicies = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                deploymentPolicies = autoscalerServiceClient.getDeploymentPolicies(cartridgeType);
+                deploymentPolicies = autoscalerServiceClient.getDeploymentPolicies(tenantId, cartridgeType);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting available deployment policies for cartridge type " +
@@ -409,13 +409,13 @@ public class ServiceUtils {
     }
 
     public static org.apache.stratos.rest.endpoint.bean.autoscaler.policy.deployment.DeploymentPolicy
-    getDeploymentPolicy(String deploymentPolicyId) throws RestAPIException {
+    getDeploymentPolicy(int tenantId, String deploymentPolicyId) throws RestAPIException {
 
         DeploymentPolicy deploymentPolicy = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                deploymentPolicy = autoscalerServiceClient.getDeploymentPolicy(deploymentPolicyId);
+                deploymentPolicy = autoscalerServiceClient.getDeploymentPolicy(tenantId, deploymentPolicyId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error while getting deployment policy with id " +
@@ -434,14 +434,14 @@ public class ServiceUtils {
         return PojoConverter.populateDeploymentPolicyPojo(deploymentPolicy);
     }
 
-    public static PartitionGroup[] getPartitionGroups(String deploymentPolicyId)
+    public static PartitionGroup[] getPartitionGroups(int tenantId, String deploymentPolicyId)
             throws RestAPIException {
 
         org.apache.stratos.autoscaler.stub.partition.PartitionGroup[] partitionGroups = null;
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                partitionGroups = autoscalerServiceClient.getPartitionGroups(deploymentPolicyId);
+                partitionGroups = autoscalerServiceClient.getPartitionGroups(tenantId, deploymentPolicyId);
 
             } catch (RemoteException e) {
                 String errorMsg = "Error getting available partition groups for deployment policy id "
@@ -497,14 +497,14 @@ public class ServiceUtils {
 
         try {
             Pattern searchPattern = getSearchStringPattern(cartridgeSearchString);
-
-            String[] availableCartridges = CloudControllerServiceClient.getServiceClient().getRegisteredCartridges();
+            int tenantId = ApplicationManagementUtil.getTenantId(configurationContext);
+            String[] availableCartridges = CloudControllerServiceClient.getServiceClient().getRegisteredCartridges(tenantId);
 
             if (availableCartridges != null) {
                 for (String cartridgeType : availableCartridges) {
                     CartridgeInfo cartridgeInfo = null;
                     try {
-                        cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(cartridgeType);
+                        cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(tenantId, cartridgeType);
                     } catch (Exception e) {
                         if (log.isWarnEnabled()) {
                             log.warn("Error when calling getCartridgeInfo for " + cartridgeType + ", Error: "
@@ -662,7 +662,7 @@ public class ServiceUtils {
             if (tenantRange.equals(Constants.TENANT_RANGE_ALL)) {
                 //check whether any active instances found for this service in the Topology
 
-                Cluster cluster = TopologyManager.getTopology().getService(service.getType()).
+                Cluster cluster = TopologyManager.getTopology(ApplicationManagementUtil.getTenantId(configurationContext)).getService(service.getType()).
                         getCluster(service.getClusterId());
                 boolean activeMemberFound = false;
                 for (Member member : cluster.getMembers()) {
@@ -1134,10 +1134,10 @@ public class ServiceUtils {
         }
     }
 
-    static void undeployService(String serviceType) throws RestAPIException, ServiceDoesNotExistException {
+    static void undeployService(int tenantId, String serviceType) throws RestAPIException, ServiceDoesNotExistException {
 
         try {
-            serviceDeploymentManager.undeployService(serviceType);
+            serviceDeploymentManager.undeployService(tenantId, serviceType);
         } catch (ServiceDoesNotExistException ex) {
             throw ex;
         } catch (Exception e) {
@@ -1264,7 +1264,7 @@ public class ServiceUtils {
 
 
 
-    public static boolean deployKubernetesGroup(KubernetesGroup kubernetesGroupBean) throws RestAPIException {
+    public static boolean deployKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroupBean) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
@@ -1272,7 +1272,7 @@ public class ServiceUtils {
                     PojoConverter.convertToASKubernetesGroupPojo(kubernetesGroupBean);
 
             try {
-                return autoscalerServiceClient.deployKubernetesGroup(kubernetesGroup);
+                return autoscalerServiceClient.deployKubernetesGroup(tenantId, kubernetesGroup);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -1285,7 +1285,7 @@ public class ServiceUtils {
         return false;
     }
 
-    public static boolean deployKubernetesHost(String kubernetesGroupId, KubernetesHost kubernetesHostBean)
+    public static boolean deployKubernetesHost(int tenantId, String kubernetesGroupId, KubernetesHost kubernetesHostBean)
             throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
@@ -1294,7 +1294,7 @@ public class ServiceUtils {
                     PojoConverter.convertToASKubernetesHostPojo(kubernetesHostBean);
 
             try {
-                return autoscalerServiceClient.deployKubernetesHost(kubernetesGroupId, kubernetesHost);
+                return autoscalerServiceClient.deployKubernetesHost(tenantId, kubernetesGroupId, kubernetesHost);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -1311,7 +1311,7 @@ public class ServiceUtils {
         return false;
     }
 
-    public static boolean updateKubernetesMaster(KubernetesMaster kubernetesMasterBean) throws RestAPIException {
+    public static boolean updateKubernetesMaster(int tenantId, KubernetesMaster kubernetesMasterBean) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
@@ -1319,7 +1319,7 @@ public class ServiceUtils {
                     PojoConverter.convertToASKubernetesMasterPojo(kubernetesMasterBean);
 
             try {
-                return autoscalerServiceClient.updateKubernetesMaster(kubernetesMaster);
+                return autoscalerServiceClient.updateKubernetesMaster(tenantId, kubernetesMaster);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);
@@ -1336,13 +1336,13 @@ public class ServiceUtils {
         return false;
     }
 
-    public static KubernetesGroup[] getAvailableKubernetesGroups() throws RestAPIException {
+    public static KubernetesGroup[] getAvailableKubernetesGroups(int tenantId) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
                 org.apache.stratos.autoscaler.stub.kubernetes.KubernetesGroup[]
-                        kubernetesGroups = autoscalerServiceClient.getAvailableKubernetesGroups();
+                        kubernetesGroups = autoscalerServiceClient.getAvailableKubernetesGroups(tenantId);
                 return PojoConverter.populateKubernetesGroupsPojo(kubernetesGroups);
 
             } catch (RemoteException e) {
@@ -1353,13 +1353,13 @@ public class ServiceUtils {
         return null;
     }
 
-    public static KubernetesGroup getKubernetesGroup(String kubernetesGroupId) throws RestAPIException {
+    public static KubernetesGroup getKubernetesGroup(int tenantId, String kubernetesGroupId) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
                 org.apache.stratos.autoscaler.stub.kubernetes.KubernetesGroup
-                        kubernetesGroup = autoscalerServiceClient.getKubernetesGroup(kubernetesGroupId);
+                        kubernetesGroup = autoscalerServiceClient.getKubernetesGroup(tenantId, kubernetesGroupId);
                 return PojoConverter.populateKubernetesGroupPojo(kubernetesGroup);
 
             } catch (RemoteException e) {
@@ -1374,12 +1374,12 @@ public class ServiceUtils {
         return null;
     }
 
-    public static boolean undeployKubernetesGroup(String kubernetesGroupId) throws RestAPIException {
+    public static boolean undeployKubernetesGroup(int tenantId, String kubernetesGroupId) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                return autoscalerServiceClient.undeployKubernetesGroup(kubernetesGroupId);
+                return autoscalerServiceClient.undeployKubernetesGroup(tenantId, kubernetesGroupId);
 
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
@@ -1393,12 +1393,12 @@ public class ServiceUtils {
         return false;
     }
 
-    public static boolean undeployKubernetesHost(String kubernetesHostId) throws RestAPIException {
+    public static boolean undeployKubernetesHost(int tenantId, String kubernetesHostId) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
-                return autoscalerServiceClient.undeployKubernetesHost(kubernetesHostId);
+                return autoscalerServiceClient.undeployKubernetesHost(tenantId, kubernetesHostId);
 
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
@@ -1412,13 +1412,13 @@ public class ServiceUtils {
         return false;
     }
 
-    public static KubernetesHost[] getKubernetesHosts(String kubernetesGroupId) throws RestAPIException {
+    public static KubernetesHost[] getKubernetesHosts(int tenantId, String kubernetesGroupId) throws RestAPIException {
 
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
                 org.apache.stratos.autoscaler.stub.kubernetes.KubernetesHost[]
-                        kubernetesHosts = autoscalerServiceClient.getKubernetesHosts(kubernetesGroupId);
+                        kubernetesHosts = autoscalerServiceClient.getKubernetesHosts(tenantId, kubernetesGroupId);
 
                 List<KubernetesHost> arrayList = PojoConverter.populateKubernetesHostsPojo(kubernetesHosts);
                 KubernetesHost[] array = new KubernetesHost[arrayList.size()];
@@ -1436,12 +1436,12 @@ public class ServiceUtils {
         return null;
     }
 
-    public static KubernetesMaster getKubernetesMaster(String kubernetesGroupId) throws RestAPIException {
+    public static KubernetesMaster getKubernetesMaster(int tenantId, String kubernetesGroupId) throws RestAPIException {
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             try {
                 org.apache.stratos.autoscaler.stub.kubernetes.KubernetesMaster
-                        kubernetesMaster = autoscalerServiceClient.getKubernetesMaster(kubernetesGroupId);
+                        kubernetesMaster = autoscalerServiceClient.getKubernetesMaster(tenantId, kubernetesGroupId);
                 return PojoConverter.populateKubernetesMasterPojo(kubernetesMaster);
 
             } catch (RemoteException e) {
@@ -1456,13 +1456,13 @@ public class ServiceUtils {
         return null;
     }
 
-    public static boolean updateKubernetesHost(KubernetesHost kubernetesHostBean) throws RestAPIException {
+    public static boolean updateKubernetesHost(int tenantId, KubernetesHost kubernetesHostBean) throws RestAPIException {
         AutoscalerServiceClient autoscalerServiceClient = getAutoscalerServiceClient();
         if (autoscalerServiceClient != null) {
             org.apache.stratos.autoscaler.stub.kubernetes.KubernetesHost kubernetesHost =
                     PojoConverter.convertToASKubernetesHostPojo(kubernetesHostBean);
             try {
-                return autoscalerServiceClient.updateKubernetesHost(kubernetesHost);
+                return autoscalerServiceClient.updateKubernetesHost(tenantId, kubernetesHost);
             } catch (RemoteException e) {
                 log.error(e.getMessage(), e);
                 throw new RestAPIException(e.getMessage(), e);

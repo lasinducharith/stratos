@@ -56,7 +56,7 @@ public class DefaultLBService extends LBService {
         // call the relevant method to get the cluster id, using deployment policy
         String clusterId = null;
         try {
-            clusterId = AutoscalerServiceClient.getServiceClient().getDefaultLBClusterId(getDeploymentPolicyName());
+            clusterId = AutoscalerServiceClient.getServiceClient().getDefaultLBClusterId(subscriber.getTenantId(), getDeploymentPolicyName());
         } catch (Exception e) {
             log.error("Error occurred in retrieving default LB cluster id" + e.getMessage());
             throw new ADCException(e);
@@ -73,7 +73,7 @@ public class DefaultLBService extends LBService {
             //get the hostname for this cluster and set it
             ClusterContext clusterContext;
             try {
-                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(clusterId);
+                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(subscriber.getTenantId(), clusterId);
 
             } catch (RemoteException e) {
                 log.error("Error occurred in retrieving Cluster Context for default LB ", e);
@@ -99,11 +99,11 @@ public class DefaultLBService extends LBService {
         }
     }
 
-    public void register(CartridgeInfo cartridgeInfo, Cluster cluster, PayloadData payloadData, String autoscalePolicyName, String deploymentPolicyName, Properties properties) throws ADCException, UnregisteredCartridgeException {
+    public void register(int tenantId, CartridgeInfo cartridgeInfo, Cluster cluster, PayloadData payloadData, String autoscalePolicyName, String deploymentPolicyName, Properties properties) throws ADCException, UnregisteredCartridgeException {
 
         //log.info("Register service with payload data ["+payloadData+"] ");
         if (!defaultLBServiceExists) {
-            super.register(cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, null);
+            super.register(tenantId, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, null);
         }else {
             log.info("Default LB already exists for deployment policy: " + getDeploymentPolicyName());
         }

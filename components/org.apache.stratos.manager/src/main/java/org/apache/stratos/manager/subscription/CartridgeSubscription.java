@@ -152,9 +152,9 @@ public abstract class CartridgeSubscription implements Serializable {
      * @throws ADCException
      * @throws NotSubscribedException
      */
-    public void removeSubscription() throws ADCException, NotSubscribedException {
+    public void removeSubscription(int tenantId) throws ADCException, NotSubscribedException {
 
-        getSubscriptionTenancyBehaviour().remove(getCluster().getClusterDomain(), getAlias());
+        getSubscriptionTenancyBehaviour().remove(tenantId, getCluster().getClusterDomain(), getAlias());
         cleanupSubscription();
     }
 
@@ -168,13 +168,13 @@ public abstract class CartridgeSubscription implements Serializable {
      * @throws ADCException
      * @throws UnregisteredCartridgeException
      */
-    public CartridgeSubscriptionInfo registerSubscription(Properties properties, Persistence persistence)
+    public CartridgeSubscriptionInfo registerSubscription(int tenantId, Properties properties, Persistence persistence)
             throws ADCException, UnregisteredCartridgeException {
 
         // Properties props = new Properties();
         //props.setProperties(getCartridgeInfo().getProperties());
 
-        getSubscriptionTenancyBehaviour().register (getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
+        getSubscriptionTenancyBehaviour().register (tenantId, getCartridgeInfo(), getCluster(), getPayloadData(), getAutoscalingPolicyName(),
                 getDeploymentPolicyName(), properties, persistence);
 
         return ApplicationManagementUtil.createCartridgeSubscription(getCartridgeInfo(), getAutoscalingPolicyName(),

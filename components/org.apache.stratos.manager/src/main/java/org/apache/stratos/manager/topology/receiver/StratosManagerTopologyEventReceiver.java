@@ -59,7 +59,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 try {
                     TopologyManager.acquireReadLock();
 
-                    for (Service service : TopologyManager.getTopology()
+                    for (Service service : TopologyManager.getTopology(event.getTenantId())
                             .getServices()) {
                         // iterate through all clusters
                         for (Cluster cluster : service.getClusters()) {
@@ -90,7 +90,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clustercreatedEvent.getClusterId());
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clustercreatedEvent.getClusterId());
                     TopologyClusterInformationModel.getInstance().addCluster(cluster);
 
                 } finally {
@@ -132,7 +132,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clusterDomain);
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clusterDomain);
                     TopologyClusterInformationModel.getInstance().addCluster(cluster);
                 } finally {
                     //release read lock
@@ -157,7 +157,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clusterDomain);
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clusterDomain);
                     TopologyClusterInformationModel.getInstance().addCluster(cluster);
                 } finally {
                     //release read lock
@@ -183,7 +183,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clusterDomain);
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clusterDomain);
                     TopologyClusterInformationModel.getInstance().addCluster(cluster);
                 } finally {
                     //release read lock
@@ -208,7 +208,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clusterDomain);
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clusterDomain);
                     TopologyClusterInformationModel.getInstance().addCluster(cluster);
 
                 } finally {
@@ -234,7 +234,7 @@ public class StratosManagerTopologyEventReceiver implements Runnable {
                 TopologyManager.acquireReadLock();
 
                 try {
-                    Cluster cluster = TopologyManager.getTopology().getService(serviceType).getCluster(clusterDomain);
+                    Cluster cluster = TopologyManager.getTopology(event.getTenantId()).getService(serviceType).getCluster(clusterDomain);
 
                     // check and remove terminated member
                     if (cluster.memberExists(memberTerminatedEvent.getMemberId())) {

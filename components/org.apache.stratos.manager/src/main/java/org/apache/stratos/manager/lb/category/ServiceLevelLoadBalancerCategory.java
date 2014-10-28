@@ -52,7 +52,7 @@ public class ServiceLevelLoadBalancerCategory extends LoadBalancerCategory {
         String clusterId = null;
 
         try {
-            clusterId = AutoscalerServiceClient.getServiceClient().getServiceLBClusterId(getLoadBalancedServiceType(), getDeploymentPolicyName());
+            clusterId = AutoscalerServiceClient.getServiceClient().getServiceLBClusterId(subscriber.getTenantId(), getLoadBalancedServiceType(), getDeploymentPolicyName());
 
         } catch (Exception e) {
             log.error("Error occurred in retrieving Service LB cluster id" + e.getMessage());
@@ -71,7 +71,7 @@ public class ServiceLevelLoadBalancerCategory extends LoadBalancerCategory {
             //get the hostname for this cluster and set it
             ClusterContext clusterContext;
             try {
-                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(clusterId);
+                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(subscriber.getTenantId(), clusterId);
 
             } catch (RemoteException e) {
                 log.error("Error occurred in retrieving Cluster Context for Service LB ", e);
@@ -111,7 +111,7 @@ public class ServiceLevelLoadBalancerCategory extends LoadBalancerCategory {
               //  log.info("Payload: " + payloadData.getCompletePayloadData().toString());
            // }
 
-            super.register(cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence);
+            super.register(-1234, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence);//TODO : Remove hard-coded tenantId
         }else {
             log.info("Service LB already exists for cartridge type: " + getLoadBalancedServiceType() + ", deployment policy: " + getDeploymentPolicyName());
         }

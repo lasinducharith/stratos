@@ -114,7 +114,7 @@ public class TenantSynzhronizerTask implements Task {
 				}
 				tenants.add(tenant);
 			}
-			CompleteTenantEvent event = new CompleteTenantEvent(tenants);
+			CompleteTenantEvent event = new CompleteTenantEvent(-1234, tenants);//TODO: Remove hard-coded tenantId
 			String topic = Util.getMessageTopicName(event);
 			EventPublisher eventPublisher = EventPublisherPool.getPublisher(topic);
 			eventPublisher.publish(event);

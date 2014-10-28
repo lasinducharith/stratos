@@ -60,7 +60,7 @@ public class ServiceAwareLBService extends LBService {
         String clusterId = null;
 
         try {
-            clusterId = AutoscalerServiceClient.getServiceClient().getServiceLBClusterId(getLoadBalancedServiceType(), getDeploymentPolicyName());
+            clusterId = AutoscalerServiceClient.getServiceClient().getServiceLBClusterId(subscriber.getTenantId(), getLoadBalancedServiceType(), getDeploymentPolicyName());
 
         } catch (Exception e) {
             log.error("Error occurred in retrieving Service LB cluster id" + e.getMessage());
@@ -79,7 +79,7 @@ public class ServiceAwareLBService extends LBService {
             //get the hostname for this cluster and set it
             ClusterContext clusterContext;
             try {
-                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(clusterId);
+                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(subscriber.getTenantId(), clusterId);
 
             } catch (RemoteException e) {
                 log.error("Error occurred in retrieving Cluster Context for Service LB ", e);
@@ -130,7 +130,7 @@ public class ServiceAwareLBService extends LBService {
     public void register(CartridgeInfo cartridgeInfo, Cluster cluster, PayloadData payloadData, String autoscalePolicyName, String deploymentPolicyName, Properties properties) throws ADCException, UnregisteredCartridgeException {
 
         if (!serviceAwareLBExists) {
-            super.register(cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, null);
+            super.register(-1234, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, null); //TODO : Remove hard-coded tenantId
 
         }else {
             log.info("Service Aware LB already exists for cartridge type: " + getLoadBalancedServiceType() + ", deployment policy: " + getDeploymentPolicyName());

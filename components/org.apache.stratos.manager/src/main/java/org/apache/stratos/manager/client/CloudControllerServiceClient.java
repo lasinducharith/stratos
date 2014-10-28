@@ -78,21 +78,21 @@ public class CloudControllerServiceClient {
         return serviceClient;
     }
 
-    public void deployCartridgeDefinition (CartridgeConfig cartridgeConfig) 
+    public void deployCartridgeDefinition (int tenantId, CartridgeConfig cartridgeConfig)
     		throws RemoteException, CloudControllerServiceInvalidCartridgeDefinitionExceptionException, 
     		CloudControllerServiceInvalidIaasProviderExceptionException {
 
-		stub.deployCartridgeDefinition(cartridgeConfig);
+		stub.deployCartridgeDefinition(tenantId, cartridgeConfig);
 
 	}
 
-    public void unDeployCartridgeDefinition (String cartridgeType) throws RemoteException, CloudControllerServiceInvalidCartridgeTypeExceptionException{
+    public void unDeployCartridgeDefinition (int tenantId, String cartridgeType) throws RemoteException, CloudControllerServiceInvalidCartridgeTypeExceptionException{
 
-		stub.undeployCartridgeDefinition(cartridgeType);
+		stub.undeployCartridgeDefinition(tenantId, cartridgeType);
 
 	}
 
-	public boolean register(String clusterId, String cartridgeType,
+	public boolean register(int tenantId, String clusterId, String cartridgeType,
                             String payload, String tenantRange,
                             String hostName, Properties properties,
                             String autoscalorPolicyName, String deploymentPolicyName, Persistence persistence) throws RemoteException,
@@ -107,7 +107,7 @@ public class CloudControllerServiceClient {
 	    registrant.setAutoScalerPolicyName(autoscalorPolicyName);
         registrant.setDeploymentPolicyName(deploymentPolicyName);
         registrant.setPersistence(persistence);
-		return stub.registerService(registrant);
+		return stub.registerService(tenantId, registrant);
 
 	}
 
@@ -132,27 +132,27 @@ public class CloudControllerServiceClient {
         return props;
     }
 
-    public void terminateAllInstances(String clusterId) throws RemoteException, 
+    public void terminateAllInstances(int tenantId, String clusterId) throws RemoteException,
     CloudControllerServiceInvalidClusterExceptionException {
-		stub.terminateAllInstances(clusterId);
+		stub.terminateAllInstances(tenantId, clusterId);
 	}
 
-	public String[] getRegisteredCartridges() throws RemoteException {
-		return stub.getRegisteredCartridges();
+	public String[] getRegisteredCartridges(int tenantId) throws RemoteException {
+		return stub.getRegisteredCartridges(tenantId);
 	}
 
-	public CartridgeInfo getCartridgeInfo(String cartridgeType) throws RemoteException, 
+	public CartridgeInfo getCartridgeInfo(int tenantId, String cartridgeType) throws RemoteException,
 	CloudControllerServiceUnregisteredCartridgeExceptionException {
-		return stub.getCartridgeInfo(cartridgeType);
+		return stub.getCartridgeInfo(tenantId, cartridgeType);
 	}
 	
-	public void unregisterService(String clusterId) throws RemoteException, 
+	public void unregisterService(int tenantId, String clusterId) throws RemoteException,
 	CloudControllerServiceUnregisteredClusterExceptionException {
-	    stub.unregisterService(clusterId);
+	    stub.unregisterService(tenantId, clusterId);
 	}
 
-    public ClusterContext getClusterContext (String clusterId) throws RemoteException {
+    public ClusterContext getClusterContext (int tenantId, String clusterId) throws RemoteException {
 
-        return stub.getClusterContext(clusterId);
+        return stub.getClusterContext(tenantId, clusterId);
     }
 }

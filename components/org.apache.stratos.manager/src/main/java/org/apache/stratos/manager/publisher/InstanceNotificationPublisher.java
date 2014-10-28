@@ -53,12 +53,11 @@ public class InstanceNotificationPublisher {
 	 * @param tenantId
 	 */
 	public void sendArtifactUpdateEvent(Repository repository, String clusterId, int tenantId) {
-		ArtifactUpdatedEvent artifactUpdateEvent = new ArtifactUpdatedEvent();
+		ArtifactUpdatedEvent artifactUpdateEvent = new ArtifactUpdatedEvent(tenantId);
 		artifactUpdateEvent.setClusterId(clusterId);
 		artifactUpdateEvent.setRepoUserName(repository.getUserName());
 		artifactUpdateEvent.setRepoPassword(repository.getPassword());
 		artifactUpdateEvent.setRepoURL(repository.getUrl());
-		artifactUpdateEvent.setTenantId(tenantId);
 		artifactUpdateEvent.setCommitEnabled(repository.isCommitEnabled());
 
 		log.info(String.format("Publishing artifact updated event: [cluster] %s "
@@ -75,11 +74,11 @@ public class InstanceNotificationPublisher {
 	 */
 	public void sendInstanceCleanupEventForMember(String memberId) {
 		log.info(String.format("Publishing Instance Cleanup Event: [member] %s", memberId));
-		publish(new InstanceCleanupMemberEvent(memberId));
+		publish(new InstanceCleanupMemberEvent(-1234, memberId)); //TODO remove hard-coded tenantId
 	}
 
-	public void sendInstanceCleanupEventForCluster(String clusterId) {
+	public void sendInstanceCleanupEventForCluster(int tenantId, String clusterId) {
 		log.info(String.format("Publishing Instance Cleanup Event: [cluster] %s", clusterId));
-		publish(new InstanceCleanupClusterEvent(clusterId));
+		publish(new InstanceCleanupClusterEvent(tenantId, clusterId));
 	}
 }

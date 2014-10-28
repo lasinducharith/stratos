@@ -297,7 +297,7 @@ public class CartridgeSubscriptionUtils {
 
                 for (String clusterId : clusterIds) {
                     try {
-                        AutoscalerServiceClient.getServiceClient().checkLBExistenceAgainstPolicy(clusterId, deploymentPolicyName);
+                        AutoscalerServiceClient.getServiceClient().checkLBExistenceAgainstPolicy(tenantId, clusterId, deploymentPolicyName);
                     } catch (Exception ex) {
                         // we don't need to throw the error here.
                         log.error(ex.getMessage(), ex);
@@ -319,7 +319,7 @@ public class CartridgeSubscriptionUtils {
                     CartridgeInfo lbCartridgeInfo;
 
                     try {
-                        lbCartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(lbCartridgeType);
+                        lbCartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(tenantId, lbCartridgeType);
 
                     } catch (Exception e) {
                         String message = "Error getting info for " + lbCartridgeType;
@@ -343,14 +343,14 @@ public class CartridgeSubscriptionUtils {
                     try {
                         // get the valid policies for lb cartridge
                         DeploymentPolicy[] lbCartridgeDepPolicies =
-                                getAutoscalerServiceClient().getDeploymentPolicies(lbCartridgeType);
+                                getAutoscalerServiceClient().getDeploymentPolicies(tenantId, lbCartridgeType);
                         // traverse deployment policies of lb cartridge
                         for (DeploymentPolicy policy : lbCartridgeDepPolicies) {
 
                             // check existence of the subscribed policy
                             if (deploymentPolicyName.equals(policy.getId())) {
 
-                                if (!getAutoscalerServiceClient().checkDefaultLBExistenceAgainstPolicy(deploymentPolicyName)) {
+                                if (!getAutoscalerServiceClient().checkDefaultLBExistenceAgainstPolicy(tenantId, deploymentPolicyName)) {
                                     if (log.isDebugEnabled()) {
                                         log.debug(" Default LB doesn't exist for deployment policy [" + deploymentPolicyName + "] ");
                                     }
@@ -396,7 +396,7 @@ public class CartridgeSubscriptionUtils {
                     CartridgeInfo lbCartridgeInfo;
 
                     try {
-                        lbCartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(lbCartridgeType);
+                        lbCartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(tenantId, lbCartridgeType);
 
                     } catch (Exception e) {
                         String message = "Error getting info for " + lbCartridgeType;
@@ -426,13 +426,13 @@ public class CartridgeSubscriptionUtils {
                     try {
 
                         // get the valid policies for lb cartridge
-                        DeploymentPolicy[] lbCartridgeDepPolicies = getAutoscalerServiceClient().getDeploymentPolicies(lbCartridgeType);
+                        DeploymentPolicy[] lbCartridgeDepPolicies = getAutoscalerServiceClient().getDeploymentPolicies(tenantId, lbCartridgeType);
                         // traverse deployment policies of lb cartridge
                         for (DeploymentPolicy policy : lbCartridgeDepPolicies) {
                             // check existence of the subscribed policy
                             if (deploymentPolicyName.equals(policy.getId())) {
 
-                                if (!getAutoscalerServiceClient().checkServiceLBExistenceAgainstPolicy(serviceType, deploymentPolicyName)) {
+                                if (!getAutoscalerServiceClient().checkServiceLBExistenceAgainstPolicy(tenantId, serviceType, deploymentPolicyName)) {
 
                                     Properties lbProperties = new Properties();
 

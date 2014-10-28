@@ -46,6 +46,7 @@ global org.apache.stratos.autoscaler.AutoscalerContext $context;
 global org.apache.stratos.autoscaler.rule.RuleTasksDelegator $delegator;
 global org.apache.stratos.messaging.domain.topology.Topology $topology;
 global java.util.Map partitionCtxts;
+global java.lang.Integer tenantId;
 global java.lang.String clusterId;
 global java.lang.String lbRef;
 global java.lang.Boolean isPrimary;
@@ -65,7 +66,7 @@ dialect "mvel"
            } else{
               log.debug("[min-check] true  [primary] false");
            }
-	       $delegator.delegateSpawn($ctxt, clusterId, lbRef, isPrimary);
+	       $delegator.delegateSpawn(tenantId, $ctxt, clusterId, lbRef, isPrimary);
 end
 
 rule "Terminate Obsoleted Instances"
@@ -78,6 +79,6 @@ dialect "mvel"
             memberId : String() from $ctxt.getObsoletedMembers().keySet()
             eval(log.debug("[obsolete-check] [network-partition] " + $ctxt.getNetworkPartitionId() + " [partition] " + $ctxt.getPartitionId() + " Member id: " + memberId))
         then
-           $delegator.terminateObsoleteInstance(memberId);
+           $delegator.terminateObsoleteInstance(tenantId, memberId);
 end
 

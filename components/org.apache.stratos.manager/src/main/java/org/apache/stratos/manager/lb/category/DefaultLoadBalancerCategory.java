@@ -51,7 +51,7 @@ public class DefaultLoadBalancerCategory extends LoadBalancerCategory {
         // call the relevant method to get the cluster id, using deployment policy
         String clusterId = null;
 		try {
-			clusterId = AutoscalerServiceClient.getServiceClient().getDefaultLBClusterId(getDeploymentPolicyName());
+			clusterId = AutoscalerServiceClient.getServiceClient().getDefaultLBClusterId(subscriber.getTenantId(), getDeploymentPolicyName());
 		} catch (Exception e) {			
 			log.error("Error occurred in retrieving default LB cluster id" + e.getMessage());
 			throw new ADCException(e);
@@ -68,7 +68,7 @@ public class DefaultLoadBalancerCategory extends LoadBalancerCategory {
             //get the hostname for this cluster and set it
             ClusterContext clusterContext;
             try {
-                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(clusterId);
+                clusterContext = CloudControllerServiceClient.getServiceClient().getClusterContext(subscriber.getTenantId(), clusterId);
 
             } catch (RemoteException e) {
                 log.error("Error occurred in retrieving Cluster Context for default LB ", e);
@@ -100,7 +100,7 @@ public class DefaultLoadBalancerCategory extends LoadBalancerCategory {
         	if(payloadData != null) {
         		log.info("Payload: " + payloadData.getCompletePayloadData().toString());
         	}
-            super.register(cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence);
+            super.register(-1234, cartridgeInfo, cluster, payloadData, autoscalePolicyName, deploymentPolicyName, properties, persistence); //TODO : Remove hard-coded tenantId
         }else {
             log.info("Default LB already exists for deployment policy: " + getDeploymentPolicyName());
         }

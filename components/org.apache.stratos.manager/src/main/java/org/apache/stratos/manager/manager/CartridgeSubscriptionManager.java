@@ -83,7 +83,7 @@ public class CartridgeSubscriptionManager {
 
         CartridgeInfo cartridgeInfo;
         try {
-            cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(subscriptionData.getCartridgeType());
+            cartridgeInfo = CloudControllerServiceClient.getServiceClient().getCartridgeInfo(subscriptionData.getTenantId(), subscriptionData.getCartridgeType());
 
         } catch (CloudControllerServiceUnregisteredCartridgeExceptionException e) {
             String message = subscriptionData.getCartridgeType() + " is not a valid cartridgeSubscription type. Please try again with a valid cartridgeSubscription type.";
@@ -148,7 +148,7 @@ public class CartridgeSubscriptionManager {
         }
 
         // register service cartridge subscription
-        return registerCartridgeSubscription(serviceCartridgeSubscription, serviceCartridgeSubscriptionProperties, subscriptionData.getPersistence());
+        return registerCartridgeSubscription(subscriptionData.getTenantId(), serviceCartridgeSubscription, serviceCartridgeSubscriptionProperties, subscriptionData.getPersistence());
     }
 
     private static String getLBClusterId(Properties propertiesReturnedByFilters) {
@@ -332,10 +332,10 @@ public class CartridgeSubscriptionManager {
      * @throws ADCException
      * @throws UnregisteredCartridgeException
      */
-    public static SubscriptionInfo registerCartridgeSubscription(CartridgeSubscription cartridgeSubscription, Properties properties, Persistence persistence)
+    public static SubscriptionInfo registerCartridgeSubscription(int tenantId, CartridgeSubscription cartridgeSubscription, Properties properties, Persistence persistence)
             throws ADCException, UnregisteredCartridgeException {
 
-        CartridgeSubscriptionInfo cartridgeSubscriptionInfo = cartridgeSubscription.registerSubscription(properties, persistence);
+        CartridgeSubscriptionInfo cartridgeSubscriptionInfo = cartridgeSubscription.registerSubscription(tenantId, properties, persistence);
 
         //set status as 'SUBSCRIBED'
         cartridgeSubscription.setSubscriptionStatus(CartridgeConstants.SUBSCRIBED);
@@ -534,7 +534,7 @@ public class CartridgeSubscriptionManager {
 
         CartridgeSubscription cartridgeSubscription = dataInsertionAndRetrievalManager.getCartridgeSubscription(CarbonContext.getThreadLocalCarbonContext().getTenantId(), alias);
         if(cartridgeSubscription != null) {
-            cartridgeSubscription.removeSubscription();
+            cartridgeSubscription.removeSubscription(cartridgeSubscription.getSubscriber().getTenantId());
 
             // Remove the information from Topology Model
             // Not needed now. TopologyModel is now changed so that information is taken from subscriptions

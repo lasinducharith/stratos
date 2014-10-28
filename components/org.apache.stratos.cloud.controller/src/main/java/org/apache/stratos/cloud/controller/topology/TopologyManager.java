@@ -37,7 +37,7 @@ public class TopologyManager {
     private static volatile ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private static volatile ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     private static volatile ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
-    private static volatile Map<Integer, Topology> tIdToTopologyMap = new HashMap<Integer, Topology>();
+    private static volatile Map<Integer, Topology> tIdToTopologyMap;
 
     private TopologyManager() {
     }
@@ -119,9 +119,15 @@ public class TopologyManager {
     }
 
     private static Topology getTenantTopology(int tenantId) {
-        if (tIdToTopologyMap.containsKey(tenantId)) {
-            return tIdToTopologyMap.get(tenantId);
+        if (tIdToTopologyMap!=null) {
+            if (tIdToTopologyMap.containsKey(tenantId)) {
+                return tIdToTopologyMap.get(tenantId);
 
+            }
+        }
+        else
+        {
+            tIdToTopologyMap = new HashMap<Integer, Topology>();
         }
         return null;
     }

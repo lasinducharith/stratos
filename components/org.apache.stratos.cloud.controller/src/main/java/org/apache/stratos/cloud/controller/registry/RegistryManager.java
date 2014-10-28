@@ -207,7 +207,9 @@ public class RegistryManager {
             String[] tenantTopologiesDirectories = tenantCollection.getChildren();
 
             for(String topologyLocation : tenantTopologiesDirectories){
-                topologyList.put(Integer.parseInt(topologyLocation), registryService.get(topologyLocation));
+                int lastIndex = topologyLocation.lastIndexOf("/");
+                int tenantId = Integer.parseInt(topologyLocation.substring(lastIndex + 1));
+                topologyList.put(tenantId, registryService.get(topologyLocation + CloudControllerConstants.TOPOLOGY_RESOURCE).getContent());
             }
 
             return topologyList;

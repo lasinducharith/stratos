@@ -30,6 +30,7 @@ import org.apache.stratos.messaging.message.filter.topology.TopologyClusterFilte
 import org.apache.stratos.messaging.message.filter.topology.TopologyMemberFilter;
 import org.apache.stratos.messaging.message.filter.topology.TopologyServiceFilter;
 import org.apache.stratos.messaging.message.processor.MessageProcessor;
+import org.apache.stratos.messaging.message.receiver.topology.TopologyManager;
 import org.apache.stratos.messaging.util.Util;
 
 public class MemberStartedMessageProcessor extends MessageProcessor {
@@ -44,15 +45,14 @@ public class MemberStartedMessageProcessor extends MessageProcessor {
 
     @Override
     public boolean process(String type, String message, Object object) {
-        Topology topology = (Topology) object;
 
         if (MemberStartedEvent.class.getName().equals(type)) {
+            // Parse complete message and build event
+            MemberStartedEvent event = (MemberStartedEvent) Util.jsonToObject(message, MemberStartedEvent.class);
+            Topology topology = TopologyManager.getTopology(event.getTenantId());
             // Return if topology has not been initialized
             if (!topology.isInitialized())
                 return false;
-
-            // Parse complete message and build event
-            MemberStartedEvent event = (MemberStartedEvent) Util.jsonToObject(message, MemberStartedEvent.class);
 
             // Apply service filter
             if (TopologyServiceFilter.getInstance().isActive()) {
@@ -141,7 +141,7 @@ public class MemberStartedMessageProcessor extends MessageProcessor {
         } else {
             if (nextProcessor != null) {
                 // ask the next processor to take care of the message.
-                return nextProcessor.process(type, message, topology);
+                return nextProcessor.process(type, message, null);
             } else {
                 throw new RuntimeException(String.format("Failed to process message using available message processors: [type] %s [body] %s", type, message));
             }
