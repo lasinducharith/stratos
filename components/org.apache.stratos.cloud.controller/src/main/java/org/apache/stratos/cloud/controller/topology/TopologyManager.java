@@ -43,28 +43,28 @@ public class TopologyManager {
     }
 
     public static void acquireReadLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Read lock acquired");
         }
         readLock.lock();
     }
 
     public static void releaseReadLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Read lock released");
         }
         readLock.unlock();
     }
 
     public static void acquireWriteLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Write lock acquired");
         }
         writeLock.lock();
     }
 
     public static void releaseWriteLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Write lock released");
         }
         writeLock.unlock();
@@ -97,6 +97,7 @@ public class TopologyManager {
 
     /**
      * Update in-memory topology and persist it in registry.
+     *
      * @param topology_
      */
     public static void updateTopology(int tenantId, Topology topology_) {
@@ -119,26 +120,23 @@ public class TopologyManager {
     }
 
     private static Topology getTenantTopology(int tenantId) {
-        if (tIdToTopologyMap!=null) {
+        tIdToTopologyMap = getCompleteTopology();
+        if (tIdToTopologyMap != null) {
             if (tIdToTopologyMap.containsKey(tenantId)) {
                 return tIdToTopologyMap.get(tenantId);
 
             }
         }
-        else
-        {
-            tIdToTopologyMap = new HashMap<Integer, Topology>();
-        }
         return null;
     }
 
-    private static void updateTenantTopology(int tenantId, Topology topology){
-        if(tIdToTopologyMap.containsKey(tenantId)){
+    private static void updateTenantTopology(int tenantId, Topology topology) {
+        if (tIdToTopologyMap.containsKey(tenantId)) {
             tIdToTopologyMap.put(tenantId, topology);
         }
     }
 
-    public static Map<Integer,Topology> getCompleteTopology(){
+    public static Map<Integer, Topology> getCompleteTopology() {
         if (tIdToTopologyMap == null) {
             synchronized (TopologyManager.class) {
                 if (tIdToTopologyMap == null) {

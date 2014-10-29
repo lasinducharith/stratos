@@ -96,29 +96,6 @@ public class FasterLookUpDataHolder implements Serializable{
 	 */
 	private List<Cartridge> cartridges;
 
-//
-//	public static FasterLookUpDataHolder getInstance() {
-//
-//		if (ctxt == null) {
-//			synchronized (FasterLookUpDataHolder.class) {
-//				if (ctxt == null && RegistryManager.getInstance() != null) {
-//
-//					Object obj = RegistryManager.getInstance().retrieve();
-//					if (obj != null) {
-//						if (obj instanceof FasterLookUpDataHolder) {
-//							ctxt = (FasterLookUpDataHolder) obj;
-//						}
-//					}
-//				}
-//				if(ctxt == null) {
-//					ctxt = new FasterLookUpDataHolder();
-//				}
-//			}
-//		}
-//
-//		return ctxt;
-//	}
-
 	public FasterLookUpDataHolder() {
 
 		cartridges = new ArrayList<Cartridge>();

@@ -42,10 +42,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *  This will publish the state changes of a node in the topology to a data receiver
+ * This will publish the state changes of a node in the topology to a data receiver
  */
 public class CartridgeInstanceDataPublisher {
-    
+
     private static final Log log = LogFactory.getLog(CartridgeInstanceDataPublisher.class);
     private static AsyncDataPublisher dataPublisher;
     private static StreamDefinition streamDefinition;
@@ -58,28 +58,28 @@ public class CartridgeInstanceDataPublisher {
                                String serviceName,
                                String status,
                                NodeMetadata metadata) {
-        if(!CommonDataHolder.getInstance().getEnableBAMDataPublisher()){
+        if (!CommonDataHolder.getInstance().getEnableBAMDataPublisher()) {
             return;
         }
-        log.debug(CloudControllerConstants.DATA_PUB_TASK_NAME+" cycle started.");
+        log.debug(CloudControllerConstants.DATA_PUB_TASK_NAME + " cycle started.");
 
-        if(dataPublisher==null){
+        if (dataPublisher == null) {
             createDataPublisher();
 
             //If we cannot create a data publisher we should give up
             //this means data will not be published
-            if(dataPublisher == null){
+            if (dataPublisher == null) {
                 log.error("Data Publisher cannot be created or found.");
                 release();
                 return;
             }
         }
 
-
-        MemberContext memberContext = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getMemberContextOfMemberId(memberId);
+        FasterLookUpDataHolder dataHolder = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId);
+        MemberContext memberContext = dataHolder.getMemberContextOfMemberId(memberId);
         String cartridgeType = memberContext.getCartridgeType();
-        Cartridge cartridge = FasterLookupDataHolderManager.getDataHolderForTenant(tenantId).getCartridge(cartridgeType);
-        
+        Cartridge cartridge = dataHolder.getCartridge(cartridgeType);
+
         //Construct the data to be published
         List<Object> payload = new ArrayList<Object>();
         // Payload values
@@ -89,15 +89,15 @@ public class CartridgeInstanceDataPublisher {
         payload.add(handleNull(memberContext.getLbClusterId()));
         payload.add(handleNull(partitionId));
         payload.add(handleNull(networkId));
-		if (cartridge != null) {
-			payload.add(handleNull(String.valueOf(cartridge.isMultiTenant())));
-		} else {
-			payload.add("");
-		}
+        if (cartridge != null) {
+            payload.add(handleNull(String.valueOf(cartridge.isMultiTenant())));
+        } else {
+            payload.add("");
+        }
         payload.add(handleNull(memberContext.getPartition().getProvider()));
         payload.add(handleNull(status));
 
-        if(metadata != null) {
+        if (metadata != null) {
             payload.add(metadata.getHostname());
             payload.add(metadata.getHardware().getHypervisor());
             payload.add(String.valueOf(metadata.getHardware().getRam()));
@@ -138,11 +138,11 @@ public class CartridgeInstanceDataPublisher {
             }
         }
     }
-    
-    private static void release(){
+
+    private static void release() {
         CommonDataHolder.getInstance().setPublisherRunning(false);
     }
-    
+
     private static StreamDefinition initializeStream() throws Exception {
         streamDefinition = new StreamDefinition(
                 CloudControllerConstants.CLOUD_CONTROLLER_EVENT_STREAM,
@@ -177,10 +177,10 @@ public class CartridgeInstanceDataPublisher {
     }
 
 
-    private static void createDataPublisher(){
+    private static void createDataPublisher() {
         //creating the agent
 
-        ServerConfiguration serverConfig =  CarbonUtils.getServerConfiguration();
+        ServerConfiguration serverConfig = CarbonUtils.getServerConfiguration();
         String trustStorePath = serverConfig.getFirstProperty("Security.TrustStore.Location");
         String trustStorePassword = serverConfig.getFirstProperty("Security.TrustStore.Password");
         String bamServerUrl = serverConfig.getFirstProperty("BamServerURL");
@@ -192,7 +192,7 @@ public class CartridgeInstanceDataPublisher {
 
 
         try {
-            dataPublisher = new AsyncDataPublisher("tcp://" +  bamServerUrl + "", adminUsername, adminPassword);
+            dataPublisher = new AsyncDataPublisher("tcp://" + bamServerUrl + "", adminUsername, adminPassword);
             initializeStream();
             dataPublisher.addStreamDefinition(streamDefinition);
         } catch (Exception e) {
@@ -202,7 +202,7 @@ public class CartridgeInstanceDataPublisher {
             throw new CloudControllerException(msg, e);
         }
     }
-    
+
     private static String handleNull(String val) {
         if (val == null) {
             return "";
@@ -210,5 +210,5 @@ public class CartridgeInstanceDataPublisher {
         return val;
     }
 
-    
+
 }

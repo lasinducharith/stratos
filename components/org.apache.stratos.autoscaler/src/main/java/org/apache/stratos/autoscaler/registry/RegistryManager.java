@@ -46,6 +46,7 @@ public class RegistryManager {
     private final static Log log = LogFactory.getLog(RegistryManager.class);
     private static Registry registryService;
     private static RegistryManager registryManager;
+    private static final String PATH_SEPARATOR = "/";
 
     public static RegistryManager getInstance() {
 
@@ -108,7 +109,7 @@ public class RegistryManager {
 
     public void persistPartition(int tenantId, Partition partition) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.PARTITION_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + partition.getId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + partition.getId();
         persist(partition, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Partition written to registry: [id] %s [provider] %s [min] %d [max] %d",
@@ -118,7 +119,7 @@ public class RegistryManager {
 
     public void persistNetworkPartitionIbHolder(NetworkPartitionLbHolder nwPartitionLbHolder) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants
-                .NETWORK_PARTITION_LB_HOLDER_RESOURCE + "/" + nwPartitionLbHolder.getNetworkPartitionId();
+                .NETWORK_PARTITION_LB_HOLDER_RESOURCE + PATH_SEPARATOR + nwPartitionLbHolder.getNetworkPartitionId();
         persist(nwPartitionLbHolder, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug("NetworkPartitionContext written to registry: " + nwPartitionLbHolder.toString());
@@ -127,7 +128,7 @@ public class RegistryManager {
 
     public void persistAutoscalerPolicy(int tenantId, AutoscalePolicy autoscalePolicy) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + autoscalePolicy.getId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + autoscalePolicy.getId();
         persist(autoscalePolicy, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Autoscaler policy written to registry: [id] %s [name] %s [description] %s",
@@ -137,7 +138,7 @@ public class RegistryManager {
 
     public void persistDeploymentPolicy(int tenantId, DeploymentPolicy deploymentPolicy) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + deploymentPolicy.getId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + deploymentPolicy.getId();
         persist(deploymentPolicy, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(deploymentPolicy.toString());
@@ -164,7 +165,7 @@ public class RegistryManager {
         List<Partition> partitionList = new ArrayList<Partition>();
         RegistryManager registryManager = RegistryManager.getInstance();
         String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
-                AutoScalerConstants.PARTITION_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
+                AutoScalerConstants.PARTITION_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId);
 
         if (partitionsResourceList != null) {
             Partition partition;
@@ -231,7 +232,7 @@ public class RegistryManager {
         List<AutoscalePolicy> asPolicyList = new ArrayList<AutoscalePolicy>();
         RegistryManager registryManager = RegistryManager.getInstance();
         String[] partitionsResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
-                AutoScalerConstants.AS_POLICY_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
+                AutoScalerConstants.AS_POLICY_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId);
 
         if (partitionsResourceList != null) {
             AutoscalePolicy asPolicy;
@@ -294,7 +295,7 @@ public class RegistryManager {
 
     public void removeAutoscalerPolicy(int tenantId, AutoscalePolicy autoscalePolicy) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.AS_POLICY_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + autoscalePolicy.getId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + autoscalePolicy.getId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Autoscaler policy deleted from registry: [id] %s [name] %s [description] %s",
@@ -305,7 +306,7 @@ public class RegistryManager {
 
     public void removeDeploymentPolicy(int tenantId, DeploymentPolicy depPolicy) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.DEPLOYMENT_POLICY_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + depPolicy.getId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + depPolicy.getId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Deployment policy deleted from registry: [id] %s",
@@ -344,7 +345,7 @@ public class RegistryManager {
 
     public void persistKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroup) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE +
-                        AutoScalerConstants.TENANT_RESOURCE + "/" + kubernetesGroup.getGroupId();
+                        AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + kubernetesGroup.getGroupId();
         persist(kubernetesGroup, resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("KubernetesGroup written to registry: [id] %s ", kubernetesGroup.getGroupId()));
@@ -355,7 +356,7 @@ public class RegistryManager {
         List<KubernetesGroup> kubernetesGroupList = new ArrayList<KubernetesGroup>();
         RegistryManager registryManager = RegistryManager.getInstance();
         String[] kubernetesGroupResourceList = (String[]) registryManager.retrieve(AutoScalerConstants.AUTOSCALER_RESOURCE +
-                AutoScalerConstants.KUBERNETES_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId);
+                AutoScalerConstants.KUBERNETES_RESOURCE + AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId);
 
         if (kubernetesGroupResourceList != null) {
             KubernetesGroup kubernetesGroup;
@@ -385,7 +386,7 @@ public class RegistryManager {
 
     public void removeKubernetesGroup(int tenantId, KubernetesGroup kubernetesGroup) {
         String resourcePath = AutoScalerConstants.AUTOSCALER_RESOURCE + AutoScalerConstants.KUBERNETES_RESOURCE +
-                AutoScalerConstants.TENANT_RESOURCE + "/" + tenantId + "/" + kubernetesGroup.getGroupId();
+                AutoScalerConstants.TENANT_RESOURCE + PATH_SEPARATOR + tenantId + PATH_SEPARATOR + kubernetesGroup.getGroupId();
         this.delete(resourcePath);
         if (log.isDebugEnabled()) {
             log.debug(String.format("Kubernetes group deleted from registry: [id] %s", kubernetesGroup.getGroupId()));

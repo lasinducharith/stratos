@@ -24,7 +24,6 @@ import org.apache.stratos.cloud.controller.exception.InvalidCartridgeTypeExcepti
 import org.apache.stratos.cloud.controller.exception.InvalidMemberException;
 import org.apache.stratos.cloud.controller.pojo.*;
 import org.apache.stratos.cloud.controller.publisher.CartridgeInstanceDataPublisher;
-import org.apache.stratos.cloud.controller.runtime.FasterLookUpDataHolder;
 import org.apache.stratos.cloud.controller.runtime.FasterLookupDataHolderManager;
 import org.apache.stratos.cloud.controller.util.CloudControllerUtil;
 import org.apache.stratos.common.constants.StratosConstants;
