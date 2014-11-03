@@ -84,7 +84,7 @@ public class TopologyManager {
                             log.debug("Topology not found in registry, creating new");
                         }
                         topology = new Topology();
-                        updateTenantTopology(tenantId, topology);
+                        updateTopology(tenantId, topology);
                     }
                     if (log.isDebugEnabled()) {
                         log.debug("Topology initialized");
@@ -105,8 +105,10 @@ public class TopologyManager {
             if (log.isDebugEnabled()) {
                 log.debug("Updating topology");
             }
+            //TODO Transaction : updating in-memory model & persisting in registry.
             updateTenantTopology(tenantId, topology_);
             CloudControllerUtil.persistTopology(tenantId, topology_);
+
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Topology updated: %s", toJson(topology_)));
             }

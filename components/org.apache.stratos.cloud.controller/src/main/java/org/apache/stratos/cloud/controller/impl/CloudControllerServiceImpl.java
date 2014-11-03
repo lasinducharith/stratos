@@ -1258,7 +1258,7 @@ public class CloudControllerServiceImpl implements CloudControllerService {
 
             Callable<IaasProvider> worker = new PartitionValidatorCallable(
                     partition, cartridge);
-            Future<IaasProvider> job = dataHolder.getExecutor().submit(worker);
+            Future<IaasProvider> job = fasterLookupDataHolderManager.getExecutor().submit(worker);
             jobList.put(partition.getId(), job);
         }
 

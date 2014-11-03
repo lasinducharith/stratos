@@ -21,6 +21,8 @@ package org.apache.stratos.cloud.controller.runtime;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +36,11 @@ public class FasterLookupDataHolderManager {
     private static final Log log = LogFactory.getLog(FasterLookupDataHolderManager.class);
 
     private static Map<Integer, FasterLookUpDataHolder> tenantIdToFasterLookUpDataHolderMap = new ConcurrentHashMap<Integer, FasterLookUpDataHolder>();
+
+    /**
+     * Thread pool used in this task to execute parallel tasks.
+     */
+    private transient ExecutorService executor = Executors.newFixedThreadPool(20);
 
     /* An instance of a FasterLookupDataHolderManager is created when the class is loaded.
      * Since the class is loaded only once, it is guaranteed that an object of
@@ -87,6 +94,13 @@ public class FasterLookupDataHolderManager {
         return null;
     }
 
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
     /**
      * Update tenant's FasterLookupDataHolder in memory model
      * @param tenantId tenantId of the Object
@@ -117,19 +131,6 @@ public class FasterLookupDataHolderManager {
             }
         }
         return getDataHolderForTenantFromMemoryModel(tenantId);
-    }
-
-    /**
-     * Persist data in registry.
-     */
-    private void persist(int tenantId, FasterLookUpDataHolder dataHolder) {
-        try {
-            RegistryManager.getInstance().persist(tenantId,
-                    dataHolder);
-        } catch (RegistryException e) {
-            String msg = "Failed to persist the Cloud Controller data in registry. Further, transaction roll back also failed.";
-            throw new CloudControllerException(msg, e);
-        }
     }
 
     private static FasterLookUpDataHolder getDataHolderForTenantFromMemoryModel(int tenantId) {

@@ -87,11 +87,6 @@ public class FasterLookUpDataHolder implements Serializable{
 	private Map<String, List<String>> cartridgeTypeToPartitionIds = new ConcurrentHashMap<String, List<String>>();
 	
 	/**
-     * Thread pool used in this task to execute parallel tasks.
-     */
-    private transient ExecutorService executor = Executors.newFixedThreadPool(20);
-	
-	/**
 	 * List of registered {@link Cartridge}s
 	 */
 	private List<Cartridge> cartridges;
@@ -253,14 +248,6 @@ public class FasterLookUpDataHolder implements Serializable{
     public void setClusterIdToContext(Map<String, ClusterContext> clusterIdToContext) {
         this.clusterIdToContext = clusterIdToContext;
     }
-
-	public ExecutorService getExecutor() {
-		return executor;
-	}
-
-	public void setExecutor(ExecutorService executor) {
-		this.executor = executor;
-	}
 
 	public Map<String, List<String>> getCartridgeTypeToPartitionIds() {
 		return cartridgeTypeToPartitionIds;

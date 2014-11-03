@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- *  A singleton class for managing the topology data structure.
- *
- *  Usage:
- *  Acquire a relevant lock and invoke the getTopology() method inside a try block.
- *  Once processing is done release the lock using a finally block.
+ * A singleton class for managing the topology data structure.
+ * <p/>
+ * Usage:
+ * Acquire a relevant lock and invoke the getTopology() method inside a try block.
+ * Once processing is done release the lock using a finally block.
  */
 public class TopologyManager {
     private static final Log log = LogFactory.getLog(TopologyManager.class);
@@ -43,28 +43,28 @@ public class TopologyManager {
     private static volatile ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
     public static void acquireReadLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Read lock acquired");
         }
         readLock.lock();
     }
 
     public static void releaseReadLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Read lock released");
         }
         readLock.unlock();
     }
 
     public static void acquireWriteLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Write lock acquired");
         }
         writeLock.lock();
     }
 
     public static void releaseWriteLock() {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Write lock released");
         }
         writeLock.unlock();
@@ -73,11 +73,11 @@ public class TopologyManager {
     public static Topology getTopology(int tenantId) {
         Topology topology = getTenantTopology(tenantId);
         if (topology == null) {
-            synchronized (TopologyManager.class){
+            synchronized (TopologyManager.class) {
                 if (topology == null) {
                     topology = new Topology();
                     tIdToTopologyMap.put(tenantId, topology);
-                    if(log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Topology object created");
                     }
                 }
@@ -87,20 +87,18 @@ public class TopologyManager {
     }
 
     private static Topology getTenantTopology(int tenantId) {
-        if (tIdToTopologyMap!=null) {
+        if (tIdToTopologyMap != null) {
             if (tIdToTopologyMap.containsKey(tenantId)) {
                 return tIdToTopologyMap.get(tenantId);
 
             }
-        }
-        else
-        {
+        } else {
             tIdToTopologyMap = new HashMap<Integer, Topology>();
         }
         return null;
     }
 
-    public static Map<Integer, Topology> getCompleteTopology(){
+    public static Map<Integer, Topology> getCompleteTopology() {
         return tIdToTopologyMap;
     }
 }
